@@ -2,8 +2,8 @@
 from flask import Flask, render_template, request, send_file
 from werkzeug.utils import secure_filename
 from unidecode import unidecode
-import pandas as pd
 import os
+import csv
 from io import BytesIO
 from datetime import datetime
 
@@ -34,18 +34,21 @@ def remove_accent():
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
 
+            # Especificar o delimitador usado no arquivo CSV (por exemplo, ';')
+            delimiter = ';'
+
             # Processar o conteúdo do arquivo CSV
-            df = pd.read_csv(filepath, encoding='utf-8')
-            df = df.applymap(lambda x: unidecode(str(x)) if pd.notna(x) else x)
+            with open(filepath, 'r', encoding='utf-8') as input_file:
+                reader = csv.reader(input_file, delimiter=delimiter)
+                rows = [list(map(lambda x: unidecode(x) if x else x, row)) for row in reader]
 
-            # Criar um buffer de bytes em memória para o novo CSV
-            output_buffer = BytesIO()
-            df.to_csv(output_buffer, index=False, encoding='utf-8')
-            output_buffer.seek(0)
+            # Criar um arquivo de saída para o novo CSV
+            output_filepath = os.path.join(app.config['UPLOAD_FOLDER'], f'Arquivo_Ajustado_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv')
+            with open(output_filepath, 'w', encoding='utf-8', newline='') as output_file:
+                writer = csv.writer(output_file, delimiter=delimiter)
+                writer.writerows(rows)
 
-            current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename_with_datetime = f'Arquivo_Ajustado_{current_datetime}.csv'
-            return send_file(output_buffer, download_name=filename_with_datetime, as_attachment=True)
+            return send_file(output_filepath, download_name=filename, as_attachment=True)
 
         except Exception as e:
             return "Erro durante o processamento do arquivo: {}".format(str(e))
