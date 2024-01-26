@@ -25,6 +25,10 @@ user_database = {
     'Thais10': {
         'password': 'arthur08',
         'name': 'Gerente'
+    },
+    'Diogo10': {
+        'password': '15222431',
+        'name': 'Duzac07'
     }
 }
 
