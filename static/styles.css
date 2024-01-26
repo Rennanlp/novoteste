@@ -1,26 +1,60 @@
 /* static/styles.css */
+
 body {
     font-family: Arial, sans-serif;
     text-align: center;
+    margin: 0;
 }
 
 header {
-    margin-bottom: 5px;
+    background-color: #f2f2f2;
+    padding: 10px 0;
 }
 
-header img {
-    width: 190px;
-    height: 190px;
+nav {
+    margin-bottom: 10px; /* Reduzir o espaçamento abaixo do dropdown */
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
 }
 
-h1 {
-    margin-top: 20px;
+nav select {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 20px;
+}
+
+#welcomeMessage {
+    margin-top: 10px; /* Adicionar margem acima da mensagem de boas-vindas */
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-right: 20px;
 }
 
 .content-container {
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.logo-container {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    width: 250px;
+    height: 250px;
+    margin-right: 20px;
+    display: block;
+}
+
+h1 {
+    margin-top: 10px;
 }
 
 form {
@@ -32,6 +66,7 @@ form {
 
 label {
     margin-bottom: 5px;
+    margin-left: 10px;
 }
 
 button {
@@ -46,6 +81,20 @@ button {
 
 button:hover {
     background-color: #45a049;
+}
+
+.logout-button {
+    padding: 10px 20px;
+    background-color: #d9534f; /* Cor vermelha */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+.logout-button:hover {
+    background-color: #c9302c; /* Cor vermelha mais escura ao passar o mouse */
 }
 
 #result {
