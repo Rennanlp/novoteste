@@ -1,0 +1,84 @@
+/* Reset de estilos */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Estilos para o corpo do documento */
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f4f4f4;
+}
+
+.container {
+  text-align: center;
+  margin-top: 10px;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.input-group {
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
+  text-align: center;
+}
+
+.input-group input {
+  width: calc(100% - 20px);
+  max-width: 300px;
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+.login-button,
+.logout-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  margin-top: 10px;
+  margin-bottom: 15px;
+}
+
+.login-button {
+  background-color: #4285f4;
+  color: white;
+}
+
+.logout-button {
+  background-color: #DB4437;
+  color: white;
+}
+
+.google-login {
+  display: inline-block;
+  padding: 8px 16px;
+  font-size: 14px;
+  text-decoration: none;
+  background-color: #DB4437;
+  color: white;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+
+/* Estilos para o título */
+h1 {
+  margin-bottom: 20px;
+  color: #4285f4;
+}
