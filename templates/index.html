@@ -9,19 +9,54 @@
 </head>
 <body>
     <header>
-        <img src="{{ url_for('static', filename='logo.png') }}" alt="Header Image">
+        <nav>
+            <label for="pageSelector">Ir para:</label>
+            <select id="pageSelector" onchange="changePage()">
+                <option value="{{ url_for('index') }}">Página Inicial</option>
+                <option value="outra_pagina.html">Removedor</option>
+                <option value="{{ url_for('login') }}">Teste</option>
+                <!-- Adicione mais opções conforme necessário -->
+            </select>
+        </nav>
     </header>
-    <div class="content-container">
+    <main class="content-container">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Header Image" class="logo">
+        </div>
         <h1>Removedor de Acentos</h1>
+
+        <!-- Exibir mensagem de boas-vindas com base no usuário logado -->
+        <p id="welcomeMessage"></p>
+
         <form id="uploadForm" enctype="multipart/form-data">
             <label for="fileInput">Selecione um arquivo CSV:</label>
             <input type="file" id="fileInput" name="file" accept=".csv" required>
             <button type="button" onclick="uploadFile()">Enviar Arquivo</button>
         </form>
         <div id="result"></div>
-    </div>
+        <button onclick="logout()" class="logout-button">Logout</button>
+    </main>
 
     <script>
+        function displayWelcomeMessage(username) {
+            var welcomeMessage = document.getElementById('welcomeMessage');
+            welcomeMessage.textContent = 'Bem-vindo, ' + username + '!';
+        }
+
+        displayWelcomeMessage('{{ username }}');
+        
+        function logout() {
+            fetch('/logout')
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = '/login';
+                    } else {
+                        console.error('Erro ao fazer logout');
+                    }
+                })
+                .catch(error => console.error('Erro ao fazer logout:', error));
+        }
+
         function uploadFile() {
             var formData = new FormData(document.getElementById('uploadForm'));
 
@@ -47,6 +82,12 @@
             .catch(error => {
                 document.getElementById('result').innerHTML = '<strong>Erro:</strong> ' + error.message;
             });
+        }
+
+        function changePage() {
+            var pageSelector = document.getElementById('pageSelector');
+            var selectedPage = pageSelector.options[pageSelector.selectedIndex].value;
+            window.location.href = selectedPage;
         }
     </script>
 </body>
