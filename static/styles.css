@@ -27,7 +27,7 @@ nav select {
 }
 
 #welcomeMessage {
-    margin-top: 10px; /* Adicionar margem acima da mensagem de boas-vindas */
+    margin-top: 5px; /* Adicionar margem acima da mensagem de boas-vindas */
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 5px;
@@ -61,7 +61,7 @@ form {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 label {
@@ -98,5 +98,5 @@ button:hover {
 }
 
 #result {
-    margin-top: 20px;
+    margin-top: 5px;
 }
