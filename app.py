@@ -1,4 +1,3 @@
-# app.py
 from flask import Flask, render_template, request, send_file, redirect, session, url_for
 from werkzeug.utils import secure_filename
 from unidecode import unidecode
@@ -6,11 +5,16 @@ import os
 import csv
 from datetime import datetime
 from functools import wraps
+import xlsxwriter
+
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY') or b'_5#y2L"F4Q8z\n\xec]/'
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['ALLOWED_EXTENSIONS'] = {'csv'}
+app.config['STATIC_FOLDER'] = 'static'
+
+tasks = []
 
 # banco de usuários
 user_database = {
@@ -55,6 +59,25 @@ def login_required(view):
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+
+def generate_excel(tasks):
+    output_filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'lista_de_tarefas.xlsx')
+
+    # Criar um arquivo Excel
+    workbook = xlsxwriter.Workbook(output_filepath)
+    worksheet = workbook.add_worksheet()
+
+    # Escrever os cabeçalhos
+    worksheet.write(0, 0, 'Tarefa')
+
+    # Escrever as tarefas
+    for i, task in enumerate(tasks, start=1):
+        worksheet.write(i, 0, task)
+
+    # Fechar o arquivo Excel
+    workbook.close()
+
+    return output_filepath
 
 @app.route('/')
 @login_required
@@ -118,10 +141,30 @@ def remove_accent():
 
     return "Tipo de arquivo não permitido."
 
+
 @app.route('/logout')
 def logout():
     session.pop('username', None)
     return redirect(url_for('login'))
+
+@app.route('/task')
+@login_required
+def task_f():
+    return render_template('form.html', tasks=tasks)
+
+@app.route('/add_task', methods=['POST'])
+def add_task():
+    new_task = request.form.get('task')
+    tasks.append(new_task)
+    return redirect(url_for('task_f'))
+
+@app.route('/download_excel', methods=['POST'])
+def download_excel():
+    # Gerar o arquivo Excel
+    excel_filepath = generate_excel(tasks)
+
+    # Enviar o arquivo para download
+    return send_file(excel_filepath, as_attachment=True)
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)

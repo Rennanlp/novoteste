@@ -47,10 +47,11 @@ nav select {
 }
 
 .logo {
-    width: 250px;
-    height: 250px;
+    width: 200px;
+    height: 200px;
     margin-right: 20px;
     display: block;
+    margin-top: -35px;
 }
 
 h1 {
@@ -70,32 +71,69 @@ label {
 }
 
 button {
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
+    width: 9em;
+    height: 3em;
+    border-radius: 30em;
+    font-size: 15px;
+    font-family: inherit;
     border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 15px;
-}
+    position: relative;
+    margin-top: 20px;
+    overflow: hidden;
+    z-index: 1;
+    box-shadow: 6px 6px 12px #c5c5c5,
+                -6px -6px 12px #ffffff;
+   }
+   
+   button::before {
+    content: '';
+    width: 0;
+    height: 3em;
+    border-radius: 30em;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-image: linear-gradient(to right, #0fd850 0%, #f9f047 100%);
+    transition: .5s ease;
+    display: block;
+    z-index: -1;
+   }
+   
+   button:hover::before {
+    width: 9em;
+   }
 
-button:hover {
-    background-color: #45a049;
-}
-
-.logout-button {
-    padding: 10px 20px;
-    background-color: #d9534f; /* Cor vermelha */
-    color: white;
+   .logout-button {
+    width: 9em;
+    height: 3em;
+    border-radius: 30em;
+    font-size: 15px;
+    font-family: inherit;
     border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 15px;
-}
-
-.logout-button:hover {
-    background-color: #c9302c; /* Cor vermelha mais escura ao passar o mouse */
-}
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    box-shadow: 6px 6px 12px #c5c5c5,
+                -6px -6px 12px #ffffff;
+   }
+   
+   .logout-button:before {
+    content: '';
+    width: 0;
+    height: 3em;
+    border-radius: 30em;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-image: linear-gradient(to right, #f13c3c 0%, #fd0000 100%);
+    transition: .5s ease;
+    display: block;
+    z-index: -1;
+   }
+   
+   .logout-button:hover::before {
+    width: 9em;
+   }
 
 #result {
     margin-top: 5px;
