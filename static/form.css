@@ -4,36 +4,21 @@ body {
     display: flex;
     justify-content: space-between;
     font-family: Arial, sans-serif;
-    margin: 0;
-}
-
-nav {
-    margin-bottom: 10px; /* Reduzir o espaçamento abaixo do dropdown */
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-}
-
-nav select {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-right: 20px;
-}
-header {
-    background-color: #f2f2f2;
-    padding: 10px 0;
+    margin: 20px;
 }
 
 .form-container {
     width: 45%;
     margin-right: 5%;
-    margin-left: 450px;
+    align-items: center;
+    margin-top: 40px;
+    margin-left: 80px;
+    margin-right: 20px;
 }
 
 .list-container {
     width: 45%;
+    margin-left: 60px;
 }
 
 form {
@@ -62,8 +47,8 @@ li.checkbox-wrapper {
 
 .checkbox-input label {
     position: relative;
-    width: 20px;
-    height: 20px;
+    width: 20px; /* Ajuste conforme necessário */
+    height: 20px; /* Ajuste conforme necessário */
     border: 2px solid #e8e8eb;
     background: #e8e8eb;
     border-radius: 5px;
@@ -81,13 +66,12 @@ li.checkbox-wrapper {
     border-color: #0b76ef;
 }
 
-.checkbox-input input[type="checkbox"]:checked + label .flip::before {
-    content: '✔';  /* Adicionei este pseudo-elemento para exibir o símbolo de marcação */
-    color: white;
+.checkbox-input input[type="checkbox"]:checked + label .flip {
+    transform: rotateY(180deg);
 }
 
 .flip {
-    display: inline-block;
+    display: block;
     transition: all 0.4s ease;
     transform-style: preserve-3d;
     position: relative;
@@ -95,10 +79,13 @@ li.checkbox-wrapper {
     height: 20px;
 }
 
-.checkbox-input input[type="checkbox"]:checked + .flip {
+.checkbox-input:checked + .checkbox-input {
+    border-color: #0b76ef;
+  }
+  
+  .checkbox-input:checked + .flip {
     transform: rotateY(180deg);
-}
-
+  }
 .front,
 .back {
     backface-visibility: hidden;
@@ -107,7 +94,7 @@ li.checkbox-wrapper {
     left: 0;
     width: 20px;
     height: 20px;
-    border-radius: 5px; /* Ajustei para 5px para corresponder ao raio do label */
+    border-radius: 2px;
 }
 
 .front {
@@ -126,7 +113,7 @@ li.checkbox-wrapper {
 
 .back svg {
     margin-top: 3px;
-    fill: none;
+    fill: none
 }
 
 .back svg path {
@@ -143,6 +130,29 @@ li.checkbox-wrapper {
 
 .date-input {
     margin-left: 10px;
+}
+
+nav {
+    margin-bottom: 10px; /* Reduzir o espaçamento abaixo do dropdown */
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-right: 10px;
+}
+
+nav select {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 60px;
+    margin-left: 10px;
+}
+.label-page {
+    font-family: Arial, sans-serif;
+    text-align: left;
+    margin: 0;
+    white-space: nowrap;
 }
 
 .button {
@@ -207,63 +217,159 @@ li.checkbox-wrapper {
     transform: translate(3px, 3px);
     box-shadow: 0px 0px var(--main-color);
   }
-  .noselect {
-    width: 150px;
-    height: 50px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    background: red;
-    border: none;
-    border-radius: 5px;
-    box-shadow: 1px 1px 3px rgba(0,0,0,0.15);
-    background: #e62222;
-   }
-   
-   .noselect, button span {
-    transition: 200ms;
-   }
-   
-   .noselect .text {
-    transform: translateX(35px);
-    color: white;
-    font-weight: bold;
-   }
-   
-   .noselect .icon {
-    position: absolute;
-    border-left: 1px solid #c41b1b;
-    transform: translateX(110px);
-    height: 40px;
-    width: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-   }
-   
-   .noselect svg {
-    width: 15px;
-    fill: #eee;
-   }
-   
-   .noselect:hover {
-    background: #ff3636;
-   }
-   
-   .noselect:hover .text {
-    color: transparent;
-   }
-   
-   .noselect:hover .icon {
-    width: 150px;
-    border-left: none;
-    transform: translateX(0);
-   }
-   
-   .noselect:focus {
+
+  .limpar {
+  position: relative;
+  width: 150px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border: 2px solid #cc0000;
+  background-color: #e50000;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 4px 4px #323232;
+}
+
+.limpar, .limpar__icon, .limpar__text {
+  transition: all 0.3s;
+}
+
+.limpar .limpar__text {
+  transform: translateX(35px);
+  color: #fff;
+  font-weight: 600;
+}
+
+.limpar .limpar__icon {
+  position: absolute;
+  transform: translateX(109px);
+  height: 100%;
+  width: 39px;
+  background-color: #cc0000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.limpar .svg {
+  width: 20px;
+}
+
+.limpar:hover {
+  background: #cc0000;
+}
+
+.limpar:hover .limpar__text {
+  color: transparent;
+}
+
+.limpar:hover .limpar__icon {
+  width: 148px;
+  transform: translateX(0);
+}
+
+.limpar:active .limpar__icon {
+  background-color: #b20000;
+}
+
+.limpar:active {
+  border: 1px solid #b20000;
+}
+.nova-input {
+    border: 2px solid transparent;
+    width: 15em;
+    height: 2.5em;
+    padding-left: 0.8em;
     outline: none;
-   }
-   
-   .noselect:active .icon svg {
-    transform: scale(0.8);
-   }
+    overflow: hidden;
+    background-color: #F3F3F3;
+    border-radius: 10px;
+    transition: all 0.5s;
+  }
+  
+  .nova-input:hover,
+  .nova-input:focus {
+    border: 2px solid #4A9DEC;
+    box-shadow: 0px 0px 0px 7px rgb(74, 157, 236, 20%);
+    background-color: white;
+  }
+
+  .add-task {
+  position: relative;
+  width: 150px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border: 1px solid #34974d;
+  background-color: #3aa856;
+}
+
+.add-task, .add-task__icon, .add-task__text {
+  transition: all 0.3s;
+}
+
+.add-task .add-task__text {
+  transform: translateX(30px);
+  color: #fff;
+  font-weight: 600;
+}
+
+.add-task .add-task__icon {
+  position: absolute;
+  transform: translateX(109px);
+  height: 100%;
+  width: 39px;
+  background-color: #34974d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-task .svg {
+  width: 30px;
+  stroke: #fff;
+}
+
+.add-task:hover {
+  background: #34974d;
+}
+
+.add-task:hover .add-task__text {
+  color: transparent;
+}
+
+.add-task:hover .add-task__icon {
+  width: 148px;
+  transform: translateX(0);
+}
+
+.add-task:active .add-task__icon {
+  background-color: #2e8644;
+}
+
+.add-task:active {
+  border: 1px solid #2e8644;
+}
+
+.button-container {
+    display: flex;
+    gap: 10px; /* Espaço entre os botões */
+    margin-top: 10px; /* Ajuste conforme necessário */
+}
+
+.form-wrapper {
+    display: flex;
+    gap: 10px; /* Adicione um espaço entre os elementos, ajuste conforme necessário */
+    align-items: center;
+}
+
+.nova-input {
+    flex: 1; /* Ocupa o espaço disponível */
+}
+
+.head-task {
+    text-align: center;
+}

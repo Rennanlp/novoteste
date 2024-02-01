@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, send_file, redirect, session, url_for
+# app.py
+from flask import Flask, render_template, request, send_file, redirect, session, url_for, jsonify
 from werkzeug.utils import secure_filename
 from unidecode import unidecode
 import os
@@ -14,7 +15,7 @@ app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['ALLOWED_EXTENSIONS'] = {'csv'}
 app.config['STATIC_FOLDER'] = 'static'
 
-tasks = []
+user_tasks = {}
 
 # banco de usuários
 user_database = {
@@ -60,7 +61,8 @@ def login_required(view):
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
-def generate_excel(tasks):
+def generate_excel(username):
+    tasks = user_tasks.get(username, [])
     output_filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'lista_de_tarefas.xlsx')
 
     # Criar um arquivo Excel
@@ -150,21 +152,41 @@ def logout():
 @app.route('/task')
 @login_required
 def task_f():
-    return render_template('form.html', tasks=tasks)
+    username = session['username']
+    user_task_list = user_tasks.get(username, [])
+    return render_template('form.html', tasks=user_task_list)
 
 @app.route('/add_task', methods=['POST'])
+@login_required
 def add_task():
     new_task = request.form.get('task')
-    tasks.append(new_task)
+    username = session['username']
+
+    if username not in user_tasks:
+        user_tasks[username] = []
+
+    user_tasks[username].append(new_task)
     return redirect(url_for('task_f'))
 
-@app.route('/download_excel', methods=['POST'])
+@app.route('/download_excel', methods=['GET','POST'])
 def download_excel():
-    # Gerar o arquivo Excel
-    excel_filepath = generate_excel(tasks)
+    username = session['username']
+
+    # Gerar o arquivo Excel usando o nome de usuário da sessão
+    excel_filepath = generate_excel(username)
 
     # Enviar o arquivo para download
     return send_file(excel_filepath, as_attachment=True)
+
+@app.route('/clear_tasks', methods=['POST'])
+@login_required
+def clear_tasks():
+    username = session['username']
+
+    if username in user_tasks:
+        user_tasks[username] = []
+
+    return jsonify({'status': 'success'})
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)

@@ -1,73 +1,53 @@
 function toggleObservationInput(checkbox) {
     var observationInput = checkbox.parentNode.parentNode.querySelector('.observation-input');
-
-    if (checkbox.checked) {
-        observationInput.style.display = 'block';
-    } else {
-        observationInput.style.display = 'none';
+    observationInput.style.display = checkbox.checked ? 'block' : 'none';
+    if (!checkbox.checked) {
         observationInput.value = ''; // Limpar o conteúdo quando desmarcar
     }
 }
 
 function clearTaskList() {
-    // Desmarcar todas as checkboxes
-    document.querySelectorAll('.checkbox-input input:checked').forEach(function (checkbox) {
-        checkbox.checked = false;
-    });
-
-    // Limpar todas as entradas de observação
-    document.querySelectorAll('.observation-input').forEach(function (observationInput) {
-        observationInput.value = '';
-    });
-
-    // Remover todos os itens da lista (incluindo os dinâmicos)
-    document.querySelectorAll('.checkbox-wrapper').forEach(function (item) {
-        item.parentNode.removeChild(item);
+    // Enviar uma requisição AJAX para o endpoint de limpar tarefas
+    fetch('/clear_tasks', {
+        method: 'POST',
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Falha na limpeza da lista de tarefas');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Atualizar a interface ou realizar outras ações necessárias
+        if (data.status === 'success') {
+            // Por exemplo, recarregar a página
+            location.reload();
+        } else {
+            console.error('Falha ao limpar a lista de tarefas');
+            alert('Falha ao limpar a lista de tarefas. Por favor, tente novamente.');
+        }
+    })
+    .catch(error => {
+        console.error('Erro na requisição AJAX:', error);
+        alert('Erro na requisição AJAX. Por favor, tente novamente.');
     });
 }
 
-// Função para exportar a lista para um arquivo Excel e iniciar o download
 function downloadExcelFile() {
-    var tasks = [];
-    var observations = [];
-    var dates = [];
+    try {
+        // Adicionar um timestamp à URL para evitar o caching
+        var timestamp = new Date().getTime();
+        var url = '/download_excel?timestamp=' + timestamp;
 
-    // Coletar tarefas, observações e datas
-    document.querySelectorAll('.checkbox-input input:checked').forEach(function (checkbox) {
-        var task = checkbox.nextSibling.textContent;
-        var observation = checkbox.parentNode.parentNode.querySelector('.observation-input').value;
-        var date = new Date().toLocaleDateString(); // Obtendo a data atual no formato local (você pode personalizar conforme necessário)
-        tasks.push(task);
-        observations.push(observation);
-        dates.push(date);
-    });
-
-    // Criar um objeto de workbook do xlsx
-    var wb = XLSX.utils.book_new();
-    var ws = XLSX.utils.aoa_to_sheet([['Tarefa', 'Observação', 'Data']].concat(tasks.map(function (task, index) {
-        return [task, observations[index], dates[index]];
-    })));
-
-    XLSX.utils.book_append_sheet(wb, ws, 'Lista de Tarefas');
-
-    // Convertendo o workbook em um blob
-    var blob = XLSX.write(wb, { bookType: 'xlsx', type: 'blob' });
-
-    // Criar um URL do blob
-    var url = URL.createObjectURL(blob);
-
-    // Criar um link de download
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = 'lista_de_tarefas.xlsx';
-
-    // Adicionar o link ao corpo da página e clicar automaticamente nele
-    document.body.appendChild(a);
-    a.click();
-
-    // Remover o link após o download
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+        // Criar um link para o download e clicar nele
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'ListaDeTarefas.xlsx';
+        a.click();
+    } catch (error) {
+        console.error('Erro ao exportar para o Excel:', error);
+        alert('Erro ao exportar para o Excel. Por favor, tente novamente.');
+    }
 }
 
 function changePage() {
