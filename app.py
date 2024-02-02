@@ -47,7 +47,7 @@ user_database = {
         'password': '135781',
         'name': 'Ingrid'
     },
-    'Eduarda: {
+    'Eduarda': {
         'password': 'eduarda10',
         'name': 'Duda'
     }
