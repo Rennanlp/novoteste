@@ -225,7 +225,7 @@ nav select {
   cursor: pointer;
   display: flex;
   align-items: center;
-  border: 2px solid #cc0000;
+  border: 2px solid #323232;
   background-color: #e50000;
   overflow: hidden;
   border-radius: 10px;
@@ -303,8 +303,10 @@ nav select {
   cursor: pointer;
   display: flex;
   align-items: center;
-  border: 1px solid #34974d;
+  border: 2px solid #323232;
+  border-radius: 10px;
   background-color: #3aa856;
+  box-shadow: 4px 4px #323232;
 }
 
 .add-task, .add-task__icon, .add-task__text {
@@ -323,6 +325,7 @@ nav select {
   height: 100%;
   width: 39px;
   background-color: #34974d;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;

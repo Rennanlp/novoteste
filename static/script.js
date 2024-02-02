@@ -6,6 +6,42 @@ function toggleObservationInput(checkbox) {
     }
 }
 
+function captureData() {
+    // Obtém a lista de tarefas
+    var tasksList = document.querySelectorAll('.list-container ul li');
+
+    var capturedData = {
+        tasks: []
+    };
+
+    // Percorre cada tarefa na lista
+    tasksList.forEach(function(taskItem, index) {
+        var taskCheckbox = taskItem.querySelector('.checkbox-input input[type="checkbox"]');
+        var taskText = taskItem.querySelector('span');
+        var observationInput = taskItem.querySelector('.observation-input');
+
+        // Verifica se a tarefa foi marcada como concluída
+        var isTaskCompleted = taskCheckbox.checked;
+
+        // Obtém os valores
+        var taskName = taskText.textContent;
+        var observationValue = observationInput.value;
+
+        // Adiciona os dados ao objeto capturado
+        capturedData.tasks.push({
+            index: index,
+            taskName: taskName,
+            isCompleted: isTaskCompleted,
+            observation: observationValue
+        });
+    });
+
+    // Exibe os dados capturados no console (você pode modificá-lo conforme necessário)
+    console.log(capturedData);
+}
+
+captureData();
+
 function clearTaskList() {
     // Enviar uma requisição AJAX para o endpoint de limpar tarefas
     fetch('/clear_tasks', {
