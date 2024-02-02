@@ -46,6 +46,10 @@ user_database = {
     'Ingrid10': {
         'password': '135781',
         'name': 'Ingrid'
+    },
+    'Eduarda: {
+        'password': 'eduarda10',
+        'name': 'Duda'
     }
 }
 
