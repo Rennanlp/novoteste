@@ -376,3 +376,9 @@ nav select {
 .head-task {
     text-align: center;
 }
+.flatpickr-calendar,
+.flatpickr-monthDropdown-months,
+.flatpickr-monthDropdown-years,
+.flatpickr-days {
+    transform: scale(0.9);
+}

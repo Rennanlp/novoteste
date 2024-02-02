@@ -109,7 +109,6 @@ button {
     border-radius: 30em;
     font-size: 15px;
     font-family: inherit;
-    border: none;
     position: relative;
     overflow: hidden;
     z-index: 1;
@@ -125,7 +124,7 @@ button {
     position: absolute;
     top: 0;
     left: 0;
-    background-image: linear-gradient(to right, #f13c3c 0%, #fd0000 100%);
+    background-image: linear-gradient(to right, #cc3d3d 0%, #e23939 100%);
     transition: .5s ease;
     display: block;
     z-index: -1;

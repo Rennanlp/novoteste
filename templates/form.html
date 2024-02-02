@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Tarefas</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='form.css') }}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datepicker/dist/datepicker.min.css">
+    <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/datepicker"></script>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </head>
 <body>
     <header>
@@ -25,7 +26,7 @@
 
     <div class="form-container">
         <h2 class='head-task'>Adicionar Nova Tarefa</h2>
-        <form action="/add_task" method="post" class="form-wrapper">
+        <form action="/add_task" method="post" class="form-wrapper" onsubmit="addTask(); return false;">
             <label for="task" class='nova'>Nova Tarefa:</label>
             <input type="text" class='nova-input' id="task" name="task" required>
             <button type="submit" class="add-task">
@@ -43,7 +44,7 @@
     <div class="list-container">
         <h2>Lista de Tarefas</h2>
         <label>Data</label>
-        <input type='text' id='data' class='date-input'>
+        <input type="text" id="data" class="date-input">                      
 
         <ul>
             {% for task in tasks %}
@@ -72,9 +73,30 @@
                             <path d="M17.5,22.131a1.249,1.249,0,0,1-1.25-1.25V2.187a1.25,1.25,0,0,1,2.5,0V20.881A1.25,1.25,0,0,1,17.5,22.131Z"></path>
                             <path d="M17.5,22.693a3.189,3.189,0,0,1-2.262-.936L8.487,15.006a1.249,1.249,0,0,1,1.767-1.767l6.751,6.751a.7.7,0,0,0,.99,0l6.751-6.751a1.25,1.25,0,0,1,1.768,1.767l-6.752,6.751A3.191,3.191,0,0,1,17.5,22.693Z"></path>
                             <path d="M31.436,34.063H3.564A3.318,3.318,0,0,1,.25,30.749V22.011a1.25,1.25,0,0,1,2.5,0v8.738a.815.815,0,0,0,.814.814H31.436a.815.815,0,0,0,.814-.814V22.011a1.25,1.25,0,1,1,2.5,0v8.738A3.318,3.318,0,0,1,31.436,34.063Z"></path>
+                    </svg>
                 </span>
             </button>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Inicializa o Flatpickr no elemento com a ID 'data'
+            flatpickr('#data', {
+                dateFormat: 'Y-m-d',  // Ajuste o formato conforme necessário
+                locale: {
+                    weekdays: {
+                        shorthand: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
+                        longhand: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
+                    },
+                    months: {
+                        shorthand: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                        longhand: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+                    }
+                },
+                position: "below",
+            });
+        });
+    </script>
 </body>
 </html>
