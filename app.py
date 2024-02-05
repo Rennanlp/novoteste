@@ -67,20 +67,30 @@ def allowed_file(filename):
 
 def generate_excel(username):
     tasks = user_tasks.get(username, [])
+
+    # Obter os dados do formulário
+    data = request.form.get('data')
+    observations = request.form.getlist('observations[]')
+
     output_filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'lista_de_tarefas.xlsx')
 
     # Criar um arquivo Excel
     workbook = xlsxwriter.Workbook(output_filepath)
     worksheet = workbook.add_worksheet()
 
-    # Escrever os cabeçalhos
+    # Escreve os cabeçalhos
     worksheet.write(0, 0, 'Tarefa')
+    worksheet.write(0, 1, 'Data')
+    worksheet.write(0, 2, 'Observação')
 
-    # Escrever as tarefas
+    # Escreve os dados das tarefas
     for i, task in enumerate(tasks, start=1):
         worksheet.write(i, 0, task)
+        worksheet.write(i, 1, data)
+        if i <= len(observations):
+            worksheet.write(i, 2, observations[i - 1])
 
-    # Fechar o arquivo Excel
+    # Fecha o arquivo Excel
     workbook.close()
 
     return output_filepath
@@ -126,23 +136,23 @@ def remove_accent():
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
 
-            # Adicione a seguinte linha para obter o encoding do formulário
+            # Adiciona a seguinte linha para obter o encoding do formulário
             encoding = request.form.get('encoding', 'utf-8')
 
-            # Tentar abrir o arquivo CSV com o encoding fornecido
+            # Tenta abrir o arquivo CSV com o encoding fornecido
             try:
                 with open(filepath, 'r', encoding=encoding) as input_file:
                     delimiter = ';'  # Especificar o delimitador usado no arquivo CSV
                     reader = csv.reader(input_file, delimiter=delimiter)
                     rows = [list(map(lambda x: unidecode(x) if x else x, row)) for row in reader]
             except UnicodeDecodeError:
-                # Se ocorrer um erro de decodificação, tentar abrir com 'latin-1'
+                # Se ocorrer um erro de decodificação, tenta abrir com 'latin-1'
                 with open(filepath, 'r', encoding='latin-1') as input_file:
-                    delimiter = ';'  # Especificar o delimitador usado no arquivo CSV
+                    delimiter = ';'  # Especifica o delimitador usado no arquivo
                     reader = csv.reader(input_file, delimiter=delimiter)
                     rows = [list(map(lambda x: unidecode(x) if x else x, row)) for row in reader]
 
-            # Criar um arquivo de saída para o novo CSV
+            # Cria um arquivo de saída para o novo CSV
             output_filepath = os.path.join(app.config['UPLOAD_FOLDER'], f'Arquivo_Ajustado_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv')
             with open(output_filepath, 'w', encoding='utf-8', newline='') as output_file:
                 writer = csv.writer(output_file, delimiter=delimiter)
@@ -184,10 +194,10 @@ def add_task():
 def download_excel():
     username = session['username']
 
-    # Gerar o arquivo Excel usando o nome de usuário da sessão
+    # Gera o arquivo Excel usando o nome de usuário da sessão
     excel_filepath = generate_excel(username)
 
-    # Enviar o arquivo para download
+    # Envia o arquivo para download
     return send_file(excel_filepath, as_attachment=True)
 
 @app.route('/clear_tasks', methods=['POST'])

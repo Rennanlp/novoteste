@@ -18,9 +18,9 @@ function clearTaskList() {
         return response.json();
     })
     .then(data => {
-        // Atualizar a interface ou realizar outras ações necessárias
+        // Atualizar a interface
         if (data.status === 'success') {
-            // Por exemplo, recarregar a página
+            // recarregar a página
             location.reload();
         } else {
             console.error('Falha ao limpar a lista de tarefas');
@@ -35,20 +35,49 @@ function clearTaskList() {
 
 function downloadExcelFile() {
     try {
-        // Adicionar um timestamp à URL para evitar o caching
-        var timestamp = new Date().getTime();
-        var url = '/download_excel?timestamp=' + timestamp;
+        // Obter os dados do formulário
+        var data = document.getElementById('data').value;
+        var observations = document.querySelectorAll('.observation-input');
 
-        // Criar um link para o download e clicar nele
-        var a = document.createElement('a');
-        a.href = url;
-        a.download = 'ListaDeTarefas.xlsx';
-        a.click();
+        // Construir os dados do formulário
+        var formData = new FormData();
+        formData.append('data', data);
+        observations.forEach(function(observation, index) {
+            formData.append('observations[]', observation.value);
+        });
+
+        // Enviar uma requisição AJAX para o endpoint de download
+        fetch('/download_excel', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Falha no download do arquivo Excel');
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            // Criar um link para o download e clicar nele
+            var url = window.URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'ListaDeTarefas.xlsx';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        })
+        .catch(error => {
+            console.error('Erro no download do arquivo Excel:', error);
+            alert('Erro no download do arquivo Excel. Por favor, tente novamente.');
+        });
     } catch (error) {
         console.error('Erro ao exportar para o Excel:', error);
         alert('Erro ao exportar para o Excel. Por favor, tente novamente.');
     }
 }
+
 
 function changePage() {
     var pageSelector = document.getElementById('pageSelector');

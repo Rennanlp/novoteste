@@ -19,7 +19,6 @@
                 <option value="{{ url_for('login') }}">Página Inicial</option>
                 <option value="{{ url_for('index') }}">Removedor</option>
                 <option value="{{ url_for('task_f') }}">Listas</option>
-                <!-- Adicione mais opções conforme necessário -->
             </select>
         </nav>
     </header>
@@ -38,7 +37,6 @@
                     </svg>
                 </span>
             </button>
-        </form>
     </div>
 
     <div class="list-container">
@@ -58,6 +56,7 @@
                 </li>
             {% endfor %}
         </ul>
+        </form>
 
         <div class="button-container">
             <button class="limpar" type="button" onclick="clearTaskList()">
