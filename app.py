@@ -126,13 +126,21 @@ def remove_accent():
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
 
-            # Especificar o delimitador usado no arquivo CSV (por exemplo, ';')
-            delimiter = ';'
+            # Adicione a seguinte linha para obter o encoding do formulário
+            encoding = request.form.get('encoding', 'utf-8')
 
-            # Processar o conteúdo do arquivo CSV
-            with open(filepath, 'r', encoding='utf-8') as input_file:
-                reader = csv.reader(input_file, delimiter=delimiter)
-                rows = [list(map(lambda x: unidecode(x) if x else x, row)) for row in reader]
+            # Tentar abrir o arquivo CSV com o encoding fornecido
+            try:
+                with open(filepath, 'r', encoding=encoding) as input_file:
+                    delimiter = ';'  # Especificar o delimitador usado no arquivo CSV
+                    reader = csv.reader(input_file, delimiter=delimiter)
+                    rows = [list(map(lambda x: unidecode(x) if x else x, row)) for row in reader]
+            except UnicodeDecodeError:
+                # Se ocorrer um erro de decodificação, tentar abrir com 'latin-1'
+                with open(filepath, 'r', encoding='latin-1') as input_file:
+                    delimiter = ';'  # Especificar o delimitador usado no arquivo CSV
+                    reader = csv.reader(input_file, delimiter=delimiter)
+                    rows = [list(map(lambda x: unidecode(x) if x else x, row)) for row in reader]
 
             # Criar um arquivo de saída para o novo CSV
             output_filepath = os.path.join(app.config['UPLOAD_FOLDER'], f'Arquivo_Ajustado_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv')
