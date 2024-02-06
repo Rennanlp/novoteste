@@ -1,0 +1,31 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='sro.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
+    <title>Rastreamento Correios</title>
+</head>
+<body>
+    <nav>
+        <label for="pageSelector">Ir para:</label>
+        <select id="pageSelector" onchange="changePage()">
+            <option value="{{ url_for('login') }}">Página Inicial</option>
+            <option value="{{ url_for('index') }}">Removedor</option>
+            <option value="{{ url_for('task_f') }}">Listas</option>
+            <option value="{{ url_for('rastreio') }}">Rastreamento</option>
+            <!-- Adicione mais opções conforme necessário -->
+        </select>
+    </nav>
+    <div class="container">
+        <h1>Rastreamento Correios</h1>
+        <input type="text" class="corr" id="trackingNumber" placeholder="Digite o código de rastreio">
+        <button onclick="searchTracking()">Pesquisar</button>
+        <div id="result"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

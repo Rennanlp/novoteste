@@ -84,3 +84,44 @@ function changePage() {
     var selectedPage = pageSelector.options[pageSelector.selectedIndex].value;
     window.location.href = selectedPage;
 }
+
+function searchTracking() {
+    var trackingNumber = document.getElementById('trackingNumber').value;
+    var resultDiv = document.getElementById('result');
+
+    var requestOptions = {
+        method: 'GET',
+        redirect: 'follow'
+    };
+
+    var apiUrl = `https://api.linketrack.com/track/json?user=teste&token=1abcd00b2731640e886fb41a8a9671ad1434c599dbaa0a0de9a5aa619f29a83f&codigo=${trackingNumber}`;
+
+    fetch(apiUrl, requestOptions)
+        .then(response => response.json())
+        .then(data => {
+            // Verifica se há eventos de rastreamento
+            if (data.eventos && data.eventos.length > 0) {
+                // Constrói a mensagem com base em todos os eventos
+                var message = 'Detalhes do Rastreamento:<br>';
+                
+                data.eventos.forEach(evento => {
+                    message += `<strong>Data:</strong> ${evento.data}<br>`;
+                    message += `<strong>Hora:</strong> ${evento.hora}<br>`;
+                    message += `<strong>Status:</strong> ${evento.status}<br>`;
+                    message += `<strong>Local:</strong> ${evento.local}<br><br>`;
+                });
+
+                resultDiv.innerHTML = message;
+            } else {
+                resultDiv.innerHTML = 'Não foram encontrados eventos de rastreamento para o número informado.';
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao buscar rastreamento:', error);
+            resultDiv.innerHTML = 'Erro ao buscar rastreamento. Por favor, tente novamente.';
+        });
+}
+
+
+
+

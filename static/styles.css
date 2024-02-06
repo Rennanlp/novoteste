@@ -12,7 +12,7 @@ header {
 }
 
 nav {
-    margin-bottom: 10px; /* Reduzir o espaçamento abaixo do dropdown */
+    margin-bottom: 10px;
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -24,10 +24,11 @@ nav select {
     border-radius: 5px;
     cursor: pointer;
     margin-right: 20px;
+    margin-left: 10PX;
 }
 
 #welcomeMessage {
-    margin-top: 5px; /* Adicionar margem acima da mensagem de boas-vindas */
+    margin-top: 5px;
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 5px;
