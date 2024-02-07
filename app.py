@@ -211,6 +211,7 @@ def clear_tasks():
     return jsonify({'status': 'success'})
 
 @app.route('/rastreamento', methods=['GET', 'POST'])
+@login_required
 def rastreio():
     return render_template('sro.html')
 

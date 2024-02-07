@@ -394,3 +394,7 @@ nav select {
 .flatpickr-days {
     transform: scale(0.9);
 }
+
+#data{
+  margin-bottom: 20px;
+}
