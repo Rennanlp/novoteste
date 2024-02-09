@@ -22,7 +22,7 @@ body {
 
 .list-container {
     width: 45%;
-    margin-left: 60px;
+    margin-left: 80px;
     margin-top: 40px;
 }
 
@@ -130,11 +130,14 @@ li.checkbox-wrapper {
 .observation-input {
     display: none;
     margin-left: 10px;
+    border-radius: 5px;
 }
 
 .date-input {
     margin-left: 10px;
     margin-top: 15px;
+    width: auto;
+    border-radius: 5px;
 }
 
 * {
@@ -142,6 +145,7 @@ li.checkbox-wrapper {
   padding: 0;
   box-sizing: border-box;
 }
+
 
 nav {
   margin-bottom: 10px; /* Reduzir o espaçamento abaixo do dropdown */
@@ -290,7 +294,7 @@ nav select {
   border: 1px solid #b20000;
 }
 .nova-input {
-    border: 2px solid transparent;
+    border: 1px solid black;
     width: 15em;
     height: 2.5em;
     padding-left: 0.8em;

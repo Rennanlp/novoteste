@@ -22,7 +22,9 @@
         </select>
     </nav>
     <div class="container">
-            <h1>Rastreamento Correios</h1>
+        <div class="container-content">
+            <img src="{{ url_for('static', filename='conexao.png') }}" alt="Descrição da imagem" class="img-conexao">
+            <h1 id="rastreioo">Rastreamento Correios</h1>
             <div class="search">
             <input class="search-input" type="text" id="trackingNumber" placeholder="Digite o código de rastreio">
             <button class="search-button" type="submit" onclick="searchTracking()">Pesquisar</button>
