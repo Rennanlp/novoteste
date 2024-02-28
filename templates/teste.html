@@ -1,28 +1,44 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-... (hash)" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='sro.css') }}">
-
+    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='generic.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='teste.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
-    <title>Rastreamento Correios</title>
-</head>
+    <title>Em Breve</title>
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 120px;
+        }
 
+        .c-container {
+            text-align: center;
+            margin-left: -95%;
+        }
+
+        .img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
 <body>
     <div class="area"></div>
     <nav class="main-menu">
         <ul>
             <li>
                 <a href="/dashboard">
-                    <i class="fa fa-solid fa-house fa-2x"></i>
+                    <i class="fa fa-duotone fa-chart-pie fa-2x"></i>
                     <span class="nav-text">Dashboard</span>
                 </a>
-            </li>
+            </li>            
             <li>
                 <a href="/">
                     <i class="fa fa-solid fa-file-csv fa-2x"></i>
@@ -51,18 +67,10 @@
             </li>
         </ul>
     </nav>
-    <div class="container">
-        <div class="container-content">
-            <img src="{{ url_for('static', filename='conexao.png') }}" alt="Descrição da imagem" class="img-conexao">
-            <h1 id="rastreioo">Rastreamento Correios</h1>
-            <div class="search">
-            <input class="search-input" type="text" id="trackingNumber" placeholder="Digite o código de rastreio">
-            <button class="search-button" type="submit" onclick="searchTracking()">Pesquisar</button>
-        </div>
-        <div id="result"></div>
-    </div>
-
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <div name='container' class='c-container'>
+        <h2 class='text1'>Em Desenvolvimento</h2>
+        <img src="static\aguarde-em-breve-png.png" alt="Em Breve" class="img">
+        <p class='text2'>Estamos trabalhando em algo incrível. Volte em breve para conferir!</p>
+    <div/>
 </body>
-
 </html>

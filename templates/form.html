@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Tarefas</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-... (hash)" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="{{ url_for('static', filename='script.js') }}" defer></script>
@@ -12,17 +15,43 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
 </head>
 <body>
-    <header>
-        <nav>
-            <label for="pageSelector" class='label-page'>Ir para:</label>
-            <select id="pageSelector" onchange="changePage()">
-                <option value="{{ url_for('login') }}">Página Inicial</option>
-                <option value="{{ url_for('index') }}">Removedor</option>
-                <option value="{{ url_for('task_f') }}">Listas</option>
-                <option value="{{ url_for('rastreio') }}">Rastreamento</option>
-            </select>
-        </nav>
-    </header>
+    <div class="area"></div>
+    <nav class="main-menu">
+        <ul>
+            <li>
+                <a href="/dashboard">
+                    <i class="fa fa-duotone fa-chart-pie fa-2x"></i>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+            </li>            
+            <li>
+                <a href="/">
+                    <i class="fa fa-solid fa-file-csv fa-2x"></i>
+                    <span class="nav-text">Removedor</span>
+                </a>
+            </li>
+            <li class="has-subnav">
+                <a href="/task">
+                    <i class="fa fa-solid fa-list-check fa-2x"></i>
+                    <span class="nav-text">Listas</span>
+                </a>
+            </li>
+            <li>
+                <a href="/rastreamento">
+                    <i class="fa fa-solid fa-truck-fast fa-2x"></i>
+                    <span class="nav-text">Rastreamento</span>
+                </a>
+            </li>
+        </ul>
+        <ul class="logout fixed-logout">
+            <li>
+                <a href="/logout">
+                    <i class="fa fa-power-off fa-2x"></i>
+                    <span class="nav-text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
 
     <div class="form-container">
         <h2 class='head-task'>Adicionar Nova Tarefa</h2>
@@ -41,7 +70,7 @@
     </div>
 
     <div class="list-container">
-        <h2>Lista de Tarefas</h2>
+        <h2>Lista de Clientes</h2>
         <label>Data</label>
         <input type="text" id="data" class="date-input">                      
 
@@ -53,6 +82,7 @@
                         <label for="checkbox{{ loop.index }}"></label>
                     </div>
                     <span>{{ task }}</span>
+                    <input type="number" class="numb-input" name="number1[]" placeholder="QTD pedidos BOX">
                     <input type="text" class="observation-input" name="observations[]" placeholder="Observações">
                     <button type="button" class="remove-task" onclick="removeTask(this)">
                         <svg class="remove-svgIcon" viewBox="0 0 448 512">
@@ -69,6 +99,8 @@
                 <span class="limpar__text">Limpar</span>
                 <span class="limpar__icon"><svg class="svg" height="512" viewBox="0 0 512 512" width="512" xmlns="http://www.w3.org/2000/svg"><title></title><path d="M112,112l20,320c.95,18.49,14.4,32,32,32H348c17.67,0,30.87-13.51,32-32l20-320" style="fill:none;stroke:#fff;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"></path><line style="stroke:#fff;stroke-linecap:round;stroke-miterlimit:10;stroke-width:32px" x1="80" x2="432" y1="112" y2="112"></line><path d="M192,112V72h0a23.93,23.93,0,0,1,24-24h80a23.93,23.93,0,0,1,24,24h0v40" style="fill:none;stroke:#fff;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"></path><line style="fill:none;stroke:#fff;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px" x1="256" x2="256" y1="176" y2="400"></line><line style="fill:none;stroke:#fff;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px" x1="184" x2="192" y1="176" y2="400"></line><line style="fill:none;stroke:#fff;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px" x1="328" x2="320" y1="176" y2="400"></line></svg></span>
             </button>
+
+            
             
             <button onclick="downloadExcelFile()" class='button'>
                 <span class="button__text">Baixar Lista</span>
@@ -81,7 +113,14 @@
                     </svg>
                 </span>
             </button>
-        </div>
+           <!-- <button type="button" onclick="enviarDadosParaDashboard()" class="enviar">
+                <span class="enviar__text">Enviar</span>
+                <span class="enviar__icon">
+                    <svg viewBox="0 0 512 512" 
+                    xmlns="http://www.w3.org/2000/svg" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier">
+                        <polyline points="268 112 412 256 268 400" style="fill:none;stroke:#ffffff;stroke-linecap:square;stroke-miterlimit:10;stroke-width:48px"></polyline><line x1="392" y1="256" x2="100" y2="256" style="fill:none;stroke:#ffffff;stroke-linecap:square;stroke-miterlimit:10;stroke-width:48px"></line></g></svg>
+                    </button>  -->          
+                    </div>
     </div>
 
     <script>

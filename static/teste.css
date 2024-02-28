@@ -1,0 +1,14 @@
+.img{
+    justify-content: center;
+    max-width: 120%;
+}
+
+.text1{
+    text-wrap: nowrap;
+    margin-bottom: 40px;
+}
+
+.text2{
+    margin-top: 40px;
+    font-size: larger;
+}

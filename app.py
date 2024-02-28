@@ -1,5 +1,5 @@
 # app.py
-from flask import Flask, render_template, request, send_file, redirect, session, url_for, jsonify
+from flask import Flask, render_template, request, send_file, redirect, session, url_for, jsonify, g
 from werkzeug.utils import secure_filename
 from unidecode import unidecode
 import os
@@ -7,6 +7,9 @@ import csv
 from datetime import datetime
 from functools import wraps
 import xlsxwriter
+from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
+
 
 
 app = Flask(__name__)
@@ -14,8 +17,16 @@ app.secret_key = os.environ.get('FLASK_SECRET_KEY') or b'_5#y2L"F4Q8z\n\xec]/'
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['ALLOWED_EXTENSIONS'] = {'csv'}
 app.config['STATIC_FOLDER'] = 'static'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tasks.db'
+db = SQLAlchemy(app)
+CORS(app)
+
+
 
 user_tasks = {}
+user_quantities = {}
+saved_data = {}
+dashboard_data = {}
 
 # banco de usuários
 user_database = {
@@ -65,32 +76,40 @@ def login_required(view):
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
-def generate_excel(username):
-    tasks = user_tasks.get(username, [])
-
+def generate_excel(username, tasks):
+    print("User tasks:", user_tasks)
+    
     # Obter os dados do formulário
     data = request.form.get('data')
     observations = request.form.getlist('observations[]')
+    qtd = request.form.getlist('number1[]')
+
+    print("Tasks:", tasks)
+    print("Data:", data)
+    print("Observations:", observations)
+    print("Quantidades:", qtd)
 
     output_filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'lista_de_tarefas.xlsx')
 
-    # Criar um arquivo Excel
+    # Gerar arquivo Excel
     workbook = xlsxwriter.Workbook(output_filepath)
     worksheet = workbook.add_worksheet()
 
-    # Escreve os cabeçalhos
+    # cabeçalhos
     worksheet.write(0, 0, 'Tarefa')
     worksheet.write(0, 1, 'Data')
-    worksheet.write(0, 2, 'Observação')
+    worksheet.write(0, 2, 'Pedidos no Dia' )
+    worksheet.write(0, 3, 'Observação')
 
-    # Escreve os dados das tarefas
+    # Escreve as tarefas
     for i, task in enumerate(tasks, start=1):
         worksheet.write(i, 0, task)
         worksheet.write(i, 1, data)
+        worksheet.write(i, 2, qtd[i - 1] if i <= len(qtd) else '')
         if i <= len(observations):
-            worksheet.write(i, 2, observations[i - 1])
+            worksheet.write(i, 3, observations[i - 1])
 
-    # Fecha o arquivo Excel
+
     workbook.close()
 
     return output_filepath
@@ -99,6 +118,7 @@ def generate_excel(username):
 @login_required
 def index():
     username = user_database.get(session.get('username', ''), {}).get('name', 'Convidado')
+    print("Username in session:", session.get('username'))
     return render_template('index.html', username=username)
 
 # Página de login
@@ -121,6 +141,7 @@ def login():
         return render_template('login.html', error='Usuário ou senha incorretos, tente novamente.')
 
 @app.route('/remove_accent', methods=['POST'])
+@login_required
 def remove_accent():
     if 'file' not in request.files:
         return "Nenhum arquivo enviado."
@@ -191,14 +212,35 @@ def add_task():
     return redirect(url_for('task_f'))
 
 @app.route('/download_excel', methods=['GET','POST'])
+@login_required
 def download_excel():
     username = session['username']
-
-    # Gera o arquivo Excel usando o nome de usuário da sessão
-    excel_filepath = generate_excel(username)
+    tasks = user_tasks.get(username, [])
+    
+    # Gera o arquivo Excel usando o nome de usuário da sessão e as tarefas
+    excel_filepath = generate_excel(username, tasks)
 
     # Envia o arquivo para download
     return send_file(excel_filepath, as_attachment=True)
+
+@app.route('/remove_task', methods=['POST'])
+@login_required
+def remove_task():
+    username = session['username']
+
+    try:
+        task_index = int(request.form.get('task_index'))
+
+        if 0 <= task_index < len(user_tasks.get(username, [])):
+            removed_task = user_tasks[username].pop(task_index)
+            return jsonify({'status': 'success', 'removed_task': removed_task})
+        else:
+            return jsonify({'status': 'error', 'message': 'Índice de tarefa inválido'})
+    except ValueError:
+        return jsonify({'status': 'error', 'message': 'Índice de tarefa inválido'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
+
 
 @app.route('/clear_tasks', methods=['POST'])
 @login_required
@@ -214,6 +256,18 @@ def clear_tasks():
 @login_required
 def rastreio():
     return render_template('sro.html')
+
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# ...
+
+@app.route('/dashboard', methods=['GET', 'POST'])
+@login_required
+def dashboard():
+    return render_template('teste.html')
+
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)

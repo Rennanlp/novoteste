@@ -1,6 +1,8 @@
 async function toggleObservationInput(checkbox) {
     var observationInput = checkbox.parentNode.parentNode.querySelector('.observation-input');
+    var numberInput = checkbox.parentNode.parentNode.querySelector('.numb-input');
     observationInput.style.display = checkbox.checked ? 'block' : 'none';
+    numberInput.style.display = checkbox.checked ? 'block' : 'none';
     if (!checkbox.checked) {
         observationInput.value = ''; // Limpar o conteúdo quando desmarcar
     }
@@ -36,12 +38,15 @@ async function downloadExcelFile() {
         // Obter os dados do formulário
         var data = document.getElementById('data').value;
         var observations = document.querySelectorAll('.observation-input');
+        var qtd = document.querySelectorAll('.numb-input');
 
         // Construir os dados do formulário
         var formData = new FormData();
         formData.append('data', data);
-        observations.forEach(function (observation, index) {
+        observations.forEach(function(observation, index) {
             formData.append('observations[]', observation.value);
+            formData.append('number1[]', qtd[index].value);
+        
         });
 
         // Enviar uma requisição AJAX para o endpoint de download
@@ -71,7 +76,6 @@ async function downloadExcelFile() {
         alert('Erro no download do arquivo Excel. Por favor, tente novamente.');
     }
 }
-
 function changePage() {
     var pageSelector = document.getElementById('pageSelector');
     var selectedPage = pageSelector.options[pageSelector.selectedIndex].value;
@@ -90,7 +94,7 @@ async function searchTracking() {
     resultDiv.innerHTML = '';  // Limpa o conteúdo anterior
     resultDiv.appendChild(loadingDiv);
 
-    // Adiciona um tempo de espera simulando o loading (por exemplo, 2 segundos)
+    // Adiciona um tempo de espera de carregamento
     var loadingTime = 2000; // 2 segundos
     setTimeout(async function () {
         try {
@@ -130,45 +134,137 @@ async function searchTracking() {
             resultDiv.removeChild(loadingDiv); // Remove o elemento de loading
             resultDiv.innerHTML = 'Erro ao buscar rastreamento. Por favor, tente novamente.';
         }
+        
     }, loadingTime);
 }
-function removeTask(buttonElement) {
-    // Obtém o elemento pai li da tarefa a ser removida
-    var listItem = buttonElement.closest('.checkbox-wrapper');
 
-    // Remove o elemento li da lista
-    listItem.remove();
-}
-function addTask() {
-    // Obtenha o valor da nova tarefa do input
-    var newTaskValue = document.getElementById('task').value;
+async function removeTask(buttonElement) {
+    try {
+        const listItem = buttonElement.closest('.checkbox-wrapper');
 
-    // Verifique se o valor não está vazio antes de adicionar a nova tarefa
-    if (newTaskValue.trim() !== '') {
-        // Crie um identificador único para a nova tarefa
-        var taskId = 'task_' + Date.now();
+        // Verifica se encontrou o elemento pai
+        if (!listItem) {
+            console.error('Elemento pai não encontrado.');
+            return;
+        }
 
-        // Crie um novo elemento li para a nova tarefa
-        var newTaskElement = document.createElement('li');
-        newTaskElement.classList.add('checkbox-wrapper');
-        newTaskElement.innerHTML = `
-            <div class="checkbox-input">
-                <input type="checkbox" id="${taskId}" name="tasks" value="${newTaskValue}" onchange="toggleObservationInput(this)">
-                <label for="${taskId}"></label>
-            </div>
-            <span>${newTaskValue}</span>
-            <input type="text" class="observation-input" name="observations[]" placeholder="Observações">
-            <button type="button" class="remove-task" onclick="removeTask(this)">
-            <svg class="remove-svgIcon" viewBox="0 0 448 512">
-                <path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"></path>
-              </svg>
-</button>
-        `;
+        const taskIndex = Array.from(listItem.parentNode.children).indexOf(listItem);
 
-        // Adicione o novo elemento li à lista de tarefas
-        document.querySelector('.list-container ul').appendChild(newTaskElement);
+        // Certifica que o índice não seja 'null' ou indefinido antes de enviar a solicitação
+        if (taskIndex !== null && taskIndex !== undefined) {
+            const response = await fetch('/remove_task', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `task_index=${taskIndex}`,
+            });
 
-        // Limpe o valor do input após adicionar a tarefa
-        document.getElementById('task').value = '';
+            if (!response.ok) {
+                throw new Error('Falha ao remover a tarefa');
+            }
+
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                // Remove visualmente a tarefa da lista no cliente
+                listItem.remove();
+                alert('Tarefa removida com sucesso!');
+            } else {
+                console.error('Falha ao remover a tarefa:', data.message);
+                alert('Falha ao remover a tarefa. Por favor, tente novamente.');
+            }
+        } else {
+            console.error('Índice de tarefa inválido:', taskIndex);
+            alert('Índice de tarefa inválido. Por favor, recarregue a página e tente novamente.');
+        }
+    } catch (error) {
+        console.error('Erro na requisição AJAX:', error);
+        alert('Erro na requisição AJAX. Por favor, tente novamente.');
     }
+}
+
+function addTask() {
+    var newTaskValue = document.getElementById('task').value.trim();
+
+    if (newTaskValue !== '') {
+        $.ajax({
+            type: 'POST',
+            url: '/add_task',
+            data: { task: newTaskValue },
+            success: function (response) {
+                var taskId = 'task_' + Date.now();
+                var newTaskElement = document.createElement('li');
+                newTaskElement.classList.add('checkbox-wrapper');
+                newTaskElement.innerHTML = `
+                    <div class="checkbox-input">
+                        <input type="checkbox" id="${taskId}" name="tasks" value="${newTaskValue}" onchange="toggleObservationInput(this)">
+                        <label for="${taskId}"></label>
+                    </div>
+                    <span>${newTaskValue}</span>
+                    <input type="text" class="observation-input" name="observations[]" placeholder="Observações">
+                    <button type="button" class="remove-task" onclick="removeTask(this)">
+                        <svg class="remove-svgIcon" viewBox="0 0 448 512">
+                            <path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"></path>
+                        </svg>
+                    </button>
+                `;
+
+                document.querySelector('.list-container ul').appendChild(newTaskElement);
+                document.getElementById('task').value = '';
+            },
+            error: function (error) {
+                console.error('Erro ao adicionar tarefa:', error);
+            }
+        });
+    }
+}
+
+document.getElementById('saveButton').addEventListener('click', function() {
+    // Enviar solicitação para a rota /save_tasks
+    fetch('/save_tasks', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+    })
+    .then(response => response.json())
+    .then(data => {
+
+        console.log(data);
+    })
+    .catch((error) => {
+        console.error('Erro ao salvar tarefas:', error);
+    });
+});
+
+function enviarDadosParaDashboard() {
+    // Obter os dados (tasks, date-input, numb-input, observation-input)
+    const tasksData = [...document.querySelectorAll('.list-container input[name="tasks"]:checked')].map(checkbox => checkbox.value);
+    const dateInputData = document.getElementById('data').value;
+    const numbInputData = [...document.querySelectorAll('.numb-input')].map(input => input.value);
+    const observationInputData = [...document.querySelectorAll('.observation-input')].map(input => input.value);
+
+    // Enviar os dados para a rota de dashboard usando AJAX
+    fetch('/dashboard', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            tasks: tasksData,
+            dateInput: dateInputData,
+            numbInput: numbInputData,
+            observationInput: observationInputData,
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Manipular a resposta, se necessário
+        console.log(data);
+    })
+    .catch(error => {
+        console.error('Erro durante a solicitação AJAX:', error);
+    });
 }

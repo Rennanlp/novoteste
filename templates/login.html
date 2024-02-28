@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles1.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
 </head>
 <body>
@@ -15,7 +15,7 @@
             <option value="{{ url_for('index') }}">Removedor</option>
             <option value="{{ url_for('task_f') }}">Listas</option>
             <option value="{{ url_for('rastreio') }}">Rastreamento</option>
-            <!-- Adicione mais opções conforme necessário -->
+
         </select>
     </nav>
     <script>
@@ -26,8 +26,8 @@
         }
 
         function logout() {
-            // Adicione aqui a lógica para logout
-            alert('Você foi desconectado.'); // Exemplo: um alerta para fins de demonstração
+
+            alert('Você foi desconectado.');
         }
     </script>
     <div class="container">
@@ -37,8 +37,8 @@
         {% endif %}
         <form action="{{ url_for('login') }}" method="POST" class="login-form">
             <div class="input-group">
-                <label for="username">Usuário:</label> <!-- Alteração aqui -->
-                <input type="text" id="username" name="username" required> <!-- Alteração aqui -->
+                <label for="username">Usuário:</label>
+                <input type="text" id="username" name="username" required>
             </div>
             <div class="input-group">
                 <label for="senha">Senha:</label>

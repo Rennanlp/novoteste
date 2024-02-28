@@ -4,28 +4,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-... (hash)" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
     <title>Removedor de Acentos</title>
 </head>
 <body>
-    <header>
-        <nav>
-            <label for="pageSelector">Ir para:</label>
-            <select id="pageSelector" onchange="changePage()">
-                <option value="{{ url_for('login') }}">Página Inicial</option>
-                <option value="{{ url_for('index') }}">Removedor</option>
-                <option value="{{ url_for('task_f') }}">Listas</option>
-                <option value="{{ url_for('rastreio') }}">Rastreamento</option>
-                <!-- Adicione mais opções conforme necessário -->
-            </select>
-        </nav>
-    </header>
+    <div class="area"></div>
+    <nav class="main-menu">
+        <ul>
+            <li>
+                <a href="/dashboard">
+                    <i class="fa fa-solid fa-house fa-2x"></i>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+            </li>            
+            <li>
+                <a href="/">
+                    <i class="fa fa-solid fa-file-csv fa-2x"></i>
+                    <span class="nav-text">Removedor</span>
+                </a>
+            </li>
+            <li class="has-subnav">
+                <a href="/task">
+                    <i class="fa fa-solid fa-list-check fa-2x"></i>
+                    <span class="nav-text">Listas</span>
+                </a>
+            </li>
+            <li>
+                <a href="/rastreamento">
+                    <i class="fa fa-solid fa-truck-fast fa-2x"></i>
+                    <span class="nav-text">Rastreamento</span>
+                </a>
+            </li>
+        </ul>
+        <ul class="logout fixed-logout">
+            <li>
+                <a href="/logout">
+                    <i class="fa fa-power-off fa-2x"></i>
+                    <span class="nav-text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
     <main class="content-container">
         <div class="logo-container">
             <img src="{{ url_for('static', filename='logo.png') }}" alt="Header Image" class="logo">
         </div>
-        <h1>Removedor de Acentos</h1>
+        <h1 class='h21'>Removedor de Acentos</h1>
 
         <!-- Exibir mensagem de boas-vindas com base no usuário logado -->
         <p id="welcomeMessage"></p>

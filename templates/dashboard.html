@@ -1,0 +1,37 @@
+<!-- dashboard.html -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+<body>
+    <h1>Dashboard</h1>
+
+    <div>
+
+        <img src="{{ url_for('static', filename='dashboard_plot.png') }}" alt="Dashboard Plot">
+    </div>
+
+    <div>
+        <h2>Tarefas</h2>
+        <ul>
+            {% for task in tasks %}
+                <li>{{ task }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div>
+        <h2>Dados do Dashboard</h2>
+
+        {% for data in dashboard_data %}
+            <p>Data: {{ data.dateInput }}</p>
+            <p>Tarefas: {{ data.tasks }}</p>
+            <p>Quantidades: {{ data.numbInput }}</p>
+            <p>Observações: {{ data.observationInput }}</p>
+        {% endfor %}
+    </div>
+</body>
+</html>
