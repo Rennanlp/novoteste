@@ -67,8 +67,26 @@
                     </svg>
                 </span>
             </button>
-    </div>
+        </form>
+        <div class="notes-container">
+            <label for="date" class='nova'>Data:</label>
+            <input type="date" id="date" name="date" class='nova-input' required>
+            <label for="notes" class='nova'>Anotações:</label>
+            <textarea id="notes" name="notes" class='nova-input' rows="4" cols="50" required></textarea>
+            <button onclick="addNote(); showModal();" class="sv-btn">Salvar Anotações</button>
+        </div>
 
+        <button class="btn-ver" onclick="window.location.href = '{{ url_for('get_notes') }}'">
+            <span class="button__text-v">Ver Anotações</span>
+            <span class="button__icon-v">
+            <svg width="30px" height="30px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11 6L21 6.00072M11 12L21 12.0007M11 18L21 18.0007M3 11.9444L4.53846 13.5L8 10M3 5.94444L4.53846 7.5L8 4M4.5 18H4.51M5 18C5 18.2761 4.77614 18.5 4.5 18.5C4.22386 18.5 4 18.2761 4 18C4 17.7239 4.22386 17.5 4.5 17.5C4.77614 17.5 5 17.7239 5 18Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></span>
+                </svg>
+        </button>
+            
+        </div>
+    </div>
+    
     <div class="list-container">
         <h2>Lista de Clientes</h2>
         <label>Data</label>
@@ -93,6 +111,19 @@
             {% endfor %}
         </ul>
         </form>
+
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <div id="checkmark" class="checkmark">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48">
+                        <path fill="none" d="M0 0h24v24H0V0z"/>
+                        <path class="checkmark-path" d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                    </svg>
+                </div>
+                <p id="success-message">Anotações salvas com sucesso!</p>
+            </div>
+        </div>
 
         <div class="button-container">
             <button class="limpar" type="button" onclick="clearTaskList()">
@@ -120,9 +151,7 @@
                     xmlns="http://www.w3.org/2000/svg" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier">
                         <polyline points="268 112 412 256 268 400" style="fill:none;stroke:#ffffff;stroke-linecap:square;stroke-miterlimit:10;stroke-width:48px"></polyline><line x1="392" y1="256" x2="100" y2="256" style="fill:none;stroke:#ffffff;stroke-linecap:square;stroke-miterlimit:10;stroke-width:48px"></line></g></svg>
                     </button>  -->          
-                    </div>
     </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Inicializa o Flatpickr no elemento com a ID 'data'

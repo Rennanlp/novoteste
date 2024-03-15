@@ -1,0 +1,122 @@
+DEBUG:matplotlib:matplotlib data path: C:\Users\Dell\AppData\Local\Programs\Python\Python312\Lib\site-packages\matplotlib\mpl-data
+DEBUG:matplotlib:CONFIGDIR=C:\Users\Dell\.matplotlib
+DEBUG:matplotlib:interactive is False
+DEBUG:matplotlib:platform is win32
+DEBUG:matplotlib:CACHEDIR=C:\Users\Dell\.matplotlib
+DEBUG:matplotlib.font_manager:Using fontManager instance from C:\Users\Dell\.matplotlib\fontlist-v330.json
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 940-771-723
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:36:02] "GET /get_notes HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:36:02] "[36mGET /static/notes.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:36:02] "[36mGET /static/logo_ico.ico HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:36:04] "GET /task HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:36:04] "[36mGET /static/form.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:36:04] "[36mGET /static/script.js HTTP/1.1[0m" 304 -
+DEBUG:root:Data da nota: 15-03-2024
+DEBUG:root:Conteúdo da nota: TESTE
+DEBUG:root:Data formatada: 15/03/2024
+INFO:root:Nota adicionada com sucesso ao banco de dados.
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:36:09] "POST /add_note HTTP/1.1" 200 -
+DEBUG:root:Data da nota: 15-03-2024
+DEBUG:root:Conteúdo da nota: TESTE
+DEBUG:root:Data formatada: 15/03/2024
+INFO:root:Nota adicionada com sucesso ao banco de dados.
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:36:16] "POST /add_note HTTP/1.1" 200 -
+DEBUG:root:Data da nota: 15-03-2024
+DEBUG:root:Conteúdo da nota: TESTE
+DEBUG:root:Data formatada: 15/03/2024
+INFO:root:Nota adicionada com sucesso ao banco de dados.
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:36:21] "POST /add_note HTTP/1.1" 200 -
+INFO:werkzeug: * Detected change in 'c:\\Users\\Dell\\Desktop\\novoteste-main\\app.py', reloading
+DEBUG:matplotlib:matplotlib data path: C:\Users\Dell\AppData\Local\Programs\Python\Python312\Lib\site-packages\matplotlib\mpl-data
+DEBUG:matplotlib:CONFIGDIR=C:\Users\Dell\.matplotlib
+DEBUG:matplotlib:interactive is False
+DEBUG:matplotlib:platform is win32
+DEBUG:matplotlib:CACHEDIR=C:\Users\Dell\.matplotlib
+DEBUG:matplotlib.font_manager:Using fontManager instance from C:\Users\Dell\.matplotlib\fontlist-v330.json
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 940-771-723
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:36:32] "GET /task HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:36:32] "[36mGET /static/form.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:36:32] "[36mGET /static/script.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:36:32] "[36mGET /static/logo_ico.ico HTTP/1.1[0m" 304 -
+DEBUG:matplotlib:matplotlib data path: C:\Users\Dell\AppData\Local\Programs\Python\Python312\Lib\site-packages\matplotlib\mpl-data
+DEBUG:matplotlib:CONFIGDIR=C:\Users\Dell\.matplotlib
+DEBUG:matplotlib:interactive is False
+DEBUG:matplotlib:platform is win32
+DEBUG:matplotlib:CACHEDIR=C:\Users\Dell\.matplotlib
+DEBUG:matplotlib.font_manager:Using fontManager instance from C:\Users\Dell\.matplotlib\fontlist-v330.json
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug: * Restarting with stat
+DEBUG:matplotlib:matplotlib data path: C:\Users\Dell\AppData\Local\Programs\Python\Python312\Lib\site-packages\matplotlib\mpl-data
+DEBUG:matplotlib:CONFIGDIR=C:\Users\Dell\.matplotlib
+DEBUG:matplotlib:interactive is False
+DEBUG:matplotlib:platform is win32
+DEBUG:matplotlib:CACHEDIR=C:\Users\Dell\.matplotlib
+DEBUG:matplotlib.font_manager:Using fontManager instance from C:\Users\Dell\.matplotlib\fontlist-v330.json
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 940-771-723
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:36:58] "GET /task HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:36:59] "[36mGET /static/form.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:36:59] "[36mGET /static/script.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:36:59] "[36mGET /static/logo_ico.ico HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:37:00] "GET /task HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:37:01] "[36mGET /static/script.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:37:01] "[36mGET /static/form.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:37:01] "[36mGET /static/logo_ico.ico HTTP/1.1[0m" 304 -
+DEBUG:root:Data da nota: 15-03-2024
+DEBUG:root:Conteúdo da nota: TESTE
+DEBUG:root:Data formatada: 15/03/2024
+INFO:root:Nota adicionada com sucesso ao banco de dados.
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:37:30] "POST /add_note HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:38:25] "GET /task HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:38:25] "[36mGET /static/form.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:38:25] "[36mGET /static/script.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:38:27] "GET /rastreamento HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:38:27] "GET /static/sro.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:38:27] "GET /static/conexao.png HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:38:27] "[36mGET /static/script.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:38:34] "GET /task HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:38:34] "[36mGET /static/script.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:38:34] "[36mGET /static/form.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:38:40] "GET /get_notes HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:38:40] "[36mGET /static/notes.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:41:44] "GET /get_notes HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:41:44] "[36mGET /static/notes.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:41:44] "[36mGET /static/logo_ico.ico HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:41:46] "GET /task HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:41:46] "[36mGET /static/form.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:41:46] "[36mGET /static/script.js HTTP/1.1[0m" 304 -
+DEBUG:root:Data da nota: 15-03-2024
+DEBUG:root:Conteúdo da nota: TESTE
+DEBUG:root:Data formatada: 15/03/2024
+INFO:root:Nota adicionada com sucesso ao banco de dados.
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:41:50] "POST /add_note HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:41:52] "GET /get_notes HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:41:52] "[36mGET /static/notes.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:42:17] "GET /get_notes HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:42:17] "[36mGET /static/notes.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:42:17] "[36mGET /static/logo_ico.ico HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:42:19] "GET /task HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:42:19] "[36mGET /static/script.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:42:19] "[36mGET /static/form.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:42:20] "GET /task HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:42:20] "[36mGET /static/script.js HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:42:20] "[36mGET /static/form.css HTTP/1.1[0m" 304 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:42:21] "[36mGET /static/logo_ico.ico HTTP/1.1[0m" 304 -
+DEBUG:root:Data da nota: 16-03-2024
+DEBUG:root:Conteúdo da nota: TESTE
+DEBUG:root:Data formatada: 16/03/2024
+INFO:root:Nota adicionada com sucesso ao banco de dados.
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:42:26] "POST /add_note HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:42:27] "GET /get_notes HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Mar/2024 16:42:27] "[36mGET /static/notes.css HTTP/1.1[0m" 304 -
+INFO:werkzeug: * Detected change in 'c:\\Users\\Dell\\Desktop\\novoteste-main\\app.py', reloading
+INFO:werkzeug: * Restarting with stat
+INFO:werkzeug: * Restarting with stat
+INFO:werkzeug: * Restarting with stat
+INFO:werkzeug: * Restarting with stat
+INFO:werkzeug: * Restarting with stat
+INFO:werkzeug: * Restarting with stat

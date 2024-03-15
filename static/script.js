@@ -268,3 +268,85 @@ function enviarDadosParaDashboard() {
         console.error('Erro durante a solicitação AJAX:', error);
     });
 }
+
+function addNote() {
+    const rawDate = document.getElementById('date').value;
+    const notes = document.getElementById('notes').value;
+    
+    // Formatando a data de aaaa-mm-dd para dd-mm-aaaa
+    const parts = rawDate.split("-");
+    const formattedDate = parts[2] + "-" + parts[1] + "-" + parts[0];
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/add_note', true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            // Atualize apenas a seção de anotações na página
+            document.getElementById('savedNotes').innerHTML = xhr.responseText;
+        }
+    };
+    
+    // Enviando a data formatada e as notas para o servidor
+    xhr.send(`date=${formattedDate}&notes=${notes}`);
+
+    showModal();
+
+    // Após alguns segundos, ocultar a janela flutuante de sucesso
+    setTimeout(hideModal, 3000); // Tempo em milissegundos (neste caso, a janela será ocultada após 3 segundos)
+}
+
+function getNotes() {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', '/get_notes', true);
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            // Atualize a seção de anotações na página
+            document.getElementById('savedNotes').innerHTML = xhr.responseText;
+        }
+    };
+    xhr.send();
+}
+
+function hideModal() {
+    var modal = document.getElementById('modal');
+    modal.style.display = 'none';
+}
+
+function showModal() {
+    var modal = document.getElementById('modal');
+    modal.style.display = 'block';
+
+    // Fechar a modal quando o botão 'x' for clicado
+    var closeButton = document.querySelector('.close');
+    closeButton.addEventListener('click', function() {
+        hideModal(); // Chama a função para fechar a modal
+    });
+
+    // Fechar a modal quando clicar fora dela
+    window.addEventListener('click', function(event) {
+        if (event.target == modal) {
+            hideModal(); // Chama a função para fechar a modal
+        }
+    });
+
+    // Adicionar temporizador para fechar automaticamente após 3 segundos (3000 milissegundos)
+    setTimeout(function() {
+        hideModal(); // Chama a função para fechar a modal
+    }, 3000);
+
+}
+
+// Função para mostrar a animação de check e exibir a modal
+function showSuccessCheck() {
+    var modalContent = document.querySelector('.modal-content');
+    modalContent.innerHTML = '<span class="checkmark">&#10003;</span><p id="success-message">Anotações salvas com sucesso!</p>';
+    var checkmark = document.querySelector('.checkmark');
+    checkmark.style.display = 'inline-block'; // Exibe o checkmark
+
+    showModal(); // Chama a função para exibir a modal
+
+    console.log('closeButton:', closeButton);
+    console.log('modalContent:', modalContent);
+}
+

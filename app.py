@@ -1,5 +1,5 @@
 # app.py
-from flask import Flask, render_template, request, send_file, redirect, session, url_for, jsonify, g
+from flask import Flask, render_template, request, send_file, redirect, session, url_for, jsonify, g, render_template_string
 from werkzeug.utils import secure_filename
 from unidecode import unidecode
 import os
@@ -9,7 +9,10 @@ from functools import wraps
 import xlsxwriter
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-
+from flask_migrate import Migrate
+from collections import defaultdict
+from jinja2 import Environment
+import locale
 
 
 app = Flask(__name__)
@@ -20,8 +23,17 @@ app.config['STATIC_FOLDER'] = 'static'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tasks.db'
 db = SQLAlchemy(app)
 CORS(app)
+migrate = Migrate(app, db)
+locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
 
+def format_date(value, format='%d/%m/%Y'):
+    # Verifica se o valor já é uma string, se for, não faz nada
+    if isinstance(value, str):
+        return value
+    # Se o valor não for uma string, assume que é um objeto datetime e formata conforme o formato especificado
+    return value.strftime(format)
 
+app.jinja_env.filters['date'] = format_date
 
 user_tasks = {}
 user_quantities = {}
@@ -63,6 +75,12 @@ user_database = {
         'name': 'Duda'
     }
 }
+
+class Note(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), nullable=False)
+    date = db.Column(db.String(10), nullable=False)  # Alteração no formato da data
+    content = db.Column(db.Text, nullable=False)
 
 # verificar se o usuário está logado
 def login_required(view):
@@ -267,6 +285,74 @@ import pandas as pd
 @login_required
 def dashboard():
     return render_template('teste.html')
+
+@app.route('/add_note', methods=['POST'])
+@login_required
+def add_note():
+    username = session['username']
+    note_date_str = request.form.get('date')
+    note_content = request.form.get('notes').replace('\n', '<br>')
+
+    if note_date_str:
+        # Convertendo a data de "dd-mm-aaaa" para "aaaa-mm-dd"
+        note_date = datetime.strptime(note_date_str, '%d-%m-%Y').strftime('%Y-%m-%d')
+
+        new_note = Note(username=username, date=note_date, content=note_content)
+        db.session.add(new_note)
+        db.session.commit()
+
+        return jsonify({'status': 'success'})
+    else:
+        return jsonify({'status': 'error', 'message': 'Data inválida'})
+
+@app.route('/get_notes', methods=['GET'])
+@login_required
+def get_notes():
+    username = session['username']
+    notes = Note.query.filter_by(username=username).order_by(Note.date).all()
+
+    grouped_notes = defaultdict(list)
+    for note in notes:
+        if note.date:  # Verifica se a data não está vazia
+            try:
+                # Convertendo a data de volta para o formato d/m/Y
+                note_date = datetime.strptime(note.date, '%Y-%m-%d')
+                # Adicionando o dia da semana na data formatada
+                note_date_formatted = note_date.strftime('%d/%m/%Y') + ' - ' + note_date.strftime('%A')
+                grouped_notes[note_date_formatted].append(note)
+            except ValueError:
+                # Lidar com datas inválidas, se necessário
+                pass
+
+    return render_template('notes.html', grouped_notes=grouped_notes)
+
+@app.route('/remove_note', methods=['POST'])
+@login_required
+def remove_note():
+    note_id = request.form.get('note_id')
+    username = session['username']
+
+    # Verifica se a nota pertence ao usuário atual antes de removê-la
+    note = Note.query.filter_by(id=note_id, username=username).first()
+
+    if note:
+        db.session.delete(note)
+        db.session.commit()
+        # Recarrega a página após a remoção bem-sucedida
+        return redirect(url_for('get_notes'))
+    else:
+        return jsonify({'status': 'error', 'message': 'Nota não encontrada ou você não tem permissão para removê-la.'})
+    
+@app.route('/clear_notes', methods=['POST'])
+@login_required
+def clear_notes():
+    username = session['username']
+
+    # Remove todas as notas do usuário atual do banco de dados
+    num_deleted = Note.query.filter_by(username=username).delete()
+    db.session.commit()
+
+    return redirect(url_for('get_notes'))
 
 
 if __name__ == '__main__':
