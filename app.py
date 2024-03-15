@@ -12,7 +12,7 @@ from flask_cors import CORS
 from flask_migrate import Migrate
 from collections import defaultdict
 from jinja2 import Environment
-import locale
+
 
 
 app = Flask(__name__)
@@ -24,7 +24,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tasks.db'
 db = SQLAlchemy(app)
 CORS(app)
 migrate = Migrate(app, db)
-locale.setlocale(locale.LC_TIME, 'pt_BR')
+
 
 def format_date(value, format='%d/%m/%Y'):
     # Verifica se o valor já é uma string, se for, não faz nada
