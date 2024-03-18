@@ -94,9 +94,11 @@ async function searchTracking() {
     resultDiv.innerHTML = '';  // Limpa o conteúdo anterior
     resultDiv.appendChild(loadingDiv);
 
-    // Adiciona um tempo de espera de carregamento
-    var loadingTime = 2000; // 2 segundos
-    setTimeout(async function () {
+    var maxAttempts = 15; // Número máximo de tentativas
+    var attempts = 0;
+
+    // Função para buscar rastreamento
+    async function fetchTracking() {
         try {
             var requestOptions = {
                 method: 'GET',
@@ -125,17 +127,33 @@ async function searchTracking() {
 
                 // Atualiza a div de resultado com a mensagem construída
                 resultDiv.innerHTML = message;
+
+                return true; // Retorna sucesso
             } else {
-                resultDiv.removeChild(loadingDiv); // Remove o elemento de loading
-                resultDiv.innerHTML = 'Não foram encontrados eventos de rastreamento para o número informado.';
+                throw new Error('Não foram encontrados eventos de rastreamento para o número informado.');
             }
         } catch (error) {
             console.error('Erro ao buscar rastreamento:', error);
-            resultDiv.removeChild(loadingDiv); // Remove o elemento de loading
-            resultDiv.innerHTML = 'Erro ao buscar rastreamento. Por favor, tente novamente.';
+            return false; // Retorna falha
         }
-        
-    }, loadingTime);
+    }
+
+    // Loop de tentativas
+    async function attemptSearch() {
+        while (attempts < maxAttempts) {
+            attempts++;
+            var success = await fetchTracking();
+            if (success) {
+                return; // Encerra o loop se a busca for bem-sucedida
+            }
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Aguarda 1 segundo antes de tentar novamente
+        }
+        // Se exceder o número máximo de tentativas
+        resultDiv.removeChild(loadingDiv); // Remove o elemento de loading
+        resultDiv.innerHTML = 'Excedido o número máximo de tentativas. Por favor, tente novamente mais tarde.';
+    }
+
+    attemptSearch(); // Inicia o loop de tentativas
 }
 
 async function removeTask(buttonElement) {
