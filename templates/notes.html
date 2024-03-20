@@ -49,7 +49,7 @@
         </ul>
     </nav>
     <h2>Suas Anotações</h2>
-    {% for date, notes in grouped_notes.items() %}
+    {% for date, notes in grouped_notes.items()|reverse %}
         <h3>{{ date }}</h3>
         <ul>
             {% for note in notes %}
