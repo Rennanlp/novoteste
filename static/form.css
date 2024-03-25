@@ -697,7 +697,7 @@ textarea.nova-input {
   height: 250px;
   padding: 8px;
   box-sizing: border-box;
-  resize: none; 
+  resize: vertical; 
   overflow-x: auto; 
   overflow-y: auto; 
 }
