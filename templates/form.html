@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-... (hash)" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="{{ url_for('static', filename='script.js') }}" defer></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='form.css') }}">
@@ -42,6 +44,12 @@
                     <span class="nav-text">Rastreamento</span>
                 </a>
             </li>
+            <li>
+                <a href="/get_notes">
+                    <i class="fa fa-solid fa-table-list fa-2x"></i>
+                    <span class="nav-text">Anotações</span>
+                </a>
+            </li>
         </ul>
         <ul class="logout fixed-logout">
             <li>
@@ -57,6 +65,7 @@
         <h2 class='head-task'>Adicionar Nova Tarefa</h2>
         <form action="/add_task" method="post" class="form-wrapper" onsubmit="addTask(); return false;">
             <label for="task" class='nova'>Nova Tarefa:</label>
+            <select id="taskSelect" name="task" class='nova-input select-custom' required>
             <input type="text" class='nova-input' id="task" name="task" required>
             <button type="submit" class="add-task">
                 <span class="add-task__text">Adicionar</span>
@@ -152,6 +161,46 @@
                         <polyline points="268 112 412 256 268 400" style="fill:none;stroke:#ffffff;stroke-linecap:square;stroke-miterlimit:10;stroke-width:48px"></polyline><line x1="392" y1="256" x2="100" y2="256" style="fill:none;stroke:#ffffff;stroke-linecap:square;stroke-miterlimit:10;stroke-width:48px"></line></g></svg>
                     </button>  -->          
     </div>
+    <h2 class='label-pesq'>Pesquisar Pedidos Box</h2>
+    <form id="pesquisa-form">
+        <label for="cliente">Nome do Cliente:</label>
+        <input type="text" id="cliente" name="cliente"><br><br>
+    
+        <div class="date-inputs">
+            <label for="data_inicial">Data Inicial:</label>
+            <input type="date" id="data_inicial" name="data_inicial">
+        
+            <label for="data_final">Data Final:</label>
+            <input type="date" id="data_final" name="data_final">
+        </div>
+    
+        <button type="button" id="pesquisar-btn" class="btn btn-primary"><i class="fas fa-search"></i> Pesquisar</button>
+    </form>
+    <div class="container">
+        <div id="resultado" class="card bg-info text-white p-4">
+            {% if mensagem_pesquisa %}
+                <div class="card-body">
+                    <h5 class="card-title text-center"><i class="fas fa-search mr-2"></i>Pedidos no Box</h5>
+                    <p class="card-text text-center">{{ mensagem_pesquisa }}</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#pesquisar-btn').click(function(){
+                $.ajax({
+                    url: '/pesquisar',
+                    type: 'POST',
+                    data: $('#pesquisa-form').serialize(),
+                    success: function(response){
+                        $('#resultado').html(response.mensagem);
+                    }
+                });
+            });
+        });
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Inicializa o Flatpickr no elemento com a ID 'data'
@@ -170,6 +219,53 @@
                 position: "below",
             });
         });
+    </script>
+    <script>
+        window.onload = function() {
+            var tokens = [
+                "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb25hc2dhcmNpYTY2NkBnbWFpbC5jb20iLCJVU0VSX0RFVEFJTFMiOnsidXNlcklkIjoxNTgzLCJtYXRyaXpJZCI6MTcsImZyYW5xdWlhSWQiOjEsImNsaWVudGVJZCI6bnVsbH0sImV4cCI6NTk5NTU2NjAwMH0.Jly4W-V7cBH4NME4Rn_KJBuWtXitlhzuckA3FoflO7c",
+
+                "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb25hc2dhcmNpYTY2NkBnbWFpbC5jb20iLCJVU0VSX0RFVEFJTFMiOnsidXNlcklkIjoxNTgzLCJtYXRyaXpJZCI6MTcsImZyYW5xdWlhSWQiOjksImNsaWVudGVJZCI6bnVsbH0sImV4cCI6NDQ4MDk3NDAwMH0.0ew6BIm8cr5neOgkO1371-BSDnWcdkMjsvHRzU9wcS8"
+            ];
+            fetchSellers(tokens);
+        };
+        
+        function fetchSellers(tokens) {
+            var select = document.getElementById("taskSelect");
+            var input = document.getElementById("task");
+            var existingOptions = {};
+        
+            tokens.forEach(function(token) {
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", "https://api.boxlink.com.br/v2/sellers", true);
+                xhr.setRequestHeader("Authorization", "Bearer " + token);
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        var sellers = JSON.parse(xhr.responseText);
+                        
+                        for (var i = 0; i < sellers.length; i++) {
+                            var sellerName = sellers[i].nomeFantasia;
+        
+                            if (!existingOptions[sellerName]) {
+                                existingOptions[sellerName] = true;
+        
+                                var option = document.createElement("option");
+                                option.value = sellerName;
+                                option.text = sellerName;
+                                select.appendChild(option);
+                            }
+                        }
+                    }
+                };
+                xhr.send();
+            });
+        
+            // Adicionando um ouvinte de evento para detectar mudanças no select
+            select.addEventListener('change', function() {
+                // Atribuindo o nomeFantasia do option selecionado ao valor do input
+                input.value = select.value;
+            });
+        }
     </script>
 </body>
 </html>

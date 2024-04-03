@@ -399,6 +399,7 @@ li.checkbox-wrapper {
   border-radius: 10px;
   box-shadow: 4px 4px #323232;
   margin-left: 10px;
+  margin-bottom: 20px;
 }
 
 .limpar, .limpar__icon, .limpar__text {
@@ -810,4 +811,97 @@ textarea.nova-input {
   display: inline-block;
   vertical-align: middle;
   margin-left: 5px;
+}
+
+.date-inputs {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.date-inputs label {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.date-inputs input[type="date"] {
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+#resultado {
+  background-color: #4CAF50;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  color: #fff;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.card-title {
+  font-size: 24px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.card-text {
+  font-size: 18px;
+  text-align: center;
+}
+
+#resultado:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px 0 rgba(0, 0, 0, 0.2);
+}
+
+.fa-search {
+  margin-right: 10px;
+}
+
+#pesquisar-btn {
+  display: block;
+  margin: 0 auto;
+  margin-bottom: 10px;
+  padding: 10px 20px; /* Ajuste o padding conforme necessário */
+  border-radius: 5%; /* Cria um formato circular para o botão */
+  cursor: pointer; /* Muda o cursor para indicar que é clicável */
+}
+
+.label-pesq {
+  font-size: 24px;
+  color: #333;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin: 0 auto;
+  margin-bottom: 10px;
+}
+
+#cliente {
+  width: 300px;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+label {
+  font-size: 18px;
+  color: #666;
+  font-family: Arial, sans-serif;
+}
+
+#pesquisa-form input[type="submit"] {
+  background-color: #4CAF50;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#pesquisa-form input[type="submit"]:hover {
+  background-color: #45a049;
 }

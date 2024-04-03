@@ -1,6 +1,5 @@
 # app.py
-from flask import Flask, render_template, request, send_file, redirect, session, url_for, jsonify, g, render_template_string
-from werkzeug.utils import secure_filename
+from flask import Flask, render_template, request, send_file, redirect, session, url_for, jsonify, g, render_template_string, json
 from unidecode import unidecode
 import os
 import csv
@@ -12,7 +11,9 @@ from flask_cors import CORS
 from flask_migrate import Migrate
 from collections import defaultdict
 from jinja2 import Environment
-
+import requests
+import sqlite3
+from werkzeug.utils import secure_filename
 
 
 app = Flask(__name__)
@@ -73,10 +74,6 @@ user_database = {
     'Eduarda': {
         'password': 'eduarda10',
         'name': 'Duda'
-    },
-    'Bernardo': {
-    'password': 'bernardo@10',
-    'name': 'Bernardo'
     }
 }
 
@@ -135,6 +132,20 @@ def generate_excel(username, tasks):
     workbook.close()
 
     return output_filepath
+
+def obter_token_por_cliente(nome_cliente):
+    conn = sqlite3.connect('clientes.db')
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT token FROM clientes WHERE LOWER(cliente) = LOWER(?)", (nome_cliente,))
+    resultado = cursor.fetchone()
+
+    conn.close()
+
+    if resultado:
+        return resultado[0]
+    else:
+        return None
 
 @app.route('/')
 @login_required
@@ -358,6 +369,49 @@ def clear_notes():
 
     return redirect(url_for('get_notes'))
 
+@app.route('/pesquisar', methods=['POST'])
+def pesquisar():
+    nome_cliente = request.form['cliente']
+    data_inicial = datetime.strptime(request.form['data_inicial'], '%Y-%m-%d').strftime('%d/%m/%Y')
+    data_final = datetime.strptime(request.form['data_final'], '%Y-%m-%d').strftime('%d/%m/%Y')
+
+    conn = sqlite3.connect('clientes.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM clientes WHERE cliente = ?", (nome_cliente,))
+    resultado = cursor.fetchone()
+
+    if resultado:
+        token = resultado[2]
+        conn.close()
+
+        url = "https://api.boxlink.com.br/preenvio/consultar-periodo"
+        payload = json.dumps({
+            "dataInicial": request.form['data_inicial'],
+            "dataFinal": request.form['data_final'],
+            "preenvioCancelado": True,
+            "envioExpedido": True
+        })
+        headers = {
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+        }
+        response = requests.request("POST", url, headers=headers, data=payload)
+        data = json.loads(response.text)
+        chave_seller = sum('chaveSeller' in d for d in data)
+        preEnvio_cancelado = sum(d['preenvioCancelado'] for d in data if 'preenvioCancelado' in d)
+        envio_expedido = sum(d['envioExpedido'] for d in data if 'envioExpedido' in d)
+
+        resultado_final = chave_seller - envio_expedido - preEnvio_cancelado
+
+        mensagem = "{}\n\n de {} a {}:\n\n {} etiqueta(s) aguardando impressão".format(nome_cliente, data_inicial, data_final, resultado_final)
+    else:
+        mensagem = "Cliente não encontrado ou token não disponível."
+
+    # Imprimir a mensagem no console do servidor
+    print("Mensagem retornada:", mensagem)
+
+    # Retornar a mensagem como JSON
+    return jsonify({'mensagem': mensagem})
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
