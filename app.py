@@ -14,6 +14,7 @@ from jinja2 import Environment
 import requests
 import sqlite3
 from werkzeug.utils import secure_filename
+import io
 
 
 app = Flask(__name__)
@@ -101,7 +102,7 @@ def login_required(view):
     return wrapped_view
 
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+    return '.' in filename and filename.rsplit('.', 1)[1].upper() in app.config['ALLOWED_EXTENSIONS']
 
 def generate_excel(username, tasks):
     print("User tasks:", user_tasks)
@@ -140,6 +141,41 @@ def generate_excel(username, tasks):
     workbook.close()
 
     return output_filepath
+
+def process_csv(file):
+    conn = sqlite3.connect('clientes.db')
+    c = conn.cursor()
+    
+    try:
+        csv_reader = csv.reader(io.TextIOWrapper(file, encoding='latin-1'), delimiter=';')
+    except Exception as e:
+        print("Erro ao tentar abrir o arquivo CSV:", e)
+        return
+
+    next(csv_reader, None)
+
+    for row in csv_reader:
+        if len(row) >= 2 and all(row[:2]):
+            id, cliente, token = row[0], row[1], row[2]
+            c.execute("INSERT INTO clientes (id, cliente, token) VALUES (?, ?, ?)", (id, cliente, token))
+        else:
+            print("Ignorando linha do arquivo CSV com formato inválido:", row)
+
+    conn.commit()
+    conn.close()
+
+def criar_tabela():
+    conn = sqlite3.connect('clientes.db')
+    cursor = conn.cursor()
+    cursor.execute('''CREATE TABLE IF NOT EXISTS clientes (
+                        id INTEGER PRIMARY KEY,
+                        cliente TEXT,
+                        token TEXT
+                    )''')
+    conn.commit()
+    conn.close()
+
+criar_tabela()
 
 def obter_token_por_cliente(nome_cliente):
     conn = sqlite3.connect('clientes.db')
@@ -377,7 +413,13 @@ def clear_notes():
 
     return redirect(url_for('get_notes'))
 
+@app.route('/cadastro')
+@login_required
+def cadastro():
+    return render_template('cadastro.html')
+
 @app.route('/pesquisar', methods=['POST'])
+@login_required
 def pesquisar():
     nome_cliente = request.form['cliente']
     data_inicial = datetime.strptime(request.form['data_inicial'], '%Y-%m-%d').strftime('%d/%m/%Y')
@@ -420,6 +462,44 @@ def pesquisar():
 
     # Retornar a mensagem como JSON
     return jsonify({'mensagem': mensagem})
+
+@app.route('/adicionar', methods=['POST'])
+@login_required
+def adicionar():
+    id = request.form['id']
+    cliente = request.form['cliente']
+    token = request.form['token']
+
+    conn = sqlite3.connect('clientes.db')
+    cursor = conn.cursor()
+    cursor.execute('''INSERT INTO clientes (id, cliente, token)
+                    VALUES (?, ?, ?)''', (id, cliente, token))
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for('cadastro'))
+
+@app.route('/upload_csv', methods=['POST'])
+@login_required
+def upload_csv():
+    if request.method == 'POST':
+        # Verifica se o arquivo CSV foi enviado
+        if 'file' not in request.files:
+            return redirect(request.url)
+        
+        file = request.files['file']
+        
+        if file.filename == '' or not file.filename.endswith('.csv'):
+            return redirect(request.url)
+        
+        try:
+            process_csv(file)
+            mensagem = "Dados adicionados com sucesso."
+            return redirect(url_for('cadastro', mensagem=mensagem))
+        except Exception as e:
+            print(e)
+            mensagem = "Ocorreu um erro ao processar o arquivo CSV."
+            return redirect(url_for('cadastro', mensagem=mensagem))
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)

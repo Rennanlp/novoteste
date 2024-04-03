@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <title>Formulário de Adição de Dados</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='cadastro.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Adicionar Dados</h1>
+
+        <select id="clienteSelect" name="clienteSelect">
+            <!-- Options serão adicionadas dinamicamente pela função fetchSellers() -->
+        </select><br><br>
+        
+        <form method="post" action="/adicionar">
+            <label for="id">ID:</label>
+            <input type="text" id="id" name="id"><br><br>
+        
+            <label for="cliente">Cliente:</label>
+            <input type="text" id="clienteInput" name="cliente"><br><br>
+        
+            <label for="token">Token:</label>
+            <input type="text" id="token" name="token"><br><br>
+
+            <input type="submit" value="Adicionar">
+        </form>
+    </div>
+    <div class="container mt-5">
+        <form action="/upload_csv" method="POST" enctype="multipart/form-data" class="custom-form">
+          <div class="form-group">
+            <label for="fileInput" class="label1"><i class="fas fa-file-upload"></i> Importar Clientes:</label>
+            <input type="file" name="file" id="fileInput" accept=".csv" class="form-control-file" required>
+          </div>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-upload mr-2"></i> Enviar</button>
+        </form>
+      </div>
+    <div class="container">
+        <h2>Pesquisar Cliente</h2>
+        <form method="post" action="/pesquisar">
+            <label for="cliente">Nome do Cliente:</label>
+            <input type="text" id="cliente" name="cliente"><br><br>
+        
+            <div class="date-inputs">
+                <label for="data_inicial">Data Inicial:</label>
+                <input type="date" id="data_inicial" name="data_inicial">
+            
+                <label for="data_final">Data Final:</label>
+                <input type="date" id="data_final" name="data_final">
+            </div>
+        
+            <input type="submit" value="Pesquisar">
+        </form>
+        <div class="container">
+            <div class="resultado card bg-info text-white p-4">
+                {% if mensagem_pesquisa %}
+                    <div class="card-body">
+                        <h5 class="card-title text-center"><i class="fas fa-search mr-2"></i>Pedidos no Box</h5>
+                        <p class="card-text text-center">{{ mensagem_pesquisa }}</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <script>
+            function fetchSellers() {
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", "https://api.boxlink.com.br/v2/sellers", true);
+                xhr.setRequestHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb25hc2dhcmNpYTY2NkBnbWFpbC5jb20iLCJVU0VSX0RFVEFJTFMiOnsidXNlcklkIjoxNTgzLCJtYXRyaXpJZCI6MTcsImZyYW5xdWlhSWQiOjksImNsaWVudGVJZCI6bnVsbH0sImV4cCI6NDQ4MDk3NDAwMH0.0ew6BIm8cr5neOgkO1371-BSDnWcdkMjsvHRzU9wcS8");
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        var sellers = JSON.parse(xhr.responseText);
+                        var select = document.getElementById("clienteSelect");
+                        var inputId = document.getElementById("id");
+                        var inputCliente = document.getElementById("clienteInput");
+        
+                        for (var i = 0; i < sellers.length; i++) {
+                            var option = document.createElement("option");
+                            option.value = sellers[i].id; // Define o valor da opção como o ID
+                            option.text = sellers[i].nomeFantasia;
+                            select.appendChild(option);
+                        }
+        
+                        // Adicionando um ouvinte de evento para detectar mudanças no select
+                        select.addEventListener('change', function() {
+                            // Atribuindo o nomeFantasia do option selecionado ao campo Cliente
+                            inputCliente.value = select.options[select.selectedIndex].text;
+                            // Atribuindo o ID do option selecionado ao campo ID
+                            inputId.value = select.options[select.selectedIndex].value;
+                        });
+                    }
+                };
+                xhr.send();
+            }
+            
+            // Chama a função para popular o select assim que a página carrega
+            window.onload = fetchSellers;
+        </script>
+</body>
+</html>
