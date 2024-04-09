@@ -1,5 +1,5 @@
 # app.py
-from flask import Flask, render_template, request, send_file, redirect, session, url_for, jsonify, g, render_template_string, json
+from flask import Flask, render_template, request, send_file, redirect, session, url_for, jsonify, g, render_template_string, json, make_response
 from unidecode import unidecode
 import os
 import csv
@@ -15,7 +15,8 @@ import requests
 import sqlite3
 from werkzeug.utils import secure_filename
 import io
-
+import pandas as pd
+from io import BytesIO
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY') or b'_5#y2L"F4Q8z\n\xec]/'
@@ -500,6 +501,97 @@ def upload_csv():
             print(e)
             mensagem = "Ocorreu um erro ao processar o arquivo CSV."
             return redirect(url_for('cadastro', mensagem=mensagem))
+
+def obter_dados_da_api(url):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        return data
+    except requests.exceptions.RequestException as e:
+        print("Erro ao fazer a requisição:", e)
+        return None
+
+def consulta_api_box(tokens, data_fim):
+    url_api_box = "https://api.boxlink.com.br/preenvio/consultar-periodo"
+    payload = json.dumps({
+        "dataInicial": data_fim,
+        "dataFinal": data_fim,
+        "preenvioCancelado": True,
+        "envioExpedido": True
+    })
+    resultado_final = []
+
+    for token in tokens:
+        headers = {
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+        }
+        response = requests.request("POST", url_api_box, headers=headers, data=payload)
+        data = json.loads(response.text)
+        chave_seller = sum('chaveSeller' in d for d in data)
+        preEnvio_cancelado = sum(d['preenvioCancelado'] for d in data if 'preenvioCancelado' in d)
+        envio_expedido = sum(d['envioExpedido'] for d in data if 'envioExpedido' in d)
+
+        resultado_final.append(chave_seller - envio_expedido - preEnvio_cancelado)
+
+    return resultado_final
+
+
+@app.route('/lista_completa')
+def lista_completa():
+    data_inicio = request.args.get('data_inicio', '')
+    data_fim = request.args.get('data_fim', '')
+
+    if not data_inicio or not data_fim:
+        return render_template('testeapi.html')
+    else:
+        if data_inicio and data_fim:
+            try:
+                data_inicio_formatted = datetime.strptime(data_inicio, '%Y-%m-%d').strftime('%Y%m%d')
+                data_fim_formatted = datetime.strptime(data_fim, '%Y-%m-%d').strftime('%Y%m%d')
+            except ValueError:
+                return "Formato de data inválido. Por favor, insira as datas no formato correto."
+
+            url_api_crm = f"https://ap5tntnr6b.execute-api.us-east-1.amazonaws.com/api/transcrmc/{data_inicio_formatted}/{data_fim_formatted}"
+            dados_api_crm = obter_dados_da_api(url_api_crm)
+
+            search_query = request.args.get('search', '')
+
+            if dados_api_crm:
+                if search_query:
+                    dados_api_crm = [item for item in dados_api_crm if search_query.lower() in item['Cliente'].lower()]
+                    
+                dados_formatados = [(item['Id_Cliente'], item['Cliente'], item['Pedidos'], item['Token']) for item in dados_api_crm]
+
+                tokens = [item['Token'] for item in dados_api_crm]
+                resultado_final = consulta_api_box(tokens, data_fim)
+
+                return render_template('testeapi.html', dados=dados_formatados, data_inicio=data_inicio, data_fim=data_fim, resultado_final=resultado_final)
+            else:
+                return "Erro ao obter dados da primeira API"
+
+
+@app.route('/download', methods=['POST'])
+def download():
+    try:
+        data = request.form.get('data')
+
+        data = eval(data)
+
+        df = pd.DataFrame(data, columns=['Id_Cliente', 'Cliente', 'Pedidos'])
+
+        output = BytesIO()
+
+        df.to_excel(output, index=False)
+
+        output.seek(0)
+
+        response = make_response(send_file(output, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'))
+        response.headers["Content-Disposition"] = "attachment; filename=dados.xlsx"
+        return response
+    except Exception as e:
+        return f"Erro ao processar o download: {str(e)}"
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)

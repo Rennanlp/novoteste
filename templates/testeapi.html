@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-... (hash)" crossorigin="anonymous" />
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/plug-ins/2.0.3/i18n/pt-BR.json"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='testeapi.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        h1 {
+            color: #343a40;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        /* Estilos personalizados para o DataTable */
+        #clientTable_wrapper {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+        }
+
+        #clientTable_paginate .paginate_button {
+            margin: 0 5px;
+            border-radius: 3px;
+            border: 1px solid #007bff;
+            color: #007bff;
+        }
+
+        #clientTable_paginate .paginate_button:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        #clientTable_filter input[type="search"] {
+            width: 300px;
+            padding: 8px;
+            border-radius: 3px;
+            border: 1px solid #ced4da;
+        }
+
+        #clientTable_info {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="area"></div>
+    <nav class="main-menu">
+        <ul>
+            <li>
+                <a href="/dashboard">
+                    <i class="fa fa-duotone fa-chart-pie fa-2x"></i>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+            </li>            
+            <li>
+                <a href="/">
+                    <i class="fa fa-solid fa-file-csv fa-2x"></i>
+                    <span class="nav-text">Removedor</span>
+                </a>
+            </li>
+            <li class="has-subnav">
+                <a href="/task">
+                    <i class="fa fa-solid fa-list-check fa-2x"></i>
+                    <span class="nav-text">Listas</span>
+                </a>
+            </li>
+            <li>
+                <a href="/rastreamento">
+                    <i class="fa fa-solid fa-truck-fast fa-2x"></i>
+                    <span class="nav-text">Rastreamento</span>
+                </a>
+            </li>
+            <li>
+                <a href="/get_notes">
+                    <i class="fa fa-solid fa-table-list fa-2x"></i>
+                    <span class="nav-text">Anotações</span>
+                </a>
+            </li>
+            <li>
+                <a href="/lista_completa">
+                    <i class="fa fa-solid fa-magnifying-glass fa-2x"></i>
+                    <span class="nav-text">Lista Completa de Clientes</span>
+                </a>
+            </li>
+        </ul>
+        <ul class="logout fixed-logout">
+            <li>
+                <a href="/logout">
+                    <i class="fa fa-power-off fa-2x"></i>
+                    <span class="nav-text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <div class="container">
+        <h1>Lista de Clientes</h1>
+        <form action="/lista_completa" method="get">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="data_inicio">Data de Início:</label>
+                    <input type="date" class="form-control" id="data_inicio" name="data_inicio" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="data_fim">Data de Fim:</label>
+                    <input type="date" class="form-control" id="data_fim" name="data_fim" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Pesquisar</button>
+        </form>
+        <table id="clientTable" class="table">
+            <thead>
+                <tr>
+                    <th>Id_Cliente</th>
+                    <th>Cliente</th>
+                    <th>Pedidos CRM</th>
+                    <th>Pedidos BOX</th> <!-- Adicionando a nova coluna -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in range(dados|length) %} <!-- Usando range para acessar o índice -->
+                <tr>
+                    <td>{{ dados[i][0] }}</td>
+                    <td>{{ dados[i][1] }}</td>
+                    <td>{{ dados[i][2] }}</td>
+                    <td>{{ resultado_final[i] }}</td> <!-- Exibindo o resultado_final correspondente -->
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <form action="/download" method="post">
+            <input type="hidden" name="data" value="{{ dados }}">
+            <button type="submit" class="btn btn-success"><i class="fas fa-download"></i> Download</button>
+        </form>
+    </div>
+    <div class="loading-overlay" id="loadingOverlay">
+        <i class="fas fa-spinner fa-spin loading-icon"></i>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            var table = $('#clientTable').DataTable({
+                "language": {
+                    "sEmptyTable":     "Nenhum registro encontrado",
+                    "sInfo":           "Mostrando de _START_ até _END_ de _TOTAL_ registros",
+                    "sInfoEmpty":      "Mostrando 0 até 0 de 0 registros",
+                    "sInfoFiltered":   "(Filtrados de _MAX_ registros)",
+                    "sInfoPostFix":    "",
+                    "sInfoThousands":  ".",
+                    "sLengthMenu":     "_MENU_ resultados por página",
+                    "sLoadingRecords": "Carregando...",
+                    "sProcessing":     "Processando...",
+                    "sZeroRecords":    "Nenhum registro encontrado",
+                    "sSearch":         "Pesquisar:",
+                    "oPaginate": {
+                        "sNext":     "Próximo",
+                        "sPrevious": "Anterior",
+                        "sFirst":    "Primeiro",
+                        "sLast":     "Último"
+                    },
+                    "oAria": {
+                        "sSortAscending":  ": Ordenar colunas de forma ascendente",
+                        "sSortDescending": ": Ordenar colunas de forma descendente"
+                    },
+                    "select": {
+                        "rows": {
+                            "_": "Selecionado %d linhas",
+                            "0": "Nenhuma linha selecionada",
+                            "1": "Selecionado 1 linha"
+                        }
+                    }
+                }
+            });
+    
+            $('#search').keyup(function() {
+                table.search($(this).val()).draw();
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            var table = $('#clientTable').DataTable();
+
+            $('#search').keyup(function() {
+                table.search($(this).val()).draw();
+            });
+
+            // Mostrar indicador de carregamento ao fazer a requisição para a API
+            $(document).ajaxStart(function() {
+                $('#loadingOverlay').show();
+            });
+            $(document).ajaxStop(function() {
+                $('#loadingOverlay').hide();
+            });
+        });
+    </script>
+</body>
+</html>
