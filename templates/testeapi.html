@@ -6,7 +6,6 @@
     <title>Pedidos</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-... (hash)" crossorigin="anonymous" />
-
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
     <script src="https://cdn.datatables.net/plug-ins/2.0.3/i18n/pt-BR.json"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='testeapi.css') }}">
@@ -134,16 +133,16 @@
                     <th>Id_Cliente</th>
                     <th>Cliente</th>
                     <th>Pedidos CRM</th>
-                    <th>Pedidos BOX</th> <!-- Adicionando a nova coluna -->
+                    <th>Pedidos BOX</th>
                 </tr>
             </thead>
             <tbody>
-                {% for i in range(dados|length) %} <!-- Usando range para acessar o índice -->
+                {% for i in range(dados|length) %}
                 <tr>
                     <td>{{ dados[i][0] }}</td>
                     <td>{{ dados[i][1] }}</td>
                     <td>{{ dados[i][2] }}</td>
-                    <td>{{ resultado_final[i] }}</td> <!-- Exibindo o resultado_final correspondente -->
+                    <td>{{ resultado_final[i] }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -153,9 +152,11 @@
             <button type="submit" class="btn btn-success"><i class="fas fa-download"></i> Download</button>
         </form>
     </div>
+    <!--
     <div class="loading-overlay" id="loadingOverlay">
         <i class="fas fa-spinner fa-spin loading-icon"></i>
     </div>
+    -->
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>

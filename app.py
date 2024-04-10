@@ -17,6 +17,9 @@ from werkzeug.utils import secure_filename
 import io
 import pandas as pd
 from io import BytesIO
+import asyncio
+import aiohttp
+from clientes import criar_banco_dados, inserir_dados_da_planilha, obter_responsaveis_e_empresas
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY') or b'_5#y2L"F4Q8z\n\xec]/'
@@ -30,10 +33,10 @@ migrate = Migrate(app, db)
 
 
 def format_date(value, format='%d/%m/%Y'):
-    # Verifica se o valor já é uma string, se for, não faz nada
+
     if isinstance(value, str):
         return value
-    # Se o valor não for uma string, assume que é um objeto datetime e formata conforme o formato especificado
+
     return value.strftime(format)
 
 app.jinja_env.filters['date'] = format_date
@@ -90,10 +93,9 @@ user_database = {
 class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), nullable=False)
-    date = db.Column(db.String(10), nullable=False)  # Alteração no formato da data
+    date = db.Column(db.String(10), nullable=False)
     content = db.Column(db.Text, nullable=False)
 
-# verificar se o usuário está logado
 def login_required(view):
     @wraps(view)
     def wrapped_view(*args, **kwargs):
@@ -103,7 +105,7 @@ def login_required(view):
     return wrapped_view
 
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].upper() in app.config['ALLOWED_EXTENSIONS']
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 def generate_excel(username, tasks):
     print("User tasks:", user_tasks)
@@ -199,7 +201,6 @@ def index():
     print("Username in session:", session.get('username'))
     return render_template('index.html', username=username)
 
-# Página de login
 @app.route('/login')
 def login1():
     if 'username' in session:
@@ -235,23 +236,22 @@ def remove_accent():
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
 
-            # Adiciona a seguinte linha para obter o encoding do formulário
             encoding = request.form.get('encoding', 'utf-8')
 
             # Tenta abrir o arquivo CSV com o encoding fornecido
             try:
                 with open(filepath, 'r', encoding=encoding) as input_file:
-                    delimiter = ';'  # Especificar o delimitador usado no arquivo CSV
+                    delimiter = ';'
                     reader = csv.reader(input_file, delimiter=delimiter)
                     rows = [list(map(lambda x: unidecode(x) if x else x, row)) for row in reader]
             except UnicodeDecodeError:
-                # Se ocorrer um erro de decodificação, tenta abrir com 'latin-1'
+                # Se ocorrer um erro de decodificação, tentar abrir com 'latin-1'
                 with open(filepath, 'r', encoding='latin-1') as input_file:
-                    delimiter = ';'  # Especifica o delimitador usado no arquivo
+                    delimiter = ';'
                     reader = csv.reader(input_file, delimiter=delimiter)
                     rows = [list(map(lambda x: unidecode(x) if x else x, row)) for row in reader]
 
-            # Cria um arquivo de saída para o novo CSV
+            # Criar um arquivo de saída para o novo CSV
             output_filepath = os.path.join(app.config['UPLOAD_FOLDER'], f'Arquivo_Ajustado_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv')
             with open(output_filepath, 'w', encoding='utf-8', newline='') as output_file:
                 writer = csv.writer(output_file, delimiter=delimiter)
@@ -354,7 +354,7 @@ def add_note():
     note_content = request.form.get('notes').replace('\n', '<br>')
 
     if note_date_str:
-        # Convertendo a data de "dd-mm-aaaa" para "aaaa-mm-dd"
+        
         note_date = datetime.strptime(note_date_str, '%d-%m-%Y').strftime('%Y-%m-%d')
 
         new_note = Note(username=username, date=note_date, content=note_content)
@@ -373,15 +373,15 @@ def get_notes():
 
     grouped_notes = defaultdict(list)
     for note in notes:
-        if note.date:  # Verifica se a data não está vazia
+        if note.date:
             try:
                 # Convertendo a data de volta para o formato d/m/Y
                 note_date = datetime.strptime(note.date, '%Y-%m-%d')
-                # Adicionando o dia da semana na data formatada
+
                 note_date_formatted = note_date.strftime('%d/%m/%Y') + ' - ' + note_date.strftime('%A')
                 grouped_notes[note_date_formatted].append(note)
             except ValueError:
-                # Lidar com datas inválidas, se necessário
+
                 pass
 
     return render_template('notes.html', grouped_notes=grouped_notes)
@@ -392,13 +392,12 @@ def remove_note():
     note_id = request.form.get('note_id')
     username = session['username']
 
-    # Verifica se a nota pertence ao usuário atual antes de removê-la
     note = Note.query.filter_by(id=note_id, username=username).first()
 
     if note:
         db.session.delete(note)
         db.session.commit()
-        # Recarrega a página após a remoção bem-sucedida
+
         return redirect(url_for('get_notes'))
     else:
         return jsonify({'status': 'error', 'message': 'Nota não encontrada ou você não tem permissão para removê-la.'})
@@ -458,10 +457,8 @@ def pesquisar():
     else:
         mensagem = "Cliente não encontrado ou token não disponível."
 
-    # Imprimir a mensagem no console do servidor
     print("Mensagem retornada:", mensagem)
 
-    # Retornar a mensagem como JSON
     return jsonify({'mensagem': mensagem})
 
 @app.route('/adicionar', methods=['POST'])
@@ -484,7 +481,7 @@ def adicionar():
 @login_required
 def upload_csv():
     if request.method == 'POST':
-        # Verifica se o arquivo CSV foi enviado
+
         if 'file' not in request.files:
             return redirect(request.url)
         
@@ -512,34 +509,32 @@ def obter_dados_da_api(url):
         print("Erro ao fazer a requisição:", e)
         return None
 
-def consulta_api_box(tokens, data_fim):
+async def consulta_api_box_async(token, data_fim):
     url_api_box = "https://api.boxlink.com.br/preenvio/consultar-periodo"
-    payload = json.dumps({
+    payload = {
         "dataInicial": data_fim,
         "dataFinal": data_fim,
         "preenvioCancelado": True,
         "envioExpedido": True
-    })
-    resultado_final = []
+    }
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url_api_box, json=payload, headers={'Authorization': 'Bearer ' + token}) as response:
+            data = await response.json()
+            chave_seller = sum('chaveSeller' in d for d in data)
+            preEnvio_cancelado = sum(d.get('preenvioCancelado', False) for d in data)
+            envio_expedido = sum(d.get('envioExpedido', False) for d in data)
+            resultado = chave_seller - envio_expedido - preEnvio_cancelado
+            return resultado
 
+async def consulta_api_box(tokens, data_fim):
+    tasks = []
     for token in tokens:
-        headers = {
-            'Authorization': 'Bearer ' + token,
-            'Content-Type': 'application/json'
-        }
-        response = requests.request("POST", url_api_box, headers=headers, data=payload)
-        data = json.loads(response.text)
-        chave_seller = sum('chaveSeller' in d for d in data)
-        preEnvio_cancelado = sum(d['preenvioCancelado'] for d in data if 'preenvioCancelado' in d)
-        envio_expedido = sum(d['envioExpedido'] for d in data if 'envioExpedido' in d)
-
-        resultado_final.append(chave_seller - envio_expedido - preEnvio_cancelado)
-
-    return resultado_final
-
+        task = consulta_api_box_async(token, data_fim)
+        tasks.append(task)
+    return await asyncio.gather(*tasks)
 
 @app.route('/lista_completa')
-def lista_completa():
+async def lista_completa():
     data_inicio = request.args.get('data_inicio', '')
     data_fim = request.args.get('data_fim', '')
 
@@ -565,7 +560,7 @@ def lista_completa():
                 dados_formatados = [(item['Id_Cliente'], item['Cliente'], item['Pedidos'], item['Token']) for item in dados_api_crm]
 
                 tokens = [item['Token'] for item in dados_api_crm]
-                resultado_final = consulta_api_box(tokens, data_fim)
+                resultado_final = await consulta_api_box(tokens, data_fim)
 
                 return render_template('testeapi.html', dados=dados_formatados, data_inicio=data_inicio, data_fim=data_fim, resultado_final=resultado_final)
             else:
@@ -577,9 +572,10 @@ def download():
     try:
         data = request.form.get('data')
 
-        data = eval(data)
+        dados = eval(data)
+        resultado_final = [row[3] for row in dados]
 
-        df = pd.DataFrame(data, columns=['Id_Cliente', 'Cliente', 'Pedidos'])
+        df = pd.DataFrame(dados, columns=['Id_Cliente', 'Cliente', 'Pedidos CRM', 'Pedidos BOX'])
 
         output = BytesIO()
 
@@ -592,6 +588,38 @@ def download():
         return response
     except Exception as e:
         return f"Erro ao processar o download: {str(e)}"
+
+@app.route('/carregar_lista_responsaveis', methods=['GET', 'POST'])
+def upload():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            return 'Nenhum arquivo encontrado'
+        
+        file = request.files['file']
+        
+        if file.filename == '' or not file.filename.endswith('.xlsx'):
+            return 'Por favor, selecione um arquivo Excel (.xlsx)'
+        
+        try:
+            from io import BytesIO
+            import pandas as pd
+            
+            criar_banco_dados()
+            
+            df = pd.read_excel(BytesIO(file.read()))
+            
+            inserir_dados_da_planilha(df)
+            
+            return 'Dados enviados com sucesso'
+        except Exception as e:
+            return f'Ocorreu um erro ao processar o arquivo: {str(e)}'
+    
+    return render_template('upload.html')
+
+@app.route('/up_clientes')
+@login_required
+def up_clientes():
+    return render_template('upload.html')
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
