@@ -10,57 +10,6 @@
     <script src="https://cdn.datatables.net/plug-ins/2.0.3/i18n/pt-BR.json"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='testeapi.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-        }
-
-        .container {
-            margin-top: 50px;
-        }
-
-        h1 {
-            color: #343a40;
-            margin-bottom: 30px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        /* Estilos personalizados para o DataTable */
-        #clientTable_wrapper {
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,.1);
-        }
-
-        #clientTable_paginate .paginate_button {
-            margin: 0 5px;
-            border-radius: 3px;
-            border: 1px solid #007bff;
-            color: #007bff;
-        }
-
-        #clientTable_paginate .paginate_button:hover {
-            background-color: #007bff;
-            color: #fff;
-        }
-
-        #clientTable_filter input[type="search"] {
-            width: 300px;
-            padding: 8px;
-            border-radius: 3px;
-            border: 1px solid #ced4da;
-        }
-
-        #clientTable_info {
-            margin-top: 10px;
-        }
-    </style>
 </head>
 <body>
     <div class="area"></div>
@@ -125,7 +74,7 @@
                     <input type="date" class="form-control" id="data_fim" name="data_fim" required>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary">Pesquisar</button>
+            <button id="pesq" type="submit" class="btn btn-primary">Pesquisar</button>
         </form>
         <table id="clientTable" class="table">
             <thead>
@@ -147,23 +96,83 @@
                 {% endfor %}
             </tbody>
         </table>
+        <div id="loader" class="loader">
+        <svg viewBox="0 0 240 240" height="240" width="240" class="pl">
+            <circle
+              stroke-linecap="round"
+              stroke-dashoffset="-330"
+              stroke-dasharray="0 660"
+              stroke-width="20"
+              stroke="#000"
+              fill="none"
+              r="105"
+              cy="120"
+              cx="120"
+              class="pl__ring pl__ring--a"
+            ></circle>
+            <circle
+              stroke-linecap="round"
+              stroke-dashoffset="-110"
+              stroke-dasharray="0 220"
+              stroke-width="20"
+              stroke="#000"
+              fill="none"
+              r="35"
+              cy="120"
+              cx="120"
+              class="pl__ring pl__ring--b"
+            ></circle>
+            <circle
+              stroke-linecap="round"
+              stroke-dasharray="0 440"
+              stroke-width="20"
+              stroke="#000"
+              fill="none"
+              r="70"
+              cy="120"
+              cx="85"
+              class="pl__ring pl__ring--c"
+            ></circle>
+            <circle
+              stroke-linecap="round"
+              stroke-dasharray="0 440"
+              stroke-width="20"
+              stroke="#000"
+              fill="none"
+              r="70"
+              cy="120"
+              cx="155"
+              class="pl__ring pl__ring--d"
+            ></circle>
+          </svg>
+        </div>         
         <form action="/download" method="post">
             <input type="hidden" name="data" value="{{ dados }}">
             <button type="submit" class="btn btn-success"><i class="fas fa-download"></i> Download</button>
         </form>
     </div>
-    <!--
-    <div class="loading-overlay" id="loadingOverlay">
-        <i class="fas fa-spinner fa-spin loading-icon"></i>
-    </div>
-    -->
-
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready(function() {
+            var table;
+    
+            function showLoader() {
+                $('#loader').show();
+                $('#clientTable').hide();
+            }
+    
+            function hideLoader() {
+                $('#loader').hide();
+                $('#clientTable').show();
+            }
+    
+            $('form').submit(function() {
+                showLoader();
+            });
+    
             var table = $('#clientTable').DataTable({
                 "language": {
                     "sEmptyTable":     "Nenhum registro encontrado",
@@ -200,22 +209,17 @@
             $('#search').keyup(function() {
                 table.search($(this).val()).draw();
             });
-        });
-    </script>
-    <script>
-        $(document).ready(function() {
-            var table = $('#clientTable').DataTable();
-
-            $('#search').keyup(function() {
+    
+            $('#clientTable_filter input[type="search"]').keyup(function() {
                 table.search($(this).val()).draw();
             });
-
-            // Mostrar indicador de carregamento ao fazer a requisição para a API
-            $(document).ajaxStart(function() {
-                $('#loadingOverlay').show();
+    
+            $('#clientTable').on('draw.dt', function() {
+                hideLoader();
             });
-            $(document).ajaxStop(function() {
-                $('#loadingOverlay').hide();
+    
+            $('#clientTable').on('error.dt', function() {
+                hideLoader();
             });
         });
     </script>
