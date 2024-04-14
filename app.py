@@ -20,6 +20,7 @@ from io import BytesIO
 import asyncio
 import aiohttp
 from clientes import criar_banco_dados, inserir_dados_da_planilha, obter_responsaveis_e_empresas
+from links import clientes, Outros_links
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY') or b'_5#y2L"F4Q8z\n\xec]/'
@@ -110,7 +111,7 @@ def allowed_file(filename):
 def generate_excel(username, tasks):
     print("User tasks:", user_tasks)
     
-    # Obter os dados do formulário
+    # Obtem os dados do formulário
     data = request.form.get('data')
     observations = request.form.getlist('observations[]')
     qtd = request.form.getlist('number1[]')
@@ -122,7 +123,7 @@ def generate_excel(username, tasks):
 
     output_filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'lista_de_tarefas.xlsx')
 
-    # Gerar arquivo Excel
+    # Gera arquivo Excel
     workbook = xlsxwriter.Workbook(output_filepath)
     worksheet = workbook.add_worksheet()
 
@@ -339,7 +340,6 @@ def rastreio():
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# ...
 
 @app.route('/dashboard', methods=['GET', 'POST'])
 @login_required
@@ -620,6 +620,11 @@ def upload():
 @login_required
 def up_clientes():
     return render_template('upload.html')
+
+@app.route('/links_uteis')
+@login_required
+def links():
+    return render_template('links_uteis.html', links_por_cliente=clientes, olinks=Outros_links)
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)

@@ -1,0 +1,151 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    margin-top: 40px;
+    max-width: 600px;
+    width: 100%;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-left: -80%;
+    
+}
+
+.tabela-clientes,
+.tabela_links {
+    margin-left: 20px; /* Adicionando margem esquerda para separar as tabelas */
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #343a40;
+    font-size: 24px;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #343a40;
+    font-size: 24px;
+}
+
+#filtro {
+    width: 30%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+#filtro:hover {
+    border-color: #6c757d;
+}
+
+
+button[type="submit"] {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+#label-f{
+    margin-left: 31%;
+}
+
+.tabela-clientes {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabela-clientes th,
+.tabela-clientes td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.tabela-clientes th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.tabela-clientes tbody tr:nth-child(even) {
+    background-color: #f8f8f8;
+}
+
+.tabela-clientes tbody tr:hover {
+    background-color: #e2e2e2;
+}
+
+.icone-link {
+    font-size: 18px;
+    color: #007bff;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.col-md-6 {
+    margin-top: 40px;
+    max-width: 600px;
+    width: 100%;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-left: -40%;
+    
+
+}
+
+button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+
+.tabela_links {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabela_links th,
+.tabela_links td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.tabela_links th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.tabela_links tbody tr:nth-child(even) {
+    background-color: #f8f8f8;
+}
+
+.tabela_links tbody tr:hover {
+    background-color: #e2e2e2;
+}

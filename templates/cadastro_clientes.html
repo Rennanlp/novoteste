@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Dados</title>
+</head>
+<body>
+    <h1>Cadastro de Dados</h1>
+    <form action="/cadastro" method="POST">
+        <label for="cliente">Nome do Cliente:</label><br>
+        <input type="text" id="cliente" name="cliente"><br>
+        <label for="url">URL:</label><br>
+        <input type="text" id="url" name="url"><br>
+        <label for="responsavel">Responsável:</label><br>
+        <input type="text" id="responsavel" name="responsavel"><br>
+        <label for="cd">CD:</label><br>
+        <input type="text" id="cd" name="cd"><br><br>
+        <input type="submit" value="Cadastrar">
+    </form>
+    <br>
+    <form action="/download_excel" method="GET">
+        <input type="submit" value="Baixar Dados em Excel">
+    </form>
+</body>
+</html>
