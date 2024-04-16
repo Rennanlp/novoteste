@@ -141,6 +141,7 @@ Outros_links = {
     'FAQ':	{'url':'https://docs.google.com/document/d/1J5WdtliaF7o2KHvc30ibSB7rfNBjeWWW/edit'},
     'PLANILHA PARA CANCELAMENTOS(8TROPIA)':	{'url':'https://docs.google.com/spreadsheets/d/18GHl1KU512Nv9E8kDotSW5fbW24ye_QraWubBR1tIc0/edit#gid=1879777199'},
     'DEMANDAS TI':	{'url':'https://trello.com/b/YNrG7DW7/demandas'},
+    'NOTAS SC': {'url': 'https://drive.google.com/drive/folders/1MS70MEIFDuhSfJD7CS08ZjrfHang73t6'}
 
 
 }
