@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='links.css') }}"> 
     <link rel="stylesheet" href="{{ url_for('static', filename='generic.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.0/xlsx.full.min.js" integrity="sha512-... (hash)" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -79,13 +80,13 @@
                 </tr>
             </thead>
             <tbody>
-                {% for cliente, dados in links_por_cliente.items() %}
+                {% for cliente in clientes %}
                     <tr>
-                        <td>{{ cliente }}</td>
-                        <td>{{ dados['responsável'] }}</td>
-                        <td>{{ dados['CD'] }}</td>
+                        <td>{{ cliente[0] }}</td>
+                        <td>{{ cliente[1] }}</td>
+                        <td>{{ cliente[2] }}</td>
                         <td>
-                            <i class="fas fa-external-link-alt icone-link" onclick="window.open('{{ dados['url'] }}', '_blank')"></i>
+                            <a href="{{ cliente[3] }}" target="_blank"><i class="fas fa-external-link-alt icone-link"></i></a>
                         </td>
                     </tr>
                 {% endfor %}
@@ -94,30 +95,64 @@
         <button id="btnDownloadExcel" class="btn btn-primary">
             <i class="fas fa-download"></i> Baixar Lista
           </button>
+        <h2>Inserir Cliente no Trello</h2>
+        <form action="/inserir_trello" method="post">
+            <div class="form-group">
+                <label for="nome">Nome do Cliente:</label>
+                <input type="text" class="form-control" id="nome" name="nome">
+            </div>
+            <div class="form-group">
+                <label for="responsavel">Responsável:</label>
+                <input type="text" class="form-control" id="responsavel" name="responsavel">
+            </div>
+            <div class="form-group">
+                <label for="CD">CD:</label>
+                <input type="text" class="form-control" id="CD" name="CD">
+            </div>
+            <div class="form-group">
+                <label for="link">Link:</label>
+                <input type="text" class="form-control" id="link" name="link">
+            </div>
+            <button type="submit" class="btn btn-primary">Inserir</button>
+        </form>
     </div>
-        <div class="row">
-            <div class="col-md-6">
-                <h2>Outros Links</h2>
-                <table id="outraTabela" class="tabela_links" style="width:100%">
-                    <thead>
+
+    <div class="row">
+        <div class="col-md-6">
+            <h2>Outros Links</h2>
+            <table id="outraTabela" class="tabela_links" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Descrição</th>
+                        <th>Link</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for link in outros_links %}
                         <tr>
-                            <th>Descrição</th>
-                            <th>Link</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for cliente, dados in olinks.items() %}
-                        <tr>
-                            <td>{{ cliente }}</td>
+                            <td>{{ link[0] }}</td>
                             <td>
-                                <i class="fas fa-external-link-alt icone-link" onclick="window.open('{{ dados['url'] }}', '_blank')"></i>
+                                <a href="{{ link[1] }}" target="_blank"><i class="fas fa-external-link-alt icone-link"></i></a>
                             </td>
                         </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <!-- Formulário para inserir outro link -->
+            <h2>Inserir Outro Link</h2>
+            <form action="/inserir_link" method="post">
+                <div class="form-group">
+                    <label for="titulo">Título:</label>
+                    <input type="text" class="form-control" id="titulo" name="titulo">
+                </div>
+                <div class="form-group">
+                    <label for="url">URL:</label>
+                    <input type="text" class="form-control" id="url" name="url">
+                </div>
+                <button type="submit" class="btn btn-primary">Inserir</button>
+            </form>
         </div>
+    </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>

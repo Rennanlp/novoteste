@@ -1,9 +1,9 @@
 # app.py
-from flask import Flask, render_template, request, send_file, redirect, session, url_for, jsonify, g, render_template_string, json, make_response
+from flask import Flask, render_template, request, send_file, redirect, session, url_for, jsonify, g, render_template_string, json, make_response, flash
 from unidecode import unidecode
 import os
 import csv
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import wraps
 import xlsxwriter
 from flask_sqlalchemy import SQLAlchemy
@@ -20,7 +20,6 @@ from io import BytesIO
 import asyncio
 import aiohttp
 from clientes import criar_banco_dados, inserir_dados_da_planilha, obter_responsaveis_e_empresas
-from links import clientes, Outros_links
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY') or b'_5#y2L"F4Q8z\n\xec]/'
@@ -28,6 +27,9 @@ app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['ALLOWED_EXTENSIONS'] = {'csv'}
 app.config['STATIC_FOLDER'] = 'static'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tasks.db'
+app.config['SQLALCHEMY_BINDS'] = {
+    'database1': 'sqlite:///database1.db'
+}
 db = SQLAlchemy(app)
 CORS(app)
 migrate = Migrate(app, db)
@@ -509,10 +511,11 @@ def obter_dados_da_api(url):
         print("Erro ao fazer a requisição:", e)
         return None
 
-async def consulta_api_box_async(token, data_fim):
+async def consulta_api_box_async(token, data_inicio, data_fim):
+    nova_data_inicio = (datetime.strptime(data_inicio, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
     url_api_box = "https://api.boxlink.com.br/preenvio/consultar-periodo"
     payload = {
-        "dataInicial": data_fim,
+        "dataInicial": nova_data_inicio,
         "dataFinal": data_fim,
         "preenvioCancelado": True,
         "envioExpedido": True
@@ -526,10 +529,10 @@ async def consulta_api_box_async(token, data_fim):
             resultado = chave_seller - envio_expedido - preEnvio_cancelado
             return resultado
 
-async def consulta_api_box(tokens, data_fim):
+async def consulta_api_box(tokens, data_inicio, data_fim):
     tasks = []
     for token in tokens:
-        task = consulta_api_box_async(token, data_fim)
+        task = consulta_api_box_async(token, data_inicio, data_fim)
         tasks.append(task)
     return await asyncio.gather(*tasks)
 
@@ -560,7 +563,7 @@ async def lista_completa():
                 dados_formatados = [(item['Id_Cliente'], item['Cliente'], item['Pedidos'], item['Token']) for item in dados_api_crm]
 
                 tokens = [item['Token'] for item in dados_api_crm]
-                resultado_final = await consulta_api_box(tokens, data_fim)
+                resultado_final = await consulta_api_box(tokens, data_inicio, data_fim)
 
                 return render_template('testeapi.html', dados=dados_formatados, data_inicio=data_inicio, data_fim=data_fim, resultado_final=resultado_final)
             else:
@@ -621,10 +624,66 @@ def upload():
 def up_clientes():
     return render_template('upload.html')
 
+class Trello(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(100), nullable=False)
+    responsavel = db.Column(db.String(100), nullable=False)
+    CD = db.Column(db.String(100), nullable=False)
+    link = db.Column(db.String(200), nullable=False)
+
+class Links(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    titulo = db.Column(db.String(100), nullable=False)
+    url = db.Column(db.String(200), nullable=False)
+
 @app.route('/links_uteis')
 @login_required
 def links():
-    return render_template('links_uteis.html', links_por_cliente=clientes, olinks=Outros_links)
+    
+    conn = sqlite3.connect('database1.db')
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT nome, responsavel, CD, link FROM trello")
+    clientes = cursor.fetchall()
+    
+    cursor.execute("SELECT titulo, url FROM links")
+    outros_links = cursor.fetchall()
+    
+    conn.close()
+    
+    return render_template('links_uteis.html', clientes=clientes, outros_links=outros_links)
+
+def connect_db():
+    return sqlite3.connect('database1.db')
+
+@app.route('/inserir_link', methods=['POST'])
+@login_required
+def inserir_link():
+    if request.method == 'POST':
+        titulo = request.form['titulo']
+        url = request.form['url']
+
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO links (titulo, url) VALUES (?, ?)", (titulo, url))
+        conn.commit()
+        conn.close()
+        return redirect('/links_uteis')
+
+@app.route('/inserir_trello', methods=['POST'])
+@login_required
+def inserir_trello():
+    if request.method == 'POST':
+        nome = request.form['nome']
+        responsavel = request.form['responsavel']
+        CD = request.form['CD']
+        link = request.form['link']
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO trello (nome, responsavel, CD, link) VALUES (?, ?, ?, ?)", (nome, responsavel, CD, link))
+        conn.commit()
+        conn.close()
+        return redirect('/links_uteis')
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)

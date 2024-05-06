@@ -32,3 +32,4 @@ def insert_data(username, task, data, observation, qtd):
 
     conn.commit()
     conn.close()
+
