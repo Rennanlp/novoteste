@@ -6,37 +6,30 @@ html, body {
 
 body {
     font-family: Arial, sans-serif;
-    background-color: #f8f9fa;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
 .container {
-    margin-top: 40px;
-    max-width: 600px;
+    max-width: 500px;
+    margin-top: 60px;
     width: 100%;
+    height: inherit;
     padding: 20px;
     background-color: #fff;
     border-radius: 10px;
+    margin-left: -85%;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin-left: -80%;
-    
+    justify-content: center;
 }
 
 .tabela-clientes,
 .tabela_links {
-    margin-left: 20px; /* Adicionando margem esquerda para separar as tabelas */
+    margin-left: 20px;
 }
 
-h1 {
-    text-align: center;
-    margin-bottom: 30px;
-    color: #343a40;
-    font-size: 24px;
-}
-
-h2 {
+h1, h2 {
     text-align: center;
     margin-bottom: 30px;
     color: #343a40;
@@ -56,7 +49,6 @@ h2 {
     border-color: #6c757d;
 }
 
-
 button[type="submit"] {
     background-color: #007bff;
     color: #fff;
@@ -71,7 +63,7 @@ button[type="submit"]:hover {
     background-color: #0056b3;
 }
 
-#label-f{
+#label-f {
     margin-left: 31%;
 }
 
@@ -108,22 +100,16 @@ button[type="submit"]:hover {
 }
 
 .col-md-6 {
-    margin-top: 40px;
-    max-width: 600px;
+    max-width: 500px;
+    margin-top: 600px;
     width: 100%;
+    height: inherit;
     padding: 20px;
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin-left: -40%;
-    
-
+    justify-content: center;
 }
-
-button[type="submit"]:hover {
-    background-color: #0056b3;
-}
-
 
 .tabela_links {
     width: 100%;

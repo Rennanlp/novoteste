@@ -684,6 +684,31 @@ def inserir_trello():
         conn.commit()
         conn.close()
         return redirect('/links_uteis')
+    
+
+@app.route('/buscacep', methods=['GET', 'POST'])
+def buscacep():
+    if request.method == 'POST':
+        uf = request.form.get('uf')
+        cidade = request.form.get('cidade')
+        bairro = request.form.get('bairro')
+        logradouro = request.form.get('logradouro')
+        
+        api_url = f"https://viacep.com.br/ws/{uf}/{cidade}/{logradouro}/json/"
+        response = requests.get(api_url)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data:  # Verificar se data não está vazio
+                return render_template('buscacep.html', data=data)
+            else:
+                error = "A resposta da API está vazia. Verifique os dados e tente novamente."
+                return render_template('buscacep.html', error=error)
+        else:
+            error = "Não foi possível encontrar o CEP. Verifique os dados e tente novamente."
+            return render_template('buscacep.html', error=error)
+
+    return render_template('buscacep.html')
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
