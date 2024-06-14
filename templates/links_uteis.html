@@ -7,7 +7,7 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-... (hash)" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='links.css') }}"> 
+    <link rel="stylesheet" href="{{ url_for('static', filename='links2.css') }}"> 
     <link rel="stylesheet" href="{{ url_for('static', filename='generic.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.0/xlsx.full.min.js" integrity="sha512-... (hash)" crossorigin="anonymous"></script>
@@ -74,79 +74,85 @@
             </li>
         </ul>
     </nav>
-    <div class="container">
-        <h1>Clientes Trello</h1>
-        <table id="tabelaClientes" class="table table-striped table-bordered tabela-clientes" style="width:100%">
-            <thead>
-                <tr>
-                    <th>Nome do Cliente</th>
-                    <th>Responsável</th>
-                    <th>CD</th>
-                    <th>Link</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for cliente in clientes %}
-                    <tr>
-                        <td>{{ cliente[0] }}</td>
-                        <td>{{ cliente[1] }}</td>
-                        <td>{{ cliente[2] }}</td>
-                        <td>
-                            <a href="{{ cliente[3] }}" target="_blank"><i class="fas fa-external-link-alt icone-link"></i></a>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <button id="btnDownloadExcel" class="btn btn-primary">
-            <i class="fas fa-download"></i> Baixar Lista
-          </button>
-        <h2>Inserir Cliente no Trello</h2>
-        <form action="/inserir_trello" method="post">
-            <div class="form-group">
-                <label for="nome">Nome do Cliente:</label>
-                <input type="text" class="form-control" id="nome" name="nome">
-            </div>
-            <div class="form-group">
-                <label for="responsavel">Responsável:</label>
-                <input type="text" class="form-control" id="responsavel" name="responsavel">
-            </div>
-            <div class="form-group">
-                <label for="CD">CD:</label>
-                <input type="text" class="form-control" id="CD" name="CD">
-            </div>
-            <div class="form-group">
-                <label for="link">Link:</label>
-                <input type="text" class="form-control" id="link" name="link">
-            </div>
-            <button type="submit" class="btn btn-primary">Inserir</button>
-        </form>
-    </div>
-
-    <div class="row">
-        <div class="col-md-6">
-            <h2>Outros Links</h2>
-            <table id="outraTabela" class="tabela_links" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>Descrição</th>
-                        <th>Link</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for link in outros_links %}
+    <div class="container centralizar-container">
+        <div class="container-box">
+            <h1>Clientes Trello</h1>
+            <div class="table-responsive">
+                <table id="tabelaClientes" class="table table-striped table-bordered tabela-clientes" style="width:100%">
+                    <thead>
                         <tr>
-                            <td>{{ link[0] }}</td>
-                            <td>
-                                <a href="{{ link[1] }}" target="_blank"><i class="fas fa-external-link-alt icone-link"></i></a>
-                            </td>
+                            <th>Nome do Cliente</th>
+                            <th>Responsável</th>
+                            <th>CD</th>
+                            <th>Link</th>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <!-- Formulário para inserir outro link -->
+                    </thead>
+                    <tbody>
+                        {% for cliente in clientes %}
+                            <tr>
+                                <td>{{ cliente[0] }}</td>
+                                <td>{{ cliente[1] }}</td>
+                                <td>{{ cliente[2] }}</td>
+                                <td>
+                                    <a href="{{ cliente[3] }}" target="_blank"><i class="fas fa-external-link-alt icone-link"></i></a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-center">
+                <button id="btnDownloadExcel" class="btn btn-primary">
+                    <i class="fas fa-download"></i> Baixar Lista
+                </button>
+            </div>
+            <h2>Inserir Cliente no Trello</h2>
+            <form action="/inserir_trello" method="post" class="form-container">
+                <div class="form-group">
+                    <label for="nome">Nome do Cliente:</label>
+                    <input type="text" class="form-control" id="nome" name="nome">
+                </div>
+                <div class="form-group">
+                    <label for="responsavel">Responsável:</label>
+                    <input type="text" class="form-control" id="responsavel" name="responsavel">
+                </div>
+                <div class="form-group">
+                    <label for="CD">CD:</label>
+                    <input type="text" class="form-control" id="CD" name="CD">
+                </div>
+                <div class="form-group">
+                    <label for="link">Link:</label>
+                    <input type="text" class="form-control" id="link" name="link">
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">Inserir</button>
+                </div>
+            </form>
+        </div>
+        <div class="container-box">
+            <h2>Outros Links</h2>
+            <div class="table-responsive">
+                <table id="outraTabela" class="table table-striped table-bordered tabela_links" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Descrição</th>
+                            <th>Link</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for link in outros_links %}
+                            <tr>
+                                <td>{{ link[0] }}</td>
+                                <td>
+                                    <a href="{{ link[1] }}" target="_blank"><i class="fas fa-external-link-alt icone-link"></i></a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
             <h2>Inserir Outro Link</h2>
-            <form action="/inserir_link" method="post">
+            <form action="/inserir_link" method="post" class="form-container">
                 <div class="form-group">
                     <label for="titulo">Título:</label>
                     <input type="text" class="form-control" id="titulo" name="titulo">
@@ -155,13 +161,18 @@
                     <label for="url">URL:</label>
                     <input type="text" class="form-control" id="url" name="url">
                 </div>
-                <button type="submit" class="btn btn-primary">Inserir</button>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">Inserir</button>
+                </div>
             </form>
         </div>
     </div>
-    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
     <script>
         $(document).ready(function() {
             if ($.fn.DataTable.isDataTable('#tabelaClientes')) {
@@ -171,25 +182,25 @@
             var table = $('#tabelaClientes').DataTable({
                 "language": {
                     "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Portuguese-Brasil.json",
-                    "sEmptyTable":     "Nenhum registro encontrado",
-                    "sInfo":           "Mostrando de _START_ até _END_ de _TOTAL_ registros",
-                    "sInfoEmpty":      "Mostrando 0 até 0 de 0 registros",
-                    "sInfoFiltered":   "(Filtrados de _MAX_ registros)",
-                    "sInfoPostFix":    "",
-                    "sInfoThousands":  ".",
-                    "sLengthMenu":     "_MENU_ resultados por página",
+                    "sEmptyTable": "Nenhum registro encontrado",
+                    "sInfo": "Mostrando de _START_ até _END_ de _TOTAL_ registros",
+                    "sInfoEmpty": "Mostrando 0 até 0 de 0 registros",
+                    "sInfoFiltered": "(Filtrados de _MAX_ registros)",
+                    "sInfoPostFix": "",
+                    "sInfoThousands": ".",
+                    "sLengthMenu": "_MENU_ resultados por página",
                     "sLoadingRecords": "Carregando...",
-                    "sProcessing":     "Processando...",
-                    "sZeroRecords":    "Nenhum registro encontrado",
-                    "sSearch":         "Pesquisar:",
+                    "sProcessing": "Processando...",
+                    "sZeroRecords": "Nenhum registro encontrado",
+                    "sSearch": "Pesquisar:",
                     "oPaginate": {
-                        "sNext":     "Próximo",
+                        "sNext": "Próximo",
                         "sPrevious": "Anterior",
-                        "sFirst":    "Primeiro",
-                        "sLast":     "Último"
+                        "sFirst": "Primeiro",
+                        "sLast": "Último"
                     },
                     "oAria": {
-                        "sSortAscending":  ": Ordenar colunas de forma ascendente",
+                        "sSortAscending": ": Ordenar colunas de forma ascendente",
                         "sSortDescending": ": Ordenar colunas de forma descendente"
                     },
                     "select": {
@@ -230,35 +241,34 @@
                 XLSX.writeFile(wb, 'lista_de_clientes.xlsx');
             });
         });
-    </script>
-    <script>
+
         $(document).ready(function() {
             if ($.fn.DataTable.isDataTable('#outraTabela')) {
                 $('#outraTabela').DataTable().destroy();
             }
 
-            var table = $('#outraTabela').DataTable({
+            $('#outraTabela').DataTable({
                 "language": {
                     "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Portuguese-Brasil.json",
-                    "sEmptyTable":     "Nenhum registro encontrado",
-                    "sInfo":           "Mostrando de _START_ até _END_ de _TOTAL_ registros",
-                    "sInfoEmpty":      "Mostrando 0 até 0 de 0 registros",
-                    "sInfoFiltered":   "(Filtrados de _MAX_ registros)",
-                    "sInfoPostFix":    "",
-                    "sInfoThousands":  ".",
-                    "sLengthMenu":     "_MENU_ resultados por página",
+                    "sEmptyTable": "Nenhum registro encontrado",
+                    "sInfo": "Mostrando de _START_ até _END_ de _TOTAL_ registros",
+                    "sInfoEmpty": "Mostrando 0 até 0 de 0 registros",
+                    "sInfoFiltered": "(Filtrados de _MAX_ registros)",
+                    "sInfoPostFix": "",
+                    "sInfoThousands": ".",
+                    "sLengthMenu": "_MENU_ resultados por página",
                     "sLoadingRecords": "Carregando...",
-                    "sProcessing":     "Processando...",
-                    "sZeroRecords":    "Nenhum registro encontrado",
-                    "sSearch":         "Pesquisar:",
+                    "sProcessing": "Processando...",
+                    "sZeroRecords": "Nenhum registro encontrado",
+                    "sSearch": "Pesquisar:",
                     "oPaginate": {
-                        "sNext":     "Próximo",
+                        "sNext": "Próximo",
                         "sPrevious": "Anterior",
-                        "sFirst":    "Primeiro",
-                        "sLast":     "Último"
+                        "sFirst": "Primeiro",
+                        "sLast": "Último"
                     },
                     "oAria": {
-                        "sSortAscending":  ": Ordenar colunas de forma ascendente",
+                        "sSortAscending": ": Ordenar colunas de forma ascendente",
                         "sSortDescending": ": Ordenar colunas de forma descendente"
                     },
                     "select": {
@@ -273,6 +283,6 @@
                 "pageLength": 10
             });
         });
-    </script>    
+    </script>
 </body>
 </html>

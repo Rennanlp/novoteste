@@ -93,3 +93,9 @@ select:focus {
     border-color: #007BFF;
     outline: none;
 }
+
+.logo-container{
+    position: inherit;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}

@@ -1,11 +1,5 @@
 @import url(//netdna.bootstrapcdn.com/font-awesome/6.0.0/css/font-awesome.css);
 @import url(https://fonts.googleapis.com/css?family=Titillium+Web:300);
-body {
-    display: flex;
-    justify-content: space-between;
-    font-family: Arial, sans-serif;
-    margin: 0;
-}
 
 .fa-2x {
   font-size: 2em;

@@ -1,0 +1,81 @@
+/* styles.css */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #343a40;
+    margin: 0;
+    padding: 20px;
+}
+
+.centralizar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.centralizar-container h1,
+.centralizar-container h2 {
+    text-align: center;
+    margin-top: 20px;
+    color: #007bff;
+    width: 100%;
+}
+
+.container-box {
+    flex: 1;
+    margin: 10px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    min-width: 300px;
+}
+
+.table-responsive {
+    margin-top: 20px;
+}
+
+.table-container .btn {
+    margin-top: 15px;
+    background-color: #007bff;
+    border: none;
+    color: #fff;
+}
+
+.table-container .btn:hover {
+    background-color: #0056b3;
+}
+
+.table-container table {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: #212529;
+}
+
+.table-container th,
+.table-container td {
+    padding: 1rem;
+    vertical-align: top;
+    border-top: 1px solid #dee2e6;
+}
+
+.table-container th {
+    vertical-align: bottom;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table-container td {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.table-container a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.table-container a:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
