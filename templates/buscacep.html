@@ -122,6 +122,9 @@
 
             <input type="submit" value="Pesquisar">
         </form>
+        <button class="btn-new">
+            <a href="/buscacep" class="button">Nova Busca</a>
+        </button>
     </div>
 
     <div class="result-container">
@@ -129,14 +132,18 @@
             {% if data %}
                 <h2>Resultado da Pesquisa:</h2>
                 <div class="result">
+                    {% set count = 0 %}
                     {% for item in data %}
-                        <p><strong>CEP:</strong> {{ item['cep'] }}</p>
-                        <p><strong>Logradouro:</strong> {{ item['logradouro'] }}</p>
-                        <p><strong>Bairro:</strong> {{ item['bairro'] }}</p>
-                        <p><strong>Cidade:</strong> {{ item['localidade'] }}</p>
-                        <p><strong>UF:</strong> {{ item['uf'] }}</p>
-                        <p><strong>Complemento:</strong> {{ item.complemento }}</p>
-                        <hr>
+                        <div class="result-item {% if count % 2 == 0 %}alternate{% endif %}">
+                            <p><strong>CEP:</strong> {{ item['cep'] }}</p>
+                            <p><strong>Logradouro:</strong> {{ item['logradouro'] }}</p>
+                            <p><strong>Bairro:</strong> {{ item['bairro'] }}</p>
+                            <p><strong>Cidade:</strong> {{ item['localidade'] }}</p>
+                            <p><strong>UF:</strong> {{ item['uf'] }}</p>
+                            <p><strong>Complemento:</strong> {{ item['complemento'] }}</p>
+                            <hr>
+                        </div>
+                        {% set count = count + 1 %}
                     {% endfor %}
                 </div>
             {% elif error %}
