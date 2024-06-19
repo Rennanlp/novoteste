@@ -96,7 +96,16 @@ user_database = {
     'Kymberli': {
     'password': 'kym@10',
     'name': 'Kym'
+    },
+    'Ana Paula': {
+    'password': 'ana@10',
+    'name': 'Ana'
+    },
+    'Juliana': {
+    'password': 'juliana@10',
+    'name': 'Juliana'
     }
+    
 }
 
 class Note(db.Model):
