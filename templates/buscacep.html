@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pesquisa de CEP</title>
+    <title>Buscacep</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='buscacep.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='generic2.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -17,7 +17,13 @@
                     <i class="fa fa-duotone fa-chart-pie fa-2x"></i>
                     <span class="nav-text">Dashboard</span>
                 </a>
-            </li>            
+            </li>
+            <li>
+                <a href="/gerar_pdf">
+                    <i class="fa fa-solid fa-file-pdf fa-2x"></i>
+                    <span class="nav-text">Gerar Faturas</span>
+                </a>
+            </li>              
             <li>
                 <a href="/">
                     <i class="fa fa-solid fa-file-csv fa-2x"></i>
@@ -51,7 +57,7 @@
             <li>
                 <a href="/lista_completa">
                     <i class="fa fa-solid fa-magnifying-glass fa-2x"></i>
-                    <span class="nav-text">Lista Completa de Clientes</span>
+                    <span class="nav-text">Conferência BOX</span>
                 </a>
             </li>
             <li>
@@ -74,7 +80,7 @@
         <img src="{{ url_for('static', filename='cep.png') }}" alt="Header Image" class="logo">
     </div>
     <div class="container">
-        <h1>Pesquisa de CEP</h1>
+        <h1>Pesquisa por Logradouro</h1>
         <form method="post" action="/buscacep">
             <div class="form-group">
                 <label for="uf"><i class="fas fa-map-marker-alt"></i> UF:</label>

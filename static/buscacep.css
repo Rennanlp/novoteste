@@ -37,9 +37,9 @@ h1 {
 }
 
 .form-group input {
-    width: 100%;
+    width: 90%;
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid #7059f5;
     border-radius: 5px;
 }
 
@@ -94,7 +94,7 @@ input[type="submit"]:hover {
 select {
     width: 35%;
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid #7059f5;
     border-radius: 5px;
     background-color: #fff;
     font-size: 14px;

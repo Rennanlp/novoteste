@@ -20,6 +20,12 @@ from io import BytesIO
 import asyncio
 import aiohttp
 from clientes import criar_banco_dados, inserir_dados_da_planilha, obter_responsaveis_e_empresas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Frame, PageTemplate
+import io
+import textwrap
+import datetime
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY') or b'_5#y2L"F4Q8z\n\xec]/'
@@ -709,6 +715,134 @@ def buscacep():
             return render_template('buscacep.html', error=error)
 
     return render_template('buscacep.html')
+
+
+# ROTAS E DEF FATURA EM PDF
+
+# Função para quebrar texto
+def wrap_text(text, width):
+    return '\n'.join(textwrap.wrap(text, width=width))
+
+# Função para converter DataFrame para lista de listas
+def dataframe_to_list(dataframe):
+    l = []
+    lista = [dataframe.columns.values.tolist()] + dataframe.fillna('').values.tolist()
+    del lista[0]
+    l.append(["Objeto", "Postagem", "Valor", "Destinatário", "Cidade", "Observação"])
+    for i in lista:
+        try:
+            observacao = i[11] if pd.notnull(i[11]) else ''
+            l.append([
+                i[0],
+                i[3].strftime("%d/%m/%Y") if isinstance(i[3], datetime.datetime) else str(i[3]),
+                ("R$ " + '%.2f' % i[4]).replace(".", ",") if isinstance(i[4], (int, float)) else str(i[4]),
+                i[5],
+                i[6],
+                observacao
+            ])
+        except Exception as e:
+            print(f"Erro ao processar linha: {i}, erro: {e}")
+            continue
+    return l
+
+# Função para desenhar o cabeçalho
+def header(canvas, doc, pini, pfin, cliente, estado):
+    page_width, page_height = letter
+    margin = 50
+    canvas.saveState()
+    canvas.setFont('Helvetica', 13)
+    canvas.drawString(210, page_height - margin - 40, 'Fatura Resumida de Serviços Prestados')
+    canvas.drawImage("static/correios.png", margin, page_height - margin - 40, width=120, height=25)
+    canvas.setFont('Helvetica', 9)
+    current_date = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    canvas.drawString(margin, page_height - margin - 75, f'Período de: {pini} até: {pfin} - Data da emissão: {current_date}')
+    canvas.drawString(margin, page_height - margin - 85, f'Cliente: {cliente}')
+    
+    if estado == 'SC':
+        canvas.drawString(margin, page_height - margin - 95, 'PALHOÇA - SC - PACHECOS - RUA VIKINGS 30 - 88134-878')
+    elif estado == 'SP':
+        canvas.drawString(margin, page_height - margin - 95, 'INDAIATUBA - SP - CENTRO - RUA ONZE DE JUNHO 1318 - 13330-972')
+        
+    canvas.setTitle(f"Relatórios Correios {pini} - {pfin}")
+    canvas.restoreState()
+
+def process_excel_to_pdf(file, pini, pfin, cliente, estado, nomearquivo):
+    df = pd.read_excel(file, sheet_name="Relatório Envios")
+
+    width = 20
+
+    # Aplicar wrap_text apenas a colunas de texto
+    df = df.applymap(lambda x: wrap_text(x, width) if isinstance(x, str) else x)
+
+    data_list = dataframe_to_list(df)
+
+    pdf_buffer = io.BytesIO()
+    pdf = SimpleDocTemplate(pdf_buffer, pagesize=letter, rightMargin=50, leftMargin=50, topMargin=50, bottomMargin=50)
+    elements = []
+
+    table = Table(data_list, colWidths=[(612 - 2 * 50) / 6] * 6)
+    bg_color = colors.Color(68 / 255, 114 / 255, 196 / 255)
+
+    style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), bg_color),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, 0), 9),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 3),
+        ('TOPPADDING', (0, 0), (-1, 0), 3),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('BOX', (0, 0), (-1, -1), 0, colors.white)
+    ])
+    
+    last_row = len(data_list) - 1
+    style.add('BACKGROUND', (0, last_row), (-1, last_row), bg_color)
+    style.add('TEXTCOLOR', (0, last_row), (-1, last_row), colors.white)
+
+    table.setStyle(style)
+    elements.append(table)
+
+    # Adicionando o cabeçalho ao PDF
+    frame = Frame(pdf.leftMargin, pdf.bottomMargin, pdf.width, pdf.height - 2 * 50, id='normal')
+    template = PageTemplate(id='test', frames=[frame], onPage=lambda canvas, doc: header(canvas, doc, pini, pfin, cliente, estado))
+
+    pdf.addPageTemplates([template])
+
+    # Construindo o PDF
+    pdf.build(elements)
+
+    # Retornando o buffer do PDF
+    pdf_buffer.seek(0)
+    return pdf_buffer
+
+@app.route('/gerar_pdf', methods=['GET', 'POST'])
+@login_required
+def gerar_pdf():
+    if request.method == 'POST':
+        # Recebendo dados do formulário
+        file = request.files['file']
+        pini = request.form['pini']
+        pfin = request.form['pfin']
+        cliente = request.form['cliente']
+        estado = request.form['estado']  # Captura o estado selecionado (SC ou SP)
+        nomearquivo = request.form['nomearquivo']
+
+        # Gerando o PDF
+        pdf_buffer = process_excel_to_pdf(file, pini, pfin, cliente, estado, nomearquivo)
+
+        # Enviando o PDF gerado para o cliente
+        return send_file(
+            pdf_buffer,
+            as_attachment=True,
+            download_name=f"{nomearquivo}.pdf",
+            mimetype='application/pdf'
+        )
+
+    # Se for GET, apenas renderiza o formulário
+    return render_template('gerar_pdf.html')
+
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)

@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="pt_br">
+<head>
+    <meta charset="utf-8">
+    <title>Gerar Faturas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='pdf.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='generic2.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js">
+
+    <style>
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            display: none;
+        }
+
+        .loader .spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="loader" id="loader">
+        <div class="spinner">
+            <i class="fas fa-spinner fa-spin"></i> Gerando arquivo...
+        </div>
+    </div>
+    <nav class="main-menu">
+        <ul>
+            <li>
+                <a href="/dashboard">
+                    <i class="fa fa-duotone fa-chart-pie fa-2x"></i>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="/gerar_pdf">
+                    <i class="fa fa-solid fa-file-pdf fa-2x"></i>
+                    <span class="nav-text">Gerar Faturas</span>
+                </a>
+            </li>              
+            <li>
+                <a href="/">
+                    <i class="fa fa-solid fa-file-csv fa-2x"></i>
+                    <span class="nav-text">Removedor</span>
+                </a>
+            </li>
+            <li class="has-subnav">
+                <a href="/task">
+                    <i class="fa fa-solid fa-list-check fa-2x"></i>
+                    <span class="nav-text">Listas</span>
+                </a>
+            </li>
+            <li class="has-subnav">
+                <a href="/buscacep">
+                    <i class="fa fa-solid fa-map-location-dot fa-2x"></i>
+                    <span class="nav-text">Busca CEP</span>
+                </a>
+            </li>
+            <li>
+                <a href="/rastreamento">
+                    <i class="fa fa-solid fa-truck-fast fa-2x"></i>
+                    <span class="nav-text">Rastreamento</span>
+                </a>
+            </li>
+            <li>
+                <a href="/get_notes">
+                    <i class="fa fa-solid fa-table-list fa-2x"></i>
+                    <span class="nav-text">Anotações</span>
+                </a>
+            </li>
+            <li>
+                <a href="/lista_completa">
+                    <i class="fa fa-solid fa-magnifying-glass fa-2x"></i>
+                    <span class="nav-text">Conferência BOX</span>
+                </a>
+            </li>
+            <li>
+                <a href="/links_uteis">
+                    <i class="fa fa-solid fa-table-columns fa-2x"></i>
+                    <span class="nav-text">Trello & Links</span>
+                </a>
+            </li>
+        </ul>
+        <ul class="logout fixed-logout">
+            <li>
+                <a href="/logout">
+                    <i class="fa fa-power-off fa-2x"></i>
+                    <span class="nav-text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <div class="container">
+        <h1>Gerar Faturas</h1>
+        <form id="gerar-pdf-form" action="/gerar_pdf" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="file"><i class="fas fa-file-excel"></i> Arquivo Excel:</label>
+                <input type="file" id="file" name="file" required><br><br>
+            </div>
+            
+            <div class="form-group">
+                <label for="pini"><i class="fas fa-calendar-alt"></i> Data Inicial:</label>
+                <input type="text" id="pini" name="pini" class="datepicker" required><br><br>
+            </div>
+            
+            <div class="form-group">
+                <label for="pfin"><i class="fas fa-calendar-alt"></i> Data Final:</label>
+                <input type="text" id="pfin" name="pfin" class="datepicker" required><br><br>
+            </div>
+            
+            <div class="form-group">
+                <label for="cliente"><i class="fas fa-user"></i> Nome do Cliente:</label>
+                <input type="text" id="cliente" name="cliente" required><br><br>
+            </div>
+
+            <label for="estado">Selecione o estado:</label><br>
+            <select id="estado" name="estado" required>
+                <option value="SC">SC</option>
+                <option value="SP">SP</option>
+            </select><br><br>
+            
+            <div class="form-group">
+                <label for="nomearquivo"><i class="fas fa-file-pdf"></i> Nome do Arquivo PDF:</label>
+                <input type="text" id="nomearquivo" name="nomearquivo" required><br><br>
+            </div>
+            
+            <button type="submit" class="btn">Gerar PDF</button>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+    <script>
+        flatpickr('.datepicker', {
+            dateFormat: 'd/m/Y',
+            locale: 'pt',
+        });
+
+        document.getElementById('gerar-pdf-form').addEventListener('submit', function() {
+            document.getElementById('loader').style.display = 'block';
+        });
+
+        document.getElementById('gerar-pdf-form').addEventListener('submit', function(event) {
+            setTimeout(function() {
+                document.getElementById('loader').style.display = 'none';
+            }, 3500);
+        });
+    </script>
+</body>
+</html>
