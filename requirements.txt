@@ -61,3 +61,4 @@ Flask-Migrate==4.0.5
 asgiref==3.8.1
 aiohttp==3.9.3
 reportlab==4.2.0
+xlrd==2.0.1
