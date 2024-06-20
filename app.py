@@ -25,7 +25,6 @@ from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Frame, PageTemplate
 import io
 import textwrap
-import datetime
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY') or b'_5#y2L"F4Q8z\n\xec]/'
@@ -743,7 +742,7 @@ def dataframe_to_list(dataframe):
             observacao = i[11] if pd.notnull(i[11]) else ''
             l.append([
                 i[0],
-                i[3].strftime("%d/%m/%Y") if isinstance(i[3], datetime.datetime) else str(i[3]),
+                i[3].strftime("%d/%m/%Y") if isinstance(i[3], datetime) else str(i[3]),
                 ("R$ " + '%.2f' % i[4]).replace(".", ",") if isinstance(i[4], (int, float)) else str(i[4]),
                 i[5],
                 i[6],
@@ -763,7 +762,7 @@ def header(canvas, doc, pini, pfin, cliente, estado):
     canvas.drawString(210, page_height - margin - 40, 'Fatura Resumida de Serviços Prestados')
     canvas.drawImage("static/correios.png", margin, page_height - margin - 40, width=120, height=25)
     canvas.setFont('Helvetica', 9)
-    current_date = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    current_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     canvas.drawString(margin, page_height - margin - 75, f'Período de: {pini} até: {pfin} - Data da emissão: {current_date}')
     canvas.drawString(margin, page_height - margin - 85, f'Cliente: {cliente}')
     
