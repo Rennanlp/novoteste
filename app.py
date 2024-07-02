@@ -709,17 +709,28 @@ def buscacep():
         logradouro = request.form.get('logradouro')
         
         api_url = f"https://viacep.com.br/ws/{uf}/{cidade}/{logradouro}/json/"
-        response = requests.get(api_url)
         
-        if response.status_code == 200:
+        try:
+            response = requests.get(api_url)
+            response.raise_for_status()  # Verifica se ocorreu algum erro HTTP
+            
             data = response.json()
             if data:  # Verificar se data não está vazio
                 return render_template('buscacep.html', data=data)
             else:
                 error = "A resposta da API está vazia. Verifique os dados e tente novamente."
                 return render_template('buscacep.html', error=error)
-        else:
-            error = "Não foi possível encontrar o CEP. Verifique os dados e tente novamente."
+        
+        except requests.exceptions.ConnectionError:
+            error = "Erro de conexão. Verifique sua rede e tente novamente."
+            return render_template('buscacep.html', error=error)
+        
+        except requests.exceptions.Timeout:
+            error = "A requisição para a API expirou. Tente novamente mais tarde."
+            return render_template('buscacep.html', error=error)
+        
+        except requests.exceptions.RequestException as e:
+            error = f"Erro ao fazer a requisição: {e}"
             return render_template('buscacep.html', error=error)
 
     return render_template('buscacep.html')
