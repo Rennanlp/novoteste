@@ -718,7 +718,7 @@ def buscacep():
             if data:  # Verificar se data não está vazio
                 return render_template('buscacep.html', data=data)
             else:
-                error = "A resposta da API está vazia. Verifique os dados e tente novamente."
+                error = "Nenhum Resultado encontrado. Verifique os dados e tente novamente."
                 return render_template('buscacep.html', error=error)
         
         except requests.exceptions.ConnectionError:
@@ -734,6 +734,10 @@ def buscacep():
             return render_template('buscacep.html', error=error)
 
     return render_template('buscacep.html')
+
+@app.route('/buscacep_cep')
+def bcep():
+    return render_template('buscacep_cep.html')
 
 
 # ROTAS E DEF FATURA EM PDF

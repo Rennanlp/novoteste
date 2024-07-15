@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscacep</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='buscacep.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='generic2.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
+</head>
+<style>
+    .btn-new {
+        margin-bottom: 10px;
+    }
+</style>
+<body>
+    <nav class="main-menu">
+        <ul>
+            <li>
+                <a href="/dashboard">
+                    <i class="fa fa-duotone fa-chart-pie fa-2x"></i>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="/gerar_pdf">
+                    <i class="fa fa-solid fa-file-pdf fa-2x"></i>
+                    <span class="nav-text">Gerar Faturas</span>
+                </a>
+            </li>              
+            <li>
+                <a href="/">
+                    <i class="fa fa-solid fa-file-csv fa-2x"></i>
+                    <span class="nav-text">Removedor</span>
+                </a>
+            </li>
+            <li class="has-subnav">
+                <a href="/task">
+                    <i class="fa fa-solid fa-list-check fa-2x"></i>
+                    <span class="nav-text">Listas</span>
+                </a>
+            </li>
+            <li class="has-subnav">
+                <a href="/buscacep">
+                    <i class="fa fa-solid fa-map-location-dot fa-2x"></i>
+                    <span class="nav-text">Busca CEP</span>
+                </a>
+            </li>
+            <li>
+                <a href="/rastreamento">
+                    <i class="fa fa-solid fa-truck-fast fa-2x"></i>
+                    <span class="nav-text">Rastreamento</span>
+                </a>
+            </li>
+            <li>
+                <a href="/get_notes">
+                    <i class="fa fa-solid fa-table-list fa-2x"></i>
+                    <span class="nav-text">Anotações</span>
+                </a>
+            </li>
+            <li>
+                <a href="/lista_completa">
+                    <i class="fa fa-solid fa-magnifying-glass fa-2x"></i>
+                    <span class="nav-text">Conferência BOX</span>
+                </a>
+            </li>
+            <li>
+                <a href="/links_uteis">
+                    <i class="fa fa-solid fa-table-columns fa-2x"></i>
+                    <span class="nav-text">Trello & Links</span>
+                </a>
+            </li>
+        </ul>
+        <ul class="logout fixed-logout">
+            <li>
+                <a href="/logout">
+                    <i class="fa fa-power-off fa-2x"></i>
+                    <span class="nav-text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <div class="logo-container">
+        <img src="{{ url_for('static', filename='cep.png') }}" alt="Header Image" class="logo">
+    </div>
+    <div class="container">
+        <h1>Consulta de CEP</h1>
+        <button class="btn-new">
+            <a href="/buscacep" class="button">Consulta por Logradouro</a>
+        </button>
+        <form onsubmit="buscarCEP(); return false;">
+            <div class="form-group">
+                <label for="uf"><i class="fa-solid fa-magnifying-glass-location"></i> CEP:</label>
+                <input type="text" id="cepInput" placeholder="Insira o CEP" maxlength="8">
+            </div>
+            <input type="submit" value="Pesquisar" class="btn-new">
+        </form>
+        <div class="result-container" id="result"></div>
+    </div>
+    <script>
+        function buscarCEP() {
+            const cep = document.getElementById('cepInput').value;
+            const resultDiv = document.getElementById('result');
+            if (cep.length !== 8 || isNaN(cep)) {
+                resultDiv.innerHTML = '<p class="error">CEP inválido. Por favor, insira um CEP válido.</p>';
+                return;
+            }
+            fetch(`https://viacep.com.br/ws/${cep}/json/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.erro) {
+                        resultDiv.innerHTML = '<p class="error">CEP não encontrado ou alterado recentemente.</p>';
+                    } else {
+                        resultDiv.innerHTML = `
+                            <div class="result-item">
+                                <p><strong>CEP:</strong> ${data.cep}</p>
+                                <p><strong>Logradouro:</strong> ${data.logradouro}</p>
+                                <p><strong>Bairro:</strong> ${data.bairro}</p>
+                                <p><strong>Complemento:</strong> ${data.complemento}</p>
+                                <p><strong>Localidade:</strong> ${data.localidade}</p>
+                                <p><strong>UF:</strong> ${data.uf}</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = '<p class="error">Erro ao buscar o CEP. Tente novamente mais tarde.</p>';
+                });
+        }
+    </script>
+</body>
+</html>

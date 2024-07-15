@@ -81,6 +81,9 @@
     </div>
     <div class="container">
         <h1>Pesquisa por Logradouro</h1>
+        <button class="btn-new">
+            <a href="/buscacep_cep" class="button">Consulta por CEP</a>
+        </button>
         <form method="post" action="/buscacep">
             <div class="form-group">
                 <label for="uf"><i class="fas fa-map-marker-alt"></i> UF:</label>
@@ -141,7 +144,10 @@
                     {% set count = 0 %}
                     {% for item in data %}
                         <div class="result-item {% if count % 2 == 0 %}alternate{% endif %}">
-                            <p><strong>CEP:</strong> {{ item['cep'] }}</p>
+                            <p><strong>CEP:</strong> 
+                                <span class="cep">{{ item['cep'] }}</span>
+                                <button class="copy-btn" onclick="copyToClipboard('{{ item['cep'] }}')">Copiar</button>
+                            </p>
                             <p><strong>Logradouro:</strong> {{ item['logradouro'] }}</p>
                             <p><strong>Bairro:</strong> {{ item['bairro'] }}</p>
                             <p><strong>Cidade:</strong> {{ item['localidade'] }}</p>
@@ -156,6 +162,16 @@
                 <p class="error">{{ error }}</p>
             {% endif %}
         {% endif %}
-    </div>
+    </div>    
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                alert('CEP copiado: ' + text);
+            }, function(err) {
+                console.error('Erro ao copiar texto: ', err);
+            });
+        }
+    </script>
+    
 </body>
 </html>
