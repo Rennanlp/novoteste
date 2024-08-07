@@ -522,7 +522,6 @@ def obter_dados_da_api(url):
         data = response.json()
         return data
     except requests.exceptions.RequestException as e:
-        print("Erro ao fazer a requisição:", e)
         return None
 
 async def consulta_api_box_async(token, data_inicio, data_fim):
@@ -534,14 +533,34 @@ async def consulta_api_box_async(token, data_inicio, data_fim):
         "preenvioCancelado": True,
         "envioExpedido": True
     }
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url_api_box, json=payload, headers={'Authorization': 'Bearer ' + token}) as response:
-            data = await response.json()
-            chave_seller = sum('chaveSeller' in d for d in data)
-            preEnvio_cancelado = sum(d.get('preenvioCancelado', False) for d in data)
-            envio_expedido = sum(d.get('envioExpedido', False) for d in data)
-            resultado = chave_seller - envio_expedido - preEnvio_cancelado
-            return resultado
+    headers = {'Authorization': 'Bearer ' + token}
+    
+    for attempt in range(3):  # Tenta a requisição até 3 vezes
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(url_api_box, json=payload, headers=headers, timeout=30) as response:
+                    content_type = response.headers.get('Content-Type', '')
+                    if 'application/json' in content_type:
+                        data = await response.json()
+                        chave_seller = sum('chaveSeller' in d for d in data)
+                        preEnvio_cancelado = sum(d.get('preenvioCancelado', False) for d in data)
+                        envio_expedido = sum(d.get('envioExpedido', False) for d in data)
+                        resultado = chave_seller - envio_expedido - preEnvio_cancelado
+                        return resultado
+                    else:
+                        # Lida com o erro de tipo MIME inesperado
+                        text = await response.text()
+                        raise aiohttp.client_exceptions.ContentTypeError(
+                            response.request_info,
+                            response.history,
+                            status=response.status,
+                            message=f'Attempt to decode JSON with unexpected mimetype: {content_type}',
+                            headers=response.headers,
+                        )
+        except (aiohttp.ClientError, asyncio.TimeoutError) as e:
+            if attempt == 2:
+                raise e
+            await asyncio.sleep(2)
 
 async def consulta_api_box(tokens, data_inicio, data_fim):
     tasks = []
@@ -558,30 +577,37 @@ async def lista_completa():
     if not data_inicio or not data_fim:
         return render_template('testeapi.html')
     else:
-        if data_inicio and data_fim:
-            try:
-                data_inicio_formatted = datetime.strptime(data_inicio, '%Y-%m-%d').strftime('%Y%m%d')
-                data_fim_formatted = datetime.strptime(data_fim, '%Y-%m-%d').strftime('%Y%m%d')
-            except ValueError:
-                return "Formato de data inválido. Por favor, insira as datas no formato correto."
+        try:
+            if data_inicio and data_fim:
+                try:
+                    data_inicio_formatted = datetime.strptime(data_inicio, '%Y-%m-%d').strftime('%Y%m%d')
+                    data_fim_formatted = datetime.strptime(data_fim, '%Y-%m-%d').strftime('%Y%m%d')
+                except ValueError:
+                    return "Formato de data inválido. Por favor, insira as datas no formato correto."
 
-            url_api_crm = f"https://ap5tntnr6b.execute-api.us-east-1.amazonaws.com/api/transcrmc/{data_inicio_formatted}/{data_fim_formatted}"
-            dados_api_crm = obter_dados_da_api(url_api_crm)
+                url_api_crm = f"https://ap5tntnr6b.execute-api.us-east-1.amazonaws.com/api/transcrmc/{data_inicio_formatted}/{data_fim_formatted}"
+                dados_api_crm = obter_dados_da_api(url_api_crm)
 
-            search_query = request.args.get('search', '')
+                search_query = request.args.get('search', '')
 
-            if dados_api_crm:
-                if search_query:
-                    dados_api_crm = [item for item in dados_api_crm if search_query.lower() in item['Cliente'].lower()]
+                if dados_api_crm:
+                    if search_query:
+                        dados_api_crm = [item for item in dados_api_crm if search_query.lower() in item['Cliente'].lower()]
                     
-                dados_formatados = [(item['Id_Cliente'], item['Cliente'], item['Pedidos'], item['Token']) for item in dados_api_crm]
+                    dados_formatados = [(item['Id_Cliente'], item['Cliente'], item['Pedidos'], item['Token']) for item in dados_api_crm]
 
-                tokens = [item['Token'] for item in dados_api_crm]
-                resultado_final = await consulta_api_box(tokens, data_inicio, data_fim)
-
-                return render_template('testeapi.html', dados=dados_formatados, data_inicio=data_inicio, data_fim=data_fim, resultado_final=resultado_final)
-            else:
-                return "Erro ao obter dados da primeira API"
+                    tokens = [item['Token'] for item in dados_api_crm]
+                    try:
+                        resultado_final = await consulta_api_box(tokens, data_inicio, data_fim)
+                    except aiohttp.client_exceptions.ContentTypeError as e:
+                        print("Erro ao obter dados da segunda API:", e)
+                        return "Erro ao obter dados da segunda API"
+                    return render_template('testeapi.html', dados=dados_formatados, data_inicio=data_inicio, data_fim=data_fim, resultado_final=resultado_final)
+                else:
+                    return "Erro ao obter dados da primeira API"
+        except Exception as e:
+            print(f"Erro inesperado: {e}")
+            return "Erro interno no servidor"
 
 
 @app.route('/download', methods=['POST'])
