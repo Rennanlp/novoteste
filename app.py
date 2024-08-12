@@ -23,6 +23,7 @@ from clientes import criar_banco_dados, inserir_dados_da_planilha, obter_respons
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Frame, PageTemplate
+from reportlab.pdfgen import canvas
 import io
 import textwrap
 
@@ -816,6 +817,60 @@ def header(canvas, doc, pini, pfin, cliente, estado):
         
     canvas.setTitle(f"Relatórios Correios {pini} - {pfin}")
     canvas.restoreState()
+    
+# Função para desenhar o rodapé
+def footer(canvas, doc):
+    page_width, page_height = letter
+    margin = 16
+    
+    canvas.saveState()
+    
+    rect_x = margin
+    rect_y = margin
+    rect_width = page_width - 2 * margin
+    rect_height = 50
+    radius = 10
+
+    canvas.roundRect(rect_x, rect_y, rect_width, rect_height, radius, stroke=1, fill=0)
+
+    canvas.setFont('Helvetica-Bold', 8.5)
+    text = "A Empresa Brasileira de Correios e Telégrafos é imune a Imposto de Renda conforme sentença judicial - Recurso Extraordinário STF\n601.392/PR amparada no art.150, alínea a da CF/88 e no Decreto-lei 509/1969."
+    text_lines = text.split('\n')
+    
+    text_x = rect_x + 10
+    text_y = rect_y + rect_height - 15
+
+    for line in text_lines:
+        canvas.drawString(text_x, text_y, line)
+        text_y -= 10 
+
+    canvas.setFont('Helvetica-Oblique', 6)
+    footer_text = "Para pagamento do Boleto junto ao seu Banco, se necessário utilize o CNPJ Matriz dos Correios: 34.028.316/0001-03 no campo Beneficiário, porexigência da CIP (Câmara interbancária de Pagamento)."
+    
+    text_y -= 20
+    canvas.drawString(margin, text_y, footer_text)
+    
+    canvas.restoreState()
+
+# Classe customizada para contar as páginas e adicionar o rodapé na última
+class NumberedCanvas(canvas.Canvas):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.pages = []
+
+    def showPage(self):
+        self.pages.append(dict(self.__dict__))
+        self._startPage()
+
+    def save(self):
+        page_count = len(self.pages)
+        for page_number, page in enumerate(self.pages, start=1):
+            self.__dict__.update(page)
+            # Adicionar o rodapé apenas na última página
+            if page_number == page_count:
+                footer(self, None)
+            canvas.Canvas.showPage(self)
+        canvas.Canvas.save(self)
 
 def process_excel_to_pdf(file, pini, pfin, cliente, estado, nomearquivo):
     df = pd.read_excel(file, sheet_name="Planilha1")
@@ -855,14 +910,14 @@ def process_excel_to_pdf(file, pini, pfin, cliente, estado, nomearquivo):
     table.setStyle(style)
     elements.append(table)
 
-    # Adicionando o cabeçalho ao PDF
+    # Adicionando o cabeçalho e o rodapé
     frame = Frame(pdf.leftMargin, pdf.bottomMargin, pdf.width, pdf.height - 2 * 50, id='normal')
-    template = PageTemplate(id='test', frames=[frame], onPage=lambda canvas, doc: header(canvas, doc, pini, pfin, cliente, estado))
-
+    template = PageTemplate(id='test', frames=[frame], 
+                            onPage=lambda canvas, doc: header(canvas, doc, pini, pfin, cliente, estado))
     pdf.addPageTemplates([template])
 
     # Construindo o PDF
-    pdf.build(elements)
+    pdf.build(elements, canvasmaker=NumberedCanvas)
 
     # Retornando o buffer do PDF
     pdf_buffer.seek(0)
