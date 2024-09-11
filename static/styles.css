@@ -1,195 +1,90 @@
-/* static/styles.css */
-
+/* Importações */
 @import url(//netdna.bootstrapcdn.com/font-awesome/6.0.0/css/font-awesome.css);
 @import url(https://fonts.googleapis.com/css?family=Titillium+Web:300);
 
+/* Estilos gerais */
 body {
     display: flex;
     justify-content: center;
     font-family: Arial, sans-serif;
     align-items: center;
     margin: 0;
+    background: #f4f4f4; /* Cor de fundo mais suave */
 }
 
-.fa-2x {
-  font-size: 2em;
-  }
-  .fa {
-  position: relative;
-  display: table-cell;
-  width: 80px;
-  height: 46px;
-  text-align: center;
-  margin-top: 5px;
-  vertical-align: middle;
-  font-size:20px;
-  }
-  
-  .main-menu:hover,nav.main-menu.expanded {
-  width:190px;
-  overflow:visible;
-  }
-  
-  .main-menu {
-  background:#212121;
-  border-right:1px solid #e5e5e5;
-  position:fixed;
-  top:0;
-  bottom:0;
-  height:100%;
-  left:0;
-  width:50px;
-  overflow:hidden;
-  -webkit-transition:width .05s linear;
-  transition:width .05s linear;
-  -webkit-transform:translateZ(0) scale(1,1);
-  z-index:1000;
-  }
-  
-  .main-menu>ul {
-  margin:7px 0;
-  }
-  
-  .main-menu li {
-  position:relative;
-  display:block;
-  width: 190px;
-  }
-  
-  .main-menu li>a {
-  position:relative;
-  display:table;
-  border-collapse:collapse;
-  border-spacing:0;
-  color:#999;
-   font-family: arial;
-  font-size: 12px;
-  text-decoration:none;
-  -webkit-transform:translateZ(0) scale(1,1);
-  -webkit-transition:all .1s linear;
-  transition:all .1s linear;
-    
-  }
-  
-  .main-menu .nav-icon {
-  position:relative;
-  display:table-cell;
-  width:60px;
-  height:36px;
-  text-align:center;
-  vertical-align:middle;
-  font-size:18px;
-  }
-  
-  .main-menu .nav-text {
-  position:relative;
-  display:table-cell;
-  vertical-align:middle;
-  width:190px;
+/* Estilo do menu lateral */
+.main-menu {
+    background: #212121;
+    border-right: 1px solid #e5e5e5;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    height: 100%;
+    left: 0;
+    width: 50px; /* Largura padrão */
+    overflow: hidden;
+    transition: width 0.3s ease;
+    z-index: 1000;
+}
+
+.main-menu:hover, nav.main-menu.expanded {
+    width: 200px; /* Largura expandida do menu */
+    overflow: visible;
+}
+
+.main-menu > ul {
+    margin: 10px 0;
+}
+
+.main-menu li {
+    position: relative;
+    display: block;
+    width: 200px;
+}
+
+.main-menu li > a {
+    display: flex;
+    align-items: center;
+    color: #999;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    text-decoration: none;
+    padding: 15px;
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.main-menu .nav-icon {
+    font-size: 20px;
+    margin-right: 15px;
+}
+
+.main-menu .nav-text {
     font-family: 'Titillium Web', sans-serif;
-  }
-  
-  .main-menu>ul.logout {
-  position:absolute;
-  left:0;
-  bottom:0;
-  }
-  
-  .no-touch .scrollable.hover {
-  overflow-y:hidden;
-  }
-  
-  .no-touch .scrollable.hover:hover {
-  overflow-y:auto;
-  overflow:visible;
-  }
-  
-  a:hover,a:focus {
-  text-decoration:none;
-  }
-  
-  nav {
-  -webkit-user-select:none;
-  -moz-user-select:none;
-  -ms-user-select:none;
-  -o-user-select:none;
-  user-select:none;
-  }
-  
-  nav ul,nav li {
-  outline:0;
-  margin:0;
-  padding:0;
-  }
-  .main-menu li:hover>a,nav.main-menu li.active>a,.dropdown-menu>li>a:hover,.dropdown-menu>li>a:focus,.dropdown-menu>.active>a,.dropdown-menu>.active>a:hover,.dropdown-menu>.active>a:focus,.no-touch .dashboard-page nav.dashboard-menu ul li:hover a,.dashboard-page nav.dashboard-menu ul li.active a {
-  color:#fff;
-  background-color:#000000;
-  width: 190px;
-  
-  }
-  .area {
-  float: left;
-  background: #e2e2e2;
-  width: 100%;
-  height: 100%;
-  }
-  
-  @font-face {
-    font-family: 'Titillium Web';
-    font-style: normal;
-    font-weight: 300;
-    src: local('Titillium WebLight'), local('TitilliumWeb-Light'), url(http://themes.googleusercontent.com/static/fonts/titilliumweb/v2/anMUvcNT0H1YN4FII8wpr24bNCNEoFTpS2BTjF6FB5E.woff) format('woff');
-  }
-  
-  
-  .fixed-logout {
-      position: fixed;
-      left: 0;
-      bottom: 0;
-      width: 60px;
-    }
-    
-    .fixed-logout li {
-      display: block;
-    }
-    
-    .fixed-logout li>a {
-      display: block;
-      position:relative;
-      display:table;
-      border-collapse:collapse;
-      border-spacing:0;
-      color:#999;
-       font-family: arial;
-      font-size: 14px;
-      text-decoration:none;
-      -webkit-transform:translateZ(0) scale(1,1);
-      -webkit-transition:all .1s linear;
-      transition:all .1s linear;
-    }
-#welcomeMessage {
-    margin-top: 5px;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    margin-right: 20px;
 }
 
+.main-menu li:hover > a,
+nav.main-menu li.active > a {
+    color: #fff;
+    background-color: #333;
+}
+
+/* Estilo do conteúdo principal */
 .content-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    margin-right: 520px;
+    margin-left: 50px; /* Margem para o menu lateral */
+    width: calc(100% - 50px); /* Ajusta o conteúdo para evitar sobreposição */
 }
 
 .logo-container {
-    margin-top: -40px;
-    margin-bottom: 10px;
+    margin-top: 20px;
+    margin-bottom: 20px;
     display: flex;
     align-items: center;
-
+    justify-content: center; /* Centraliza o conteúdo */
 }
 
 .h21 {
@@ -198,11 +93,9 @@ body {
 }
 
 .logo {
-    width: 200px;
-    height: 200px;
+    width: 180px;
+    height: 180px;
     margin-right: 20px;
-    display: block;
-    margin-top: -35px;
 }
 
 h1 {
@@ -221,7 +114,7 @@ label {
     margin-left: 10px;
 }
 
-button {
+button, .logout-button {
     width: 9em;
     height: 3em;
     border-radius: 30em;
@@ -229,45 +122,17 @@ button {
     font-family: inherit;
     border: none;
     position: relative;
-    margin-top: 30px;
     overflow: hidden;
     z-index: 1;
-    box-shadow: 6px 6px 12px #c5c5c5,
-                -6px -6px 12px #ffffff;
-   }
-   
-   button::before {
-    content: '';
-    width: 0;
-    height: 3em;
-    border-radius: 30em;
-    position: absolute;
-    top: 0;
-    left: 0;
+    box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
     background-image: linear-gradient(to right, #0fd850 0%, #f9f047 100%);
-    transition: .5s ease;
-    display: block;
-    z-index: -1;
-   }
-   
-   button:hover::before {
-    width: 9em;
-   }
+    color: white;
+    cursor: pointer;
+    text-align: center;
+    margin-top: 20px; /* Margem superior para o botão */
+}
 
-   .logout-button {
-    width: 9em;
-    height: 3em;
-    border-radius: 30em;
-    font-size: 15px;
-    font-family: inherit;
-    position: relative;
-    overflow: hidden;
-    z-index: 1;
-    box-shadow: 6px 6px 12px #c5c5c5,
-                -6px -6px 12px #ffffff;
-   }
-   
-   .logout-button:before {
+button::before, .logout-button::before {
     content: '';
     width: 0;
     height: 3em;
@@ -276,15 +141,158 @@ button {
     top: 0;
     left: 0;
     background-image: linear-gradient(to right, #cc3d3d 0%, #e23939 100%);
-    transition: .5s ease;
-    display: block;
+    transition: width 0.5s ease;
     z-index: -1;
-   }
-   
-   .logout-button:hover::before {
+}
+
+button:hover::before, .logout-button:hover::before {
     width: 9em;
-   }
+}
 
 #result {
-    margin-top: 5px;
+    margin-top: 10px; /* Ajusta a margem superior do resultado */
+}
+
+#welcomeMessage {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background: #fff; /* Fundo branco para destacar a mensagem */
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.1); /* Adiciona sombra para mais destaque */
+}
+
+/* Estilos responsivos */
+/* Estilos para dispositivos com largura máxima de 600px */
+@media only screen and (max-width: 600px) {
+    body {
+        font-size: 18px;
+        line-height: 1.5;
+    }
+
+    .form-group label {
+        font-size: 16px;
+    }
+
+    .result-item p {
+        font-size: 16px;
+    }
+
+    .btn-new, input[type="submit"] {
+        padding: 12px 20px;
+        font-size: 18px;
+        width: 100%;
+    }
+
+    .form-group input {
+        width: 100%;
+    }
+
+    .result-container {
+        max-height: 300px;
+    }
+
+    .main-menu ul {
+        text-align: center;
+        padding: 0; /* Remove o padding */
+        margin: 0; /* Remove a margem */
+    }
+
+    .main-menu ul li {
+        display: inline-block;
+        margin: 0 5px;
+    }
+
+    .main-menu ul li a {
+        font-size: 14px;
+    }
+    
+    .main-menu ul li i {
+        font-size: 20px;
+    }
+
+    .container, .result-container {
+        padding: 15px;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .logo-container img {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+/* Estilos para dispositivos com largura máxima de 768px */
+@media only screen and (max-width: 768px) {
+    nav.main-menu {
+        width: 60px; /* Reduzir a largura do menu em telas pequenas */
+    }
+
+    .container, .result-container {
+        width: calc(100% - 60px); /* Ajusta a largura para considerar o menu */
+        margin-left: 60px; /* Ajusta a margem para evitar sobreposição */
+    }
+
+    nav.main-menu ul li .nav-text {
+        display: none; /* Oculta o texto do menu para dar mais espaço ao ícone */
+    }
+
+    nav.main-menu ul li i {
+        font-size: 24px;
+    }
+}
+
+/* Estilos para dispositivos com largura máxima de 480px */
+@media only screen and (max-width: 480px) {
+    nav.main-menu {
+        display: none; /* Oculta o menu completamente em telas muito pequenas */
+    }
+
+    .container, .result-container {
+        width: 100%; /* Usa toda a largura disponível */
+        margin: 0 auto; /* Centraliza o container */
+    }
+}
+
+/* Estilos para o botão de menu em dispositivos móveis */
+.menu-toggle {
+    display: none;
+    font-size: 2em;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    left: 5px;
+    color: #0056b3; /* Ajuste a cor conforme necessário */
+    z-index: 1100; /* Maior que o z-index do menu */
+}
+
+/* Estilos para o menu lateral em telas pequenas */
+@media (max-width: 768px) {
+    .main-menu {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #333;
+        z-index: 1000;
+        overflow-y: auto; /* Adiciona rolagem se necessário */
+    }
+
+    .main-menu.active {
+        display: block;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+}
+
+/* Estilo para imagens responsivas */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
 }

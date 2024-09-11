@@ -949,6 +949,100 @@ def gerar_pdf():
     # Se for GET, apenas renderiza o formulário
     return render_template('gerar_pdf.html')
 
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+def normalizar_string(s):
+    return s.upper().strip()
+
+def somar_observacoes(observacao):
+    produtos = {}
+    if pd.isna(observacao):
+        return produtos 
+
+    observacao = str(observacao).strip()
+    items = observacao.split('|')
+    for item in items:
+        item = item.strip()
+        if 'x' in item:
+            partes = item.split('x', 1)
+            if len(partes) == 2:
+                quantidade_str = partes[0].strip()
+                produto = normalizar_string(partes[1].strip())
+                
+                try:
+                    quantidade = int(quantidade_str)
+                except ValueError:
+                    quantidade = 1
+                    
+                if "EBOOK" not in produto:
+                    if produto in produtos:
+                        produtos[produto] += quantidade
+                    else:
+                        produtos[produto] = quantidade
+
+    return produtos
+
+@app.route('/somar_produtos')
+def upload_file():
+    return render_template('upload.html')
+
+@app.route('/analisar', methods=['POST'])
+def analisar():
+    if 'file' not in request.files:
+        return redirect(request.url)
+    
+    file = request.files['file']
+    if file.filename == '':
+        return redirect(request.url)
+
+    if file:
+        df = pd.read_csv(file, delimiter=';', encoding='ISO-8859-1')
+
+        print("DataFrame Original:")
+        print(df.head())
+
+        df_observacoes = df['Observação'].apply(somar_observacoes)
+        df_expanded = pd.json_normalize(df_observacoes)
+        df = pd.concat([df, df_expanded], axis=1)
+
+        df = df.drop(columns=['Observação'])
+
+        print("DataFrame Após Expansão:")
+        print(df.head())
+
+        resultado = df.groupby('Data').sum().reset_index()
+
+        print("DataFrame Após Agrupamento:")
+        print(resultado.head())
+
+        for coluna in resultado.columns:
+            if resultado[coluna].dtype == 'float64':
+                resultado[coluna] = resultado[coluna].fillna(0).astype(int)
+
+        resultado['Data'] = pd.to_datetime(resultado['Data'], errors='coerce', format='%d/%m/%Y')
+        resultado = resultado.sort_values(by='Data')
+
+        resultado['Data'] = resultado['Data'].dt.strftime('%d/%m/%y')
+        
+        resultado = resultado.loc[:, ~resultado.columns.str.contains('^Unnamed')]
+
+        print("DataFrame Após Remoção de Colunas 'Unnamed':")
+        print(resultado.head())
+
+        total_row = resultado.drop(columns=['Data']).sum()
+        total_row['Data'] = 'Total Geral' 
+
+        resultado.loc[len(resultado)] = total_row
+
+        html_table = resultado.to_html(classes='table table-striped', index=False).strip()
+
+        total_geral = resultado.drop(columns=['Data']).sum().sum()
+
+        return render_template('resultado.html', 
+                               tables=[html_table], 
+                               titles=resultado.columns.values,
+                               total_geral=total_geral)
+
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)

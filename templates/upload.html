@@ -1,16 +1,102 @@
-<!DOCTYPE html>
-<html lang="pt-br">
+<!doctype html>
+<html lang="pt_br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carregar Lista de Responsáveis</title>
+    <title>Somar Quantidades</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='generic2.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='upload.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
 </head>
 <body>
-    <h1>Carregar Lista de Responsáveis</h1>
-    <form method="post" enctype="multipart/form-data" action="/carregar_lista_responsaveis">
-        <input type="file" name="file" accept=".xlsx" required>
-        <small>Por favor, selecione um arquivo Excel (.xlsx)</small><br>
-        <input type="submit" value="Carregar">
+    <nav class="main-menu">
+        <ul>
+            <li>
+            </li>
+        <ul>
+        <ul>
+            <li>
+            </li>
+        <ul>
+            <li>
+        <ul>
+            <li>
+                <a href="/dashboard">
+                    <i class="fa fa-duotone fa-chart-pie fa-2x"></i>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="/gerar_pdf">
+                    <i class="fa fa-solid fa-file-pdf fa-2x"></i>
+                    <span class="nav-text">Gerar Faturas</span>
+                </a>
+            </li>              
+            <li>
+                <a href="/">
+                    <i class="fa fa-solid fa-file-csv fa-2x"></i>
+                    <span class="nav-text">Removedor</span>
+                </a>
+            </li>
+            <li class="has-subnav">
+                <a href="/task">
+                    <i class="fa fa-solid fa-list-check fa-2x"></i>
+                    <span class="nav-text">Listas</span>
+                </a>
+            </li>
+            <li class="has-subnav">
+                <a href="/buscacep">
+                    <i class="fa fa-solid fa-map-location-dot fa-2x"></i>
+                    <span class="nav-text">Busca CEP</span>
+                </a>
+            </li>
+            <li>
+                <a href="/rastreamento">
+                    <i class="fa fa-solid fa-truck-fast fa-2x"></i>
+                    <span class="nav-text">Rastreamento</span>
+                </a>
+            </li>
+            <li>
+                <a href="/get_notes">
+                    <i class="fa fa-solid fa-table-list fa-2x"></i>
+                    <span class="nav-text">Anotações</span>
+                </a>
+            </li>
+            <li>
+                <a href="/lista_completa">
+                    <i class="fa fa-solid fa-magnifying-glass fa-2x"></i>
+                    <span class="nav-text">Conferência BOX</span>
+                </a>
+            </li>
+            <li>
+                <a href="/links_uteis">
+                    <i class="fa fa-solid fa-table-columns fa-2x"></i>
+                    <span class="nav-text">Trello & Links</span>
+                </a>
+            </li>
+            <li>
+                <a href="/somar_produtos">
+                    <i class="fa fa-solid fa-calculator fa-2x"></i>
+                    <span class="nav-text">Calcular Produtos</span>
+                </a>
+            </li>
+        </ul>
+        <ul class="logout fixed-logout">
+            <li>
+                <a href="/logout">
+                    <i class="fa fa-power-off fa-2x"></i>
+                    <span class="nav-text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <div class="logo-container">
+        <img src="{{ url_for('static', filename='7132915.png') }}" alt="Header Image" class="logo">
+    </div>
+    <form action="/analisar" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <input type="submit" value="Enviar">
     </form>
 </body>
 </html>

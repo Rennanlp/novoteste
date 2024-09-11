@@ -1,33 +1,17 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buscacep</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='buscacep.css') }}">
+    <title>Resultado de Pedidos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='resultado.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='generic2.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
 </head>
-<style>
-    .btn-new {
-        margin-bottom: 10px;
-    }
-</style>
 <body>
-    <span class="menu-toggle">
-        <i class="fa fa-bars"></i>
-    </span>
     <nav class="main-menu">
-        <ul>
-            <li>
-            </li>
-        <ul>
-        <ul>
-            <li>
-            </li>
-        <ul>
-            <li>
         <ul>
             <li>
                 <a href="/dashboard">
@@ -40,7 +24,7 @@
                     <i class="fa fa-solid fa-file-pdf fa-2x"></i>
                     <span class="nav-text">Gerar Faturas</span>
                 </a>
-            </li>              
+            </li>
             <li>
                 <a href="/">
                     <i class="fa fa-solid fa-file-csv fa-2x"></i>
@@ -99,56 +83,16 @@
             </li>
         </ul>
     </nav>
-    <div class="logo-container">
-        <img src="{{ url_for('static', filename='cep.png') }}" alt="Header Image" class="logo">
+    <div class="container mt-5">
+        <h1 class="text-center">Quantidade de Produtos</h1>
+        <div class="table-responsive">
+            {{ tables[0]|safe }}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{{ url_for('upload_file') }}" class="btn btn-primary">
+                <i class="fas fa-upload"></i> Fazer Nova Consulta
+            </a>
+        </div>
     </div>
-    <div class="container">
-        <h1>Consulta de CEP</h1>
-        <button class="btn-new">
-            <a href="/buscacep" class="button">Consulta por Logradouro</a>
-        </button>
-        <form onsubmit="buscarCEP(); return false;">
-            <div class="form-group">
-                <label for="uf"><i class="fa-solid fa-magnifying-glass-location"></i> CEP:</label>
-                <input type="text" id="cepInput" placeholder="Insira o CEP" maxlength="8">
-            </div>
-            <input type="submit" value="Pesquisar" class="btn-new">
-        </form>
-        <div class="result-container" id="result"></div>
-    </div>
-    <script>
-        function buscarCEP() {
-            const cep = document.getElementById('cepInput').value;
-            const resultDiv = document.getElementById('result');
-            if (cep.length !== 8 || isNaN(cep)) {
-                resultDiv.innerHTML = '<p class="error">CEP inválido. Por favor, insira um CEP válido.</p>';
-                return;
-            }
-            fetch(`https://viacep.com.br/ws/${cep}/json/`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.erro) {
-                        resultDiv.innerHTML = '<p class="error">CEP não encontrado ou alterado recentemente.</p>';
-                    } else {
-                        resultDiv.innerHTML = `
-                            <div class="result-item">
-                                <p><strong>CEP:</strong> ${data.cep}</p>
-                                <p><strong>Logradouro:</strong> ${data.logradouro}</p>
-                                <p><strong>Bairro:</strong> ${data.bairro}</p>
-                                <p><strong>Complemento:</strong> ${data.complemento}</p>
-                                <p><strong>Localidade:</strong> ${data.localidade}</p>
-                                <p><strong>UF:</strong> ${data.uf}</p>
-                            </div>
-                        `;
-                    }
-                })
-                .catch(error => {
-                    resultDiv.innerHTML = '<p class="error">Erro ao buscar o CEP. Tente novamente mais tarde.</p>';
-                });
-        }
-        document.querySelector('.menu-toggle').addEventListener('click', function() {
-            document.querySelector('nav.main-menu').classList.toggle('active');
-        });
-    </script>
 </body>
 </html>

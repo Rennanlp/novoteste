@@ -10,7 +10,19 @@
     <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
 </head>
 <body>
+    <span class="menu-toggle">
+        <i class="fa fa-bars"></i>
+    </span>
     <nav class="main-menu">
+        <ul>
+            <li>
+            </li>
+        <ul>
+        <ul>
+            <li>
+            </li>
+        <ul>
+            <li>
         <ul>
             <li>
                 <a href="/dashboard">
@@ -64,6 +76,12 @@
                 <a href="/links_uteis">
                     <i class="fa fa-solid fa-table-columns fa-2x"></i>
                     <span class="nav-text">Trello & Links</span>
+                </a>
+            </li>
+            <li>
+                <a href="/somar_produtos">
+                    <i class="fa fa-solid fa-calculator fa-2x"></i>
+                    <span class="nav-text">Calcular Produtos</span>
                 </a>
             </li>
         </ul>
@@ -171,6 +189,9 @@
                 console.error('Erro ao copiar texto: ', err);
             });
         }
+        document.querySelector('.menu-toggle').addEventListener('click', function() {
+            document.querySelector('nav.main-menu').classList.toggle('active');
+        });
     </script>
     
 </body>

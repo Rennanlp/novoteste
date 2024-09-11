@@ -8,7 +8,8 @@ body {
     align-items: center;
     min-height: 100vh;
     flex-direction: column;
-    overflow-y: auto; /* Permitir rolagem vertical do corpo */
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .container {
@@ -17,9 +18,10 @@ body {
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: center;
-    width: 90%;
+    width: 100%;
     max-width: 500px;
-    margin-bottom: 20px; /* Garantir espaço entre elementos quando a tela rola */
+    margin-bottom: 20px;
+    box-sizing: border-box;
 }
 
 h1 {
@@ -59,14 +61,16 @@ input[type="submit"]:hover {
 
 .result-container {
     margin-top: 20px;
-    width: 90%;
+    width: 100%;
     max-width: 500px;
-    max-height: 500px; /* Altura máxima do container rolável */
-    overflow-y: auto; /* Habilita a rolagem vertical */
+    max-height: 500px;
+    overflow-y: auto;
+    overflow-x: hidden;
     background-color: #fff;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
 }
 
 .result {
@@ -78,8 +82,12 @@ input[type="submit"]:hover {
 }
 
 .result-item {
+    position: relative;
     padding: 10px;
+    border: 1px solid #ddd;
     border-radius: 5px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
 }
 
 .result-item.alternate {
@@ -134,17 +142,9 @@ select:focus {
     background-color: #0056b3;
 }
 
-.result-item {
-    position: relative;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    background-color: #f9f9f9;
-}
-
-.result-item.alternate {
-    background-color: #e9e9e9;
+.btn-new:active, input[type="submit"]:active {
+    background-color: #00408d;
+    transform: scale(0.98);
 }
 
 .copy-btn {
@@ -166,4 +166,129 @@ select:focus {
 
 .result-item:hover .copy-btn {
     display: inline-block;
+}
+
+@media only screen and (max-width: 600px) {
+    body {
+        font-size: 18px;
+        line-height: 1.5;
+    }
+
+    .form-group label {
+        font-size: 16px;
+    }
+
+    .result-item p {
+        font-size: 16px;
+    }
+
+    .btn-new, input[type="submit"] {
+        padding: 12px 20px;
+        font-size: 18px;
+        width: 100%;
+    }
+
+    .form-group input {
+        width: 100%;
+    }
+
+    .result-container {
+        max-height: 300px;
+    }
+
+    .main-menu ul {
+        text-align: center;
+    }
+
+    .main-menu ul li {
+        display: inline-block;
+        margin: 0 5px;
+    }
+
+    .main-menu ul li a {
+        font-size: 14px;
+    }
+    
+    .main-menu ul li i {
+        font-size: 20px;
+    }
+
+    .container, .result-container {
+        padding: 15px;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .logo-container img {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    nav.main-menu {
+        width: 60px; /* Reduzir a largura do menu em telas pequenas */
+    }
+
+    .container, .result-container {
+        width: calc(100% - 60px); /* Ajusta a largura para considerar o menu */
+        margin-left: 60px; /* Ajusta a margem para evitar sobreposição */
+    }
+
+    nav.main-menu ul li .nav-text {
+        display: none; /* Oculta o texto do menu para dar mais espaço ao ícone */
+    }
+
+    nav.main-menu ul li i {
+        font-size: 24px;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    nav.main-menu {
+        display: none; /* Oculta o menu completamente em telas muito pequenas */
+    }
+
+    .container, .result-container {
+        width: 100%; /* Usa toda a largura disponível */
+        margin: 0 auto; /* Centraliza o container */
+    }
+}
+
+.menu-toggle {
+    display: none;
+    font-size: 2em;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #0056b3; /* Ajuste a cor conforme necessário */
+    z-index: 1100; /* Maior que o z-index do menu */
+}
+
+@media (max-width: 768px) {
+    .main-menu {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #333;
+        z-index: 1000;
+    }
+
+    .main-menu.active {
+        display: block;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
 }
