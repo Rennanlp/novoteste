@@ -986,11 +986,15 @@ def somar_observacoes(observacao):
 def upload_file():
     return render_template('upload.html')
 
+df_resultado = None
+
 @app.route('/analisar', methods=['POST'])
 def analisar():
+    global df_resultado
+
     if 'file' not in request.files:
         return redirect(request.url)
-    
+
     file = request.files['file']
     if file.filename == '':
         return redirect(request.url)
@@ -1010,38 +1014,52 @@ def analisar():
         print("DataFrame Após Expansão:")
         print(df.head())
 
-        resultado = df.groupby('Data').sum().reset_index()
+        df_resultado = df.groupby('Data').sum().reset_index()
 
         print("DataFrame Após Agrupamento:")
-        print(resultado.head())
+        print(df_resultado.head())
 
-        for coluna in resultado.columns:
-            if resultado[coluna].dtype == 'float64':
-                resultado[coluna] = resultado[coluna].fillna(0).astype(int)
+        for coluna in df_resultado.columns:
+            if df_resultado[coluna].dtype == 'float64':
+                df_resultado[coluna] = df_resultado[coluna].fillna(0).astype(int)
 
-        resultado['Data'] = pd.to_datetime(resultado['Data'], errors='coerce', format='%d/%m/%Y')
-        resultado = resultado.sort_values(by='Data')
+        df_resultado['Data'] = pd.to_datetime(df_resultado['Data'], errors='coerce', format='%d/%m/%Y')
+        df_resultado = df_resultado.sort_values(by='Data')
 
-        resultado['Data'] = resultado['Data'].dt.strftime('%d/%m/%y')
+        df_resultado['Data'] = df_resultado['Data'].dt.strftime('%d/%m/%y')
         
-        resultado = resultado.loc[:, ~resultado.columns.str.contains('^Unnamed')]
+        df_resultado = df_resultado.loc[:, ~df_resultado.columns.str.contains('^Unnamed')]
 
         print("DataFrame Após Remoção de Colunas 'Unnamed':")
-        print(resultado.head())
+        print(df_resultado.head())
 
-        total_row = resultado.drop(columns=['Data']).sum()
+        total_row = df_resultado.drop(columns=['Data']).sum()
         total_row['Data'] = 'Total Geral' 
 
-        resultado.loc[len(resultado)] = total_row
+        df_resultado.loc[len(df_resultado)] = total_row
 
-        html_table = resultado.to_html(classes='table table-striped', index=False).strip()
+        html_table = df_resultado.to_html(classes='table table-striped', index=False).strip()
 
-        total_geral = resultado.drop(columns=['Data']).sum().sum()
+        total_geral = df_resultado.drop(columns=['Data']).sum().sum()
 
         return render_template('resultado.html', 
                                tables=[html_table], 
-                               titles=resultado.columns.values,
+                               titles=df_resultado.columns.values,
                                total_geral=total_geral)
+        
+@app.route('/download_xlsx')
+def download_xlsx():
+    global df_resultado
+
+    if df_resultado is None:
+        return redirect('/')
+
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df_resultado.to_excel(writer, index=False, sheet_name='Resultado')
+
+    output.seek(0)
+    return send_file(output, as_attachment=True, download_name='resultado.xlsx', mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
 
 if __name__ == '__main__':

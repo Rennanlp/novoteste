@@ -10,93 +10,39 @@
     <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
 </head>
 <body>
-    <nav class="main-menu">
-        <ul>
-            <li>
-            </li>
-        <ul>
-        <ul>
-            <li>
-            </li>
-        <ul>
-            <li>
-        <ul>
-            <li>
-                <a href="/dashboard">
-                    <i class="fa fa-duotone fa-chart-pie fa-2x"></i>
-                    <span class="nav-text">Dashboard</span>
-                </a>
-            </li>
-            <li>
-                <a href="/gerar_pdf">
-                    <i class="fa fa-solid fa-file-pdf fa-2x"></i>
-                    <span class="nav-text">Gerar Faturas</span>
-                </a>
-            </li>              
-            <li>
-                <a href="/">
-                    <i class="fa fa-solid fa-file-csv fa-2x"></i>
-                    <span class="nav-text">Removedor</span>
-                </a>
-            </li>
-            <li class="has-subnav">
-                <a href="/task">
-                    <i class="fa fa-solid fa-list-check fa-2x"></i>
-                    <span class="nav-text">Listas</span>
-                </a>
-            </li>
-            <li class="has-subnav">
-                <a href="/buscacep">
-                    <i class="fa fa-solid fa-map-location-dot fa-2x"></i>
-                    <span class="nav-text">Busca CEP</span>
-                </a>
-            </li>
-            <li>
-                <a href="/rastreamento">
-                    <i class="fa fa-solid fa-truck-fast fa-2x"></i>
-                    <span class="nav-text">Rastreamento</span>
-                </a>
-            </li>
-            <li>
-                <a href="/get_notes">
-                    <i class="fa fa-solid fa-table-list fa-2x"></i>
-                    <span class="nav-text">Anotações</span>
-                </a>
-            </li>
-            <li>
-                <a href="/lista_completa">
-                    <i class="fa fa-solid fa-magnifying-glass fa-2x"></i>
-                    <span class="nav-text">Conferência BOX</span>
-                </a>
-            </li>
-            <li>
-                <a href="/links_uteis">
-                    <i class="fa fa-solid fa-table-columns fa-2x"></i>
-                    <span class="nav-text">Trello & Links</span>
-                </a>
-            </li>
-            <li>
-                <a href="/somar_produtos">
-                    <i class="fa fa-solid fa-calculator fa-2x"></i>
-                    <span class="nav-text">Calcular Produtos</span>
-                </a>
-            </li>
-        </ul>
-        <ul class="logout fixed-logout">
-            <li>
-                <a href="/logout">
-                    <i class="fa fa-power-off fa-2x"></i>
-                    <span class="nav-text">Logout</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
+    {% include 'menu.html' %}
     <div class="logo-container">
         <img src="{{ url_for('static', filename='7132915.png') }}" alt="Header Image" class="logo">
     </div>
-    <form action="/analisar" method="POST" enctype="multipart/form-data">
-        <input type="file" name="file">
-        <input type="submit" value="Enviar">
-    </form>
+
+    <div class="form-container">
+        <form action="/analisar" method="POST" enctype="multipart/form-data">
+            <input type="file" name="file">
+            <input type="submit" value="Enviar">
+        </form>
+
+        <!-- Loader adicionado dentro do form-container -->
+        <div id="loader" class="loader" style="display: none; text-align: center;">
+            <svg class="pl" width="240" height="240" viewBox="0 0 240 240">
+                <circle class="pl__ring pl__ring--a" cx="120" cy="120" r="105" fill="none" stroke="#000" stroke-width="20" stroke-dasharray="0 660" stroke-dashoffset="-330" stroke-linecap="round"></circle>
+                <circle class="pl__ring pl__ring--b" cx="120" cy="120" r="35" fill="none" stroke="#000" stroke-width="20" stroke-dasharray="0 220" stroke-dashoffset="-110" stroke-linecap="round"></circle>
+                <circle class="pl__ring pl__ring--c" cx="85" cy="120" r="70" fill="none" stroke="#000" stroke-width="20" stroke-dasharray="0 440" stroke-linecap="round"></circle>
+                <circle class="pl__ring pl__ring--d" cx="155" cy="120" r="70" fill="none" stroke="#000" stroke-width="20" stroke-dasharray="0 440" stroke-linecap="round"></circle>
+            </svg>
+        </div>
+    </div>
+
+    <script>
+        document.querySelector('form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Impede o envio imediato do formulário
+
+            document.querySelector('.form-container form').style.display = 'none'; // Oculta o formulário
+            document.getElementById('loader').style.display = 'block'; // Mostra o loader
+
+            setTimeout(() => {
+                event.target.submit(); // Após 2.3 segundos, envia o formulário
+            }, 2300);
+        });
+    </script>
 </body>
 </html>

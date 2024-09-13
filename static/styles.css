@@ -125,14 +125,15 @@ button, .logout-button {
     overflow: hidden;
     z-index: 1;
     box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
-    background-image: linear-gradient(to right, #0fd850 0%, #f9f047 100%);
-    color: white;
+    border-color: #212121;
+    border: #212121;
+    color: rgb(5, 5, 5);
     cursor: pointer;
     text-align: center;
     margin-top: 20px; /* Margem superior para o botão */
 }
 
-button::before, .logout-button::before {
+button::before {
     content: '';
     width: 0;
     height: 3em;
@@ -140,7 +141,20 @@ button::before, .logout-button::before {
     position: absolute;
     top: 0;
     left: 0;
-    background-image: linear-gradient(to right, #cc3d3d 0%, #e23939 100%);
+    background-image: linear-gradient(to right, #16a050 0%, #0ac432 100%);
+    transition: width 0.5s ease;
+    z-index: -1;
+}
+
+.logout-button::before{
+    content: '';
+    width: 0;
+    height: 3em;
+    border-radius: 30em;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-image: linear-gradient(to right, #db3333 0%, #f00808 100%);
     transition: width 0.5s ease;
     z-index: -1;
 }
