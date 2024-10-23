@@ -1064,7 +1064,7 @@ def download_xlsx():
 
 @app.route('/cancelamento_etiquetas', methods=['GET', 'POST'])
 @login_required
-def cancelamento():
+async def cancelamento():
     if request.method == 'POST':
         if 'file' not in request.files:
             return render_template('cancelamento.html', message='Nenhum arquivo foi enviado')
@@ -1075,10 +1075,10 @@ def cancelamento():
             return render_template('cancelamento.html', message='Nenhum arquivo selecionado')
         
         if file and file.filename.endswith('.csv'):
-            lines = file.read().decode('utf-8').splitlines()
+            # Leitura do arquivo CSV e separação por linhas
+            lines = (await file.read()).decode('utf-8').splitlines()
+            lines = lines[1:]  # Ignora o cabeçalho do CSV
 
-            lines = lines[1:]
-            
             url = "https://api.boxlink.com.br/v2/pre-envio/cancelar-com-rastreador"
             headers = {
                 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb25hc2dhcmNpYTY2NkBnbWFpbC5jb20iLCJVU0VSX0RFVEFJTFMiOnsidXNlcklkIjoxNTgzLCJtYXRyaXpJZCI6MTcsImZyYW5xdWlhSWQiOjksImNsaWVudGVJZCI6MjI1fSwiZXhwIjo1OTk1NzM4ODAwfQ.SEjKpWAkD_j5oosJ1RaSQq2JmMeXHhc459FqzJtxXc0',
@@ -1086,18 +1086,27 @@ def cancelamento():
                 'Content-Type': 'application/json'
             }
 
-            for l in lines:
-                payload = json.dumps({
-                    "rastreadorTms": l.strip(),
-                    "motivo": "Solicitado pela Logistica"
-                })
+            async with aiohttp.ClientSession() as session:
+                tasks = []
+                for l in lines:
+                    payload = {
+                        "rastreadorTms": l.strip(),
+                        "motivo": "Solicitado pela Logistica"
+                    }
+                    
+                    # Cria uma tarefa assíncrona para cada requisição PUT
+                    task = asyncio.create_task(session.put(url, headers=headers, json=payload))
+                    tasks.append(task)
 
-                response = requests.request("PUT", url, headers=headers, data=payload)
-                print(f"Rastreador: {l.strip()} - Status: {response.status_code}")
+                # Aguarda todas as requisições serem finalizadas
+                responses = await asyncio.gather(*tasks)
+
+                for l, response in zip(lines, responses):
+                    print(f"Rastreador: {l.strip()} - Status: {response.status}")
 
             return render_template('cancelamento.html', message='Cancelamento realizado com sucesso')
         
-        return render_template('cancelamento.html', message='Arquivo inválido. Por favor, revise a extenção(csv).')
+        return render_template('cancelamento.html', message='Arquivo inválido. Por favor, revise a extensão (csv).')
 
     return render_template('cancelamento.html')
 
