@@ -1062,6 +1062,46 @@ def download_xlsx():
     return send_file(output, as_attachment=True, download_name='resultado.xlsx', mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
 
+@app.route('/cancelamento_etiquetas', methods=['GET', 'POST'])
+@login_required
+def cancelamento():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            return render_template('cancelamento.html', message='Nenhum arquivo foi enviado')
+        
+        file = request.files['file']
+        
+        if file.filename == '':
+            return render_template('cancelamento.html', message='Nenhum arquivo selecionado')
+        
+        if file and file.filename.endswith('.csv'):
+            lines = file.read().decode('utf-8').splitlines()
+
+            lines = lines[1:]
+            
+            url = "https://api.boxlink.com.br/v2/pre-envio/cancelar-com-rastreador"
+            headers = {
+                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb25hc2dhcmNpYTY2NkBnbWFpbC5jb20iLCJVU0VSX0RFVEFJTFMiOnsidXNlcklkIjoxNTgzLCJtYXRyaXpJZCI6MTcsImZyYW5xdWlhSWQiOjksImNsaWVudGVJZCI6MjI1fSwiZXhwIjo1OTk1NzM4ODAwfQ.SEjKpWAkD_j5oosJ1RaSQq2JmMeXHhc459FqzJtxXc0',
+                'User-Agent': 'Apidog/1.0.0 (https://apidog.com)',
+                'Content-Type': 'application/json'
+            }
+
+            for l in lines:
+                payload = json.dumps({
+                    "rastreadorTms": l.strip(),
+                    "motivo": "Solicitado pela Logistica"
+                })
+
+                response = requests.request("PUT", url, headers=headers, data=payload)
+                print(f"Rastreador: {l.strip()} - Status: {response.status_code}")
+
+            return render_template('cancelamento.html', message='Cancelamento realizado com sucesso')
+        
+        return render_template('cancelamento.html', message='Arquivo inválido. Por favor, revise a extenção(csv).')
+
+    return render_template('cancelamento.html')
+
+
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     app.run(debug=True)
