@@ -1062,9 +1062,32 @@ def download_xlsx():
     return send_file(output, as_attachment=True, download_name='resultado.xlsx', mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
 
+def processar_cancelamento(lines):
+    url = "https://api.boxlink.com.br/v2/pre-envio/cancelar-com-rastreador"
+    headers = {
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb25hc2dhcmNpYTY2NkBnbWFpbC5jb20iLCJVU0VSX0RFVEFJTFMiOnsidXNlcklkIjoxNTgzLCJtYXRyaXpJZCI6MTcsImZyYW5xdWlhSWQiOjksImNsaWVudGVJZCI6MjI1fSwiZXhwIjo1OTk1NzM4ODAwfQ.SEjKpWAkD_j5oosJ1RaSQq2JmMeXHhc459FqzJtxXc0',
+        'User-Agent': 'Apidog/1.0.0 (https://apidog.com)',
+        'Content-Type': 'application/json'
+    }
+
+    async def cancelar_rastreadores():
+        async with aiohttp.ClientSession() as session:
+            tasks = []
+            for l in lines:
+                payload = {
+                    "rastreadorTms": l.strip(),
+                    "motivo": "Solicitado pela Logistica"
+                }
+                task = asyncio.create_task(session.put(url, headers=headers, json=payload))
+                tasks.append(task)
+            responses = await asyncio.gather(*tasks)
+            return responses
+
+    return asyncio.run(cancelar_rastreadores())
+
 @app.route('/cancelamento_etiquetas', methods=['GET', 'POST'])
 @login_required
-async def cancelamento():
+def cancelamento():
     if request.method == 'POST':
         if 'file' not in request.files:
             return render_template('cancelamento.html', message='Nenhum arquivo foi enviado')
@@ -1075,34 +1098,11 @@ async def cancelamento():
             return render_template('cancelamento.html', message='Nenhum arquivo selecionado')
         
         if file and file.filename.endswith('.csv'):
-            # Leitura do arquivo CSV e separação por linhas
-            lines = (await file.read()).decode('utf-8').splitlines()
-            lines = lines[1:]  # Ignora o cabeçalho do CSV
 
-            url = "https://api.boxlink.com.br/v2/pre-envio/cancelar-com-rastreador"
-            headers = {
-                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb25hc2dhcmNpYTY2NkBnbWFpbC5jb20iLCJVU0VSX0RFVEFJTFMiOnsidXNlcklkIjoxNTgzLCJtYXRyaXpJZCI6MTcsImZyYW5xdWlhSWQiOjksImNsaWVudGVJZCI6MjI1fSwiZXhwIjo1OTk1NzM4ODAwfQ.SEjKpWAkD_j5oosJ1RaSQq2JmMeXHhc459FqzJtxXc0',
-                'User-Agent': 'Apidog/1.0.0 (https://apidog.com)',
-                'Content-Type': 'application/json'
-            }
+            lines = file.read().decode('utf-8').splitlines()
+            lines = lines[1:] 
 
-            async with aiohttp.ClientSession() as session:
-                tasks = []
-                for l in lines:
-                    payload = {
-                        "rastreadorTms": l.strip(),
-                        "motivo": "Solicitado pela Logistica"
-                    }
-                    
-                    # Cria uma tarefa assíncrona para cada requisição PUT
-                    task = asyncio.create_task(session.put(url, headers=headers, json=payload))
-                    tasks.append(task)
-
-                # Aguarda todas as requisições serem finalizadas
-                responses = await asyncio.gather(*tasks)
-
-                for l, response in zip(lines, responses):
-                    print(f"Rastreador: {l.strip()} - Status: {response.status}")
+            processar_cancelamento(lines)
 
             return render_template('cancelamento.html', message='Cancelamento realizado com sucesso')
         
