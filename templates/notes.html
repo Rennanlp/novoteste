@@ -11,6 +11,7 @@
     <title>Anotações</title>
 </head>
 <body>
+    {% include 'gif.html' %}
     {% include 'menu.html' %}
     <h2>Suas Anotações</h2>
     {% for date, notes in grouped_notes.items()|reverse %}

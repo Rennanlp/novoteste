@@ -10,6 +10,7 @@
     <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
 </head>
 <body>
+    {% include 'gif.html' %}
     {% include 'menu.html' %}
     <img src="{{ url_for('static', filename='conexao1.png') }}" alt="Descrição da imagem" class="img-conexao">
     <h1>Cancelamento de Etiquetas</h1>

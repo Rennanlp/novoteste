@@ -13,8 +13,10 @@
     .btn-new {
         margin-bottom: 10px;
     }
+
 </style>
 <body>
+    {% include 'gif.html' %}
     <span class="menu-toggle">
         <i class="fa fa-bars"></i>
     </span>
@@ -36,7 +38,16 @@
         </form>
         <div class="result-container" id="result"></div>
     </div>
+
     <script>
+        window.addEventListener('load', function() {
+            const tempoMinimoCarregamento = 3000;
+            
+            setTimeout(function() {
+                document.getElementById('loading').style.visibility = 'hidden';
+            }, tempoMinimoCarregamento);
+        });
+
         function buscarCEP() {
             const cep = document.getElementById('cepInput').value;
             const resultDiv = document.getElementById('result');
@@ -66,6 +77,7 @@
                     resultDiv.innerHTML = '<p class="error">Erro ao buscar o CEP. Tente novamente mais tarde.</p>';
                 });
         }
+        
         document.querySelector('.menu-toggle').addEventListener('click', function() {
             document.querySelector('nav.main-menu').classList.toggle('active');
         });
