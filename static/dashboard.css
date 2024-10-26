@@ -1,0 +1,261 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h2 {
+    font-size: 2em;
+    font-weight: 600;
+    color: #333;
+    text-align: center;
+    margin: 20px 0;
+    padding: 10px;
+    background: linear-gradient(90deg, #3498db, #2ecc71);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-message {
+    margin-top: 10px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #f9f9f9;
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
+    font-family: 'Arial', sans-serif;
+    color: #333;
+}
+
+.welcome-message .icon {
+    font-size: 24px;
+    color: #007bff;
+    margin-right: 10px;
+}
+
+.welcome-message h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.welcome-message p {
+    margin: 5px 0 0;
+    font-size: 16px;
+}
+
+.welcome-text {
+    font-size: 16px;
+    color: #007bff;
+    margin: 10px 0;
+    line-height: 1.5;
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+    font-weight: bold;
+    background-color: #e9f7fe;
+    padding: 15px;
+    border: 1px solid #007bff;
+    border-radius: 5px;
+}
+
+.player {
+    width: 100%;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    width: 100%;
+    max-width: 1200px;
+    margin-top: 20px;
+}
+.news {
+    width: 48%;
+    max-width: 600px;
+    min-width: 280px;
+    background-color: #fff;
+    margin: 20px 0;
+}
+
+.weather {
+    width: 48%;
+    max-width: 600px;
+    min-width: 280px;
+    background-color: #fff;
+    margin: 20px 0;
+    margin-left: -145px;
+    margin-right: 100px;
+}
+
+.city {
+    font-weight: bold;
+    color: #007bff;
+    font-size: 1.8em;
+}
+
+.icon {
+    color: #007bff;
+    margin-left: 5px;
+    font-size: 1.1em;
+    vertical-align: middle;
+    margin-right: 10px;
+}
+
+.weather-description p {
+    margin: 0;
+    font-size: 1em;
+    color: #333;
+}
+
+.weather-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px 0;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.weather-item:last-child {
+    border-bottom: none;
+}
+
+.weather-description {
+    display: flex;
+    align-items: center;
+    font-size: 1.2em;
+}
+
+.weather-description i {
+    margin-right: 8px;
+    color: #f39c12;
+}
+
+.temperature {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #3498db;
+}
+
+.desc {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #3498db;    
+    padding-left: 220px;
+}
+
+.feels-like-temperature {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #e74c3c;
+    text-align: right;
+}
+
+.news .article {
+    background-color: #f4f4f4;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: flex-start;
+}
+
+.news .article img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-right: 15px;
+}
+
+.news .article .content {
+    flex: 1;
+}
+
+.news .article h3 {
+    font-size: 1.2em;
+    margin: 0;
+    color: #333;
+}
+
+.news .article p {
+    font-size: 0.95em;
+    color: #666;
+}
+
+.news .article .icon {
+    color: #007bff;
+    margin-right: 5px;
+    font-size: 1.1em;
+}
+
+.weather p {
+    font-size: 1em;
+    color: #333;
+}
+
+.img-conexao {
+    width: 300px; 
+    height: auto;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    margin-right: 380px;
+    margin-left: -700px;
+}
+
+@media (min-width: 768px) {
+    .dashboard {
+        flex-direction: row;
+        justify-content: space-between; 
+    }
+    
+    .weather, .motivational-message, .news {
+        width: 32%; 
+    }
+
+    .motivational-message {
+        margin: 0;
+    }
+}
+.weather, .motivational-message, .news {
+    width: 100%;
+    background-color: #fff; 
+    padding: 15px;
+    border-radius: 8px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.motivational-text {
+    font-size: 1.4em;
+    color: #3498db; 
+    margin-bottom: 15px;
+}
+
+.button {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    cursor: pointer; 
+    transition: background-color 0.3s;
+    display: block;
+    margin: 20px auto;
+    width: 200px;
+}
+
+.button:hover {
+    background-color: #0056b3;
+}

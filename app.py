@@ -89,9 +89,13 @@ user_database = {
         'password': 'eduarda10',
         'name': 'Duda'
     },
-    'Bernardo': {
-    'password': 'bernardo@10',
-    'name': 'Bernardo'
+    'Felipe': {
+    'password': 'felipe@10',
+    'name': 'Felipe'
+    },
+    'Gabriela': {
+    'password': 'gabriela@10',
+    'name': 'Gabriela'
     },
     'Kymberli': {
     'password': 'kym@10',
@@ -212,9 +216,9 @@ def obter_token_por_cliente(nome_cliente):
     else:
         return None
 
-@app.route('/')
+@app.route('/removedor')
 @login_required
-def index():
+def removedor():
     username = user_database.get(session.get('username', ''), {}).get('name', 'Convidado')
     print("Username in session:", session.get('username'))
     return render_template('index.html', username=username)
@@ -222,18 +226,18 @@ def index():
 @app.route('/login')
 def login1():
     if 'username' in session:
-        return redirect(url_for('index'))
+        return redirect(url_for('dashboard'))
     return render_template('login.html')
 
 # autenticar o login
 @app.route('/login', methods=['POST'])
 def login():
-    username = request.form.get('username')  # pegar o campo 'username'
+    username = request.form.get('username')
     password = request.form.get('senha')
 
     if username in user_database and user_database[username]['password'] == password:
-        session['username'] = username  # armazenar o nome de usuário na sessão
-        return redirect(url_for('index'))
+        session['username'] = username 
+        return redirect(url_for('dashboard'))
     else:
         return render_template('login.html', error='Usuário ou senha incorretos, tente novamente.')
 
@@ -358,10 +362,10 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
-@app.route('/dashboard', methods=['GET', 'POST'])
-@login_required
-def dashboard():
-    return render_template('teste.html')
+# @app.route('/dashboard', methods=['GET', 'POST'])
+# @login_required
+# def dashboard():
+#     return render_template('teste.html')
 
 @app.route('/add_note', methods=['POST'])
 @login_required
@@ -1110,6 +1114,99 @@ def cancelamento():
 
     return render_template('cancelamento.html')
 
+import httpx
+
+async def fetch_news():
+    api_key = "98e1265378d2abc81736b6495d5a0fe3"
+    url = "https://gnews.io/api/v4/top-headlines"
+    
+    params = {
+        "country": "br",
+        "apikey": api_key,
+        "lang": "pt",
+        "max": 5
+    }
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url, params=params)
+        
+        if response.status_code == 200:
+            articles = response.json().get("articles", [])
+            return [
+                {
+                    "title": article["title"],
+                    "description": article.get("description", "Sem descrição disponível"),
+                    "url": article["url"],
+                    "image": article.get("image", "path/to/placeholder.jpg")  # Adiciona o campo de imagem com um placeholder se não houver URL
+                }
+                for article in articles
+            ]
+        else:
+            print("Erro ao buscar notícias:", response.status_code, response.text)
+            return []
+
+async def fetch_weather(city="Palhoça", lat=None, lon=None):
+    api_key = "eb8a5f8b0ace4c7fe4622f6deadcd5d0"
+    url = "https://api.openweathermap.org/data/2.5/weather"
+    
+    params = {
+        "appid": api_key,
+        "units": "metric"
+    }
+    
+    if lat and lon:
+        params["lat"] = lat
+        params["lon"] = lon
+    else:
+        params["q"] = city
+    
+    weather_translation = {
+        "clear sky": "céu Limpo",
+        "few clouds": "Poucas Nuvens",
+        "scattered clouds": "Nuvens Dispersas",
+        "broken clouds": "Nuvens Fragmentadas",
+        "shower rain": "Chuva Leve",
+        "rain": "Chuva",
+        "thunderstorm": "Tempestade",
+        "snow": "Neve",
+        "mist": "Neblina",
+    }
+    
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url, params=params)
+        
+        if response.status_code == 200:
+            weather_data = response.json()
+            description = weather_data['weather'][0]['description']
+            translated_description = weather_translation.get(description, description)
+            weather_data['weather'][0]['description'] = translated_description
+            
+            deg = weather_data['wind']['deg']
+            directions = ['Norte', 'Nordeste', 'Leste', 'Sudeste', 'Sul', 'Sudoeste', 'Oeste', 'Noroeste']
+            weather_data['wind_direction'] = directions[int((deg + 22.5) % 360 / 45)]
+            
+            return weather_data
+        else:
+            print("Erro ao buscar o clima:", response.status_code, response.text)
+            return None
+
+@app.route("/", methods=["GET", "POST"])
+@login_required
+def dashboard():
+    lat = None
+    lon = None
+    if request.method == "POST":
+        data = request.get_json()
+        lat = data.get("lat")
+        lon = data.get("lon")
+    
+    weather = asyncio.run(fetch_weather(lat=lat, lon=lon))
+    news = asyncio.run(fetch_news())
+    
+    username = user_database.get(session.get('username', ''), {}).get('name', 'Convidado')
+    print("Username in session:", session.get('username'))
+    
+    return render_template("dashboard.html", weather=weather, news=news, username=username)
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)

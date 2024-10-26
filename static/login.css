@@ -33,6 +33,13 @@ nav select {
   margin-left: 10PX;
 }
 
+.img-conexao{
+  width: 550px; 
+  height: auto;
+  margin-top: 25px;
+  margin-bottom: 20px;
+  margin-left: -40px;
+}
 
 .container {
   text-align: center;

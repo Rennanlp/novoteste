@@ -1,38 +1,179 @@
-<!-- dashboard.html -->
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='generic2.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     {% include 'gif.html' %}
-    <h1>Dashboard</h1>
-
-    <div>
-
-        <img src="{{ url_for('static', filename='dashboard_plot.png') }}" alt="Dashboard Plot">
+    {% include 'menu.html' %}
+    
+    <div class="player">
+        <img src="{{ url_for('static', filename='conexao.png') }}" alt="Descrição da imagem" class="img-conexao">
+        <iframe style="border-radius:12px;" 
+                src="https://open.spotify.com/embed/playlist/5qn1asuqPLFJNPz9jlNbiA?utm_source=generator"
+                width="300" 
+                height="80" 
+                frameborder="0" 
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                loading="lazy">
+        </iframe>
     </div>
-
-    <div>
-        <h2>Tarefas</h2>
-        <ul>
-            {% for task in tasks %}
-                <li>{{ task }}</li>
-            {% endfor %}
-        </ul>
+    <div class="welcome-message">
+        <i class="fas fa-smile icon"></i> 
+        <h2>Bem-vindo!</h2>
+        <p class="welcome-text">Estamos felizes em vê-lo(a) aqui. Explore e aproveite nossas ferramentas.</p>
     </div>
+    <div class="dashboard">
+        <div class="weather">
+            <h2>Previsão do Tempo</h2>
+            {% if weather %}
+                <div class="location">
+                    <i class="fas fa-solid fa-location-pin icon"></i>
+                    <strong class="city">{{ weather.name }}</strong>
+                </div>
+                <div class="weather-item">
+                    <div class="weather-description">
+                        <i class="fas fa-sun"></i>
+                        <span>{{ weather.weather[0].description | capitalize }}</span>
+                    </div>
+                    <div class="temperature">{{ weather.main.temp | float | round | int }} °C</div>
+                </div>
+                <div class="weather-item">
+                    <div class="weather-description">
+                        <i class="fas fa-thermometer-half"></i> 
+                        <span>Sensação Térmica:</span>
+                    </div>
+                    <div class="feels-like-temperature">{{ weather.main.feels_like | float | round | int }} °C</div>
+                </div>
 
-    <div>
-        <h2>Dados do Dashboard</h2>
+                <div class="weather-item">
+                    <div class="weather-description">
+                        <i class="fas fa-wind"></i>
+                        <span>Velocidade do Vento:</span>
+                    </div>
+                    <div class="wind-speed">{{ (weather.wind.speed * 3.6) | float | round | int }} km/h</div>
+                </div>
+                <div class="weather-item">
+                    <div class="weather-description">
+                        <i class="fas fa-compass"></i>
+                        <span>Direção do Vento:</span>
+                    </div>
+                    <div class="wind-direction">{{ 'Norte' if weather.wind.deg < 23 or weather.wind.deg >= 338 else 'Nordeste' if weather.wind.deg < 68 else 'Leste' if weather.wind.deg < 113 else 'Sudeste' if weather.wind.deg < 158 else 'Sul' if weather.wind.deg < 203 else 'Sudoeste' if weather.wind.deg < 248 else 'Oeste' if weather.wind.deg < 293 else 'Noroeste' }}</div>
+                </div>
+            {% else %}
+                <p>Não foi possível obter a previsão do tempo no momento.</p>
+            {% endif %}
+        </div>
 
-        {% for data in dashboard_data %}
-            <p>Data: {{ data.dateInput }}</p>
-            <p>Tarefas: {{ data.tasks }}</p>
-            <p>Quantidades: {{ data.numbInput }}</p>
-            <p>Observações: {{ data.observationInput }}</p>
-        {% endfor %}
+        <div class="motivational-message">
+            <h2>Mensagem do Dia</h2>
+            <p id="motivation-text" class="motivational-text"></p>
+            <button id="regenerate-button" class="button">Gerar</button>
+        </div>
+    
+        <div class="news">
+            <h2>Notícias</h2>
+            {% if news %}
+                {% for article in news %}
+                <div class="article">
+                    <img src="{{ article.image }}" alt="Imagem da Notícia">
+                    <div class="content">
+                        <h3><i class="fas fa-newspaper icon"></i> {{ article.title }}</h3>
+                        <p>{{ article.description }}</p>
+                        <a href="{{ article.url }}" target="_blank">Leia mais <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>Não há notícias disponíveis no momento.</p>
+            {% endif %}
+        </div>
     </div>
-</body>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    fetch("/", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            lat: position.coords.latitude,
+                            lon: position.coords.longitude
+                        })
+                    }).then(response => response.json())
+                      .then(data => {
+                          document.querySelector(".city").textContent = data.name;
+                          document.querySelector(".temperature").textContent = `${Math.round(data.main.temp)} °C`;
+                          document.querySelector(".feels-like-temperature").textContent = `${Math.round(data.main.feels_like)} °C`;
+                          document.querySelector(".wind-speed").textContent = `${Math.round(data.wind.speed * 3.6)} km/h`;
+                          document.querySelector(".wind-direction").textContent = data.wind_direction;
+                      })
+                      .catch(error => console.log("Erro ao obter previsão do tempo:", error));
+                });
+            } else {
+                alert("Geolocalização não suportada pelo navegador.");
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            function displayWelcomeMessage(username) {
+                var welcomeMessages = document.getElementsByClassName('welcome-message');
+                if (welcomeMessages.length > 0) {
+
+                    welcomeMessages[0].querySelector('h2').textContent = 'Bem-vindo(a), ' + username + '!';
+                    
+                    welcomeMessages[0].querySelector('.welcome-text').textContent = 'Estamos felizes em vê-lo(a) aqui. Explore e aproveite nossas ferramentas.';
+                }
+            }
+        
+            console.log('Username:', '{{ username }}');
+            displayWelcomeMessage('{{ username }}');
+        });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const messages = [
+                "Acredite em você e tudo será possível!",
+                "Cada dia é uma nova oportunidade para fazer algo incrível.",
+                "Você é mais forte do que pensa.",
+                "Nunca desista dos seus sonhos.",
+                "A jornada de mil milhas começa com um único passo.",
+                "O sucesso é a soma de pequenos esforços repetidos dia após dia.",
+                "A persistência é o caminho do êxito.",
+                "Sonhe grande e ouse falhar.",
+                "O melhor ainda está por vir.",
+                "Individualmente, somos apenas uma gota. Juntos, somos um oceano.",
+                "O único limite para a nossa compreensão do amanhã serão as nossas dúvidas de hoje.",
+                "Trabalho em equipe é o segredo que faz pessoas comuns alcançarem resultados incomuns.",
+                "A nossa maior fraqueza consiste em desistir. O caminho mais seguro para o sucesso é sempre tentar mais uma vez.",
+                "O fracasso é um sentimento que surge muito antes de se converter num resultado real. É uma vulnerabilidade que cresce primeiro com a dúvida sobre si mesmo e depois, às vezes deliberadamente, com o medo.",
+                "A maneira mais eficaz de fazer alguma coisa é fazê-la.",
+                "Se quer ir rápido, vá sozinho. Se quer ir longe, vá em grupo.",
+                "É impossível para um homem aprender aquilo que ele acha que já sabe.",
+                "Crie a melhor, a mais grandiosa visão possível para sua vida, porque você se torna aquilo no que você acredita.",
+                "O único homem que está isento de erros é aquele que não arrisca acertar.",
+                "A vitória sempre é possível para a pessoa que se recusa a parar de lutar.",
+                "Hoje, o 'eu não sei', se tornou o 'eu ainda não sei'.",
+                "Se quisermos alcançar resultados nunca antes alcançados, devemos empregar métodos nunca antes testados.",
+                "A diferença de ganhar e perder, na maioria das vezes, é não desistir.",
+                "Nunca se compare com ninguém neste mundo. Caso o faça, entenda que você estará insultando a si mesmo."
+            ];
+        
+            function displayRandomMessage() {
+                const randomIndex = Math.floor(Math.random() * messages.length);
+                document.getElementById("motivation-text").textContent = messages[randomIndex];
+            }
+        
+            // Exibir uma mensagem aleatória ao carregar
+            displayRandomMessage();
+        
+            // Evento para o botão de regenerar mensagem
+            document.getElementById("regenerate-button").addEventListener("click", displayRandomMessage);
+        });
+        </script>    
+        
 </html>
