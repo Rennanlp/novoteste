@@ -97,24 +97,35 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             if ("geolocation" in navigator) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    fetch("/", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            lat: position.coords.latitude,
-                            lon: position.coords.longitude
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        fetch("/", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                lat: position.coords.latitude,
+                                lon: position.coords.longitude
+                            })
                         })
-                    }).then(response => response.json())
-                      .then(data => {
-                          document.querySelector(".city").textContent = data.name;
-                          document.querySelector(".temperature").textContent = `${Math.round(data.main.temp)} °C`;
-                          document.querySelector(".feels-like-temperature").textContent = `${Math.round(data.main.feels_like)} °C`;
-                          document.querySelector(".wind-speed").textContent = `${Math.round(data.wind.speed * 3.6)} km/h`;
-                          document.querySelector(".wind-direction").textContent = data.wind_direction;
-                      })
-                      .catch(error => console.log("Erro ao obter previsão do tempo:", error));
-                });
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data) {
+                                document.querySelector(".city").textContent = data.name || "Localidade";
+                                document.querySelector(".temperature").textContent = `${Math.round(data.main.temp)} °C`;
+                                document.querySelector(".feels-like-temperature").textContent = `${Math.round(data.main.feels_like)} °C`;
+                                document.querySelector(".wind-speed").textContent = `${Math.round(data.wind.speed * 3.6)} km/h`;
+                                document.querySelector(".wind-direction").textContent = data.wind_direction || "N/A";
+                            } else {
+                                console.log("Nenhum dado de clima retornado.");
+                            }
+                        })
+                        .catch(error => console.log("Erro ao obter previsão do tempo:", error));
+                    },
+                    function(error) {
+                        console.error("Erro ao obter localização:", error.message);
+                        alert("Não foi possível obter a localização. Verifique as permissões do navegador.");
+                    }
+                );
             } else {
                 alert("Geolocalização não suportada pelo navegador.");
             }

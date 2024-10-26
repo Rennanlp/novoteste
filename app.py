@@ -1145,7 +1145,7 @@ async def fetch_news():
             print("Erro ao buscar notícias:", response.status_code, response.text)
             return []
 
-async def fetch_weather(city="Palhoça", lat=None, lon=None):
+async def fetch_weather(city="Charqueadas", lat=None, lon=None):
     api_key = "eb8a5f8b0ace4c7fe4622f6deadcd5d0"
     url = "https://api.openweathermap.org/data/2.5/weather"
     
@@ -1199,12 +1199,13 @@ def dashboard():
         data = request.get_json()
         lat = data.get("lat")
         lon = data.get("lon")
+        
+        weather = asyncio.run(fetch_weather(lat=lat, lon=lon))
+        return jsonify(weather) if weather else jsonify({"error": "Erro ao buscar clima"}), 500
     
-    weather = asyncio.run(fetch_weather(lat=lat, lon=lon))
+    weather = asyncio.run(fetch_weather())
     news = asyncio.run(fetch_news())
-    
     username = user_database.get(session.get('username', ''), {}).get('name', 'Convidado')
-    print("Username in session:", session.get('username'))
     
     return render_template("dashboard.html", weather=weather, news=news, username=username)
 
