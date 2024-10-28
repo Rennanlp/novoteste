@@ -80,22 +80,17 @@ h2 {
     max-width: 1200px;
     margin-top: 20px;
 }
-.news {
-    width: 48%;
-    max-width: 600px;
-    min-width: 280px;
-    background-color: #fff;
-    margin: 20px 0;
-}
 
+.news,
 .weather {
-    width: 48%;
+    width: 100%; /* Alterado para 100% para responsividade */
     max-width: 600px;
     min-width: 280px;
     background-color: #fff;
-    margin: 20px 0;
-    margin-left: -145px;
-    margin-right: 100px;
+    margin: 20px auto; /* Centralizando */
+    padding: 15px; /* Adicionando padding */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .city {
@@ -207,12 +202,18 @@ h2 {
 }
 
 .img-conexao {
-    width: 300px; 
+    width: 100%;
+    max-width: 300px;
     height: auto;
-    margin-top: 10px;
-    margin-bottom: 5px;
-    margin-right: 380px;
-    margin-left: -700px;
+    margin: 20px auto 5px;
+    margin-right: 550px;
+
+}
+
+@media (max-width: 600px) {
+    .img-conexao {
+        margin-right: 20px;
+    }
 }
 
 @media (min-width: 768px) {
@@ -229,12 +230,9 @@ h2 {
         margin: 0;
     }
 }
-.weather, .motivational-message, .news {
-    width: 100%;
-    background-color: #fff; 
-    padding: 15px;
-    border-radius: 8px; 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+.motivational-message {
+    width: 100%; /* Mantém a largura total para responsividade */
 }
 
 .motivational-text {
