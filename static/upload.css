@@ -315,3 +315,26 @@ input[type="file"]::file-selector-button:hover {
       stroke-dashoffset: -440;
     }
   }
+  .modelo {
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    padding: 15px;
+    border-radius: 5px;
+    font-family: Arial, sans-serif;
+    color: #333;
+    margin: 20px 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.modelo p {
+    margin: 0;
+}
+
+.modelo a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.modelo a:hover {
+    text-decoration: underline;
+}

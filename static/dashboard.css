@@ -202,12 +202,12 @@ h2 {
 }
 
 .img-conexao {
-    width: 100%;
+    width: auto;
     max-width: 300px;
     height: auto;
-    margin: 20px auto 5px;
+    object-fit: contain;
+    margin: 10px auto 5px;
     margin-right: 550px;
-
 }
 
 @media (max-width: 600px) {
