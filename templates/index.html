@@ -8,6 +8,7 @@
     <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='generic.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='switch.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
     <title>Removedor de Acentos</title>
 </head>
@@ -17,6 +18,14 @@
         <i class="fa fa-bars"></i>
     </span>
     {% include 'menu.html' %}
+    <div class="ui-switch-wrapper">
+        <label class="ui-switch">
+            <input type="checkbox" id="dark-mode-toggle">
+            <div class="slider">
+                <div class="circle"></div>
+            </div>
+        </label>
+    </div>
     <main class="content-container">
         <div class="logo-container">
             <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">
@@ -35,6 +44,7 @@
     </main>
 
     <script>
+
         function displayWelcomeMessage(username) {
             var welcomeMessage = document.getElementById('welcomeMessage');
             welcomeMessage.textContent = 'Bem-vindo(a), ' + username + '!';
@@ -84,5 +94,30 @@
             document.querySelector('nav.main-menu').classList.toggle('active');
         });
     </script>
+    <script>
+        // Seleciona o checkbox do modo escuro
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        
+        // Função para alternar o modo escuro
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        
+            // Salva a preferência de modo no localStorage para persistência
+            if (document.body.classList.contains('dark-mode')) {
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                localStorage.setItem('darkMode', 'disabled');
+            }
+        }
+        
+        // Verifica a preferência de modo salva ao carregar a página
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark-mode');
+            darkModeToggle.checked = true; // Marca o checkbox se o modo escuro estava ativado
+        }
+        
+        // Adiciona o evento de clique ao toggle
+        darkModeToggle.addEventListener('change', toggleDarkMode);
+        </script>
 </body>
 </html>

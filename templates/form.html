@@ -15,13 +15,21 @@
     <script src="{{ url_for('static', filename='script.js') }}" defer></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='generic.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='form.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='switch.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
 </head>
 <body>
     {% include 'gif.html' %}
     {% include 'menu.html' %}
-
+    <div class="ui-switch-wrapper">
+        <label class="ui-switch">
+            <input type="checkbox" id="dark-mode-toggle">
+            <div class="slider">
+                <div class="circle"></div>
+            </div>
+        </label>
+    </div>
     <div class="form-container">
         <h2 class='head-task'>Adicionar Nova Tarefa</h2>
         <form action="/add_task" method="post" class="form-wrapper" onsubmit="addTask(); return false;">
@@ -226,6 +234,35 @@
                 input.value = select.value;
             });
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const darkModeToggle = document.getElementById('dark-mode-toggle');
+            
+            // Verifica o armazenamento local para manter a preferência do usuário
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                enableDarkMode();
+                darkModeToggle.checked = true;
+            }
+        
+            // Alterna o modo escuro
+            darkModeToggle.addEventListener('change', () => {
+                if (darkModeToggle.checked) {
+                    enableDarkMode();
+                } else {
+                    disableDarkMode();
+                }
+            });
+        
+            function enableDarkMode() {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('darkMode', 'enabled');
+            }
+        
+            function disableDarkMode() {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('darkMode', 'disabled');
+            }
+        });
     </script>
 </body>
 </html>

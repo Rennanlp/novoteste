@@ -1,229 +1,211 @@
+/* Reset geral e definição de box-sizing */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* Definição das cores principais e variáveis para reutilização */
+:root {
+    --primary-color: #007bff; /* Cor principal (azul) */
+    --secondary-color: #28a745; /* Cor para botões e destaque */
+    --background-color: #f9f9f9; /* Cor de fundo */
+    --text-color: #333; /* Cor do texto */
+    --border-color: #ddd; /* Cor das bordas */
+    --input-focus-color: #0056b3; /* Cor de foco dos inputs */
+    --shadow-color: rgba(0, 0, 0, 0.1); /* Sombra suave */
+    --transition-speed: 0.3s; /* Velocidade das transições */
+}
+
+/* Estilização do corpo e alinhamento da página */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
-    padding: 20px;
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
+    padding: 20px;
 }
 
+/* Container principal */
 .container {
-    max-width: 600px;
+    max-width: 700px;
     width: 100%;
     background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px var(--shadow-color);
 }
 
+/* Título principal */
 h1 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2rem;
+    font-weight: 600;
     text-align: center;
+    color: var(--primary-color);
     margin-bottom: 20px;
-    color: #333;
 }
 
+/* Estilização de grupos de formulário */
 .form-group {
     margin-bottom: 20px;
 }
 
+/* Label dos campos */
 .form-group label {
     display: block;
-    margin-bottom: 5px;
-    color: #555;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text-color);
 }
 
+/* Estilo dos inputs (text e file) */
 .form-group input[type="text"],
 .form-group input[type="file"] {
-    width: calc(100% - 22px);
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-shadow: none;
+    width: 100%;
+    padding: 14px;
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    transition: border-color var(--transition-speed);
 }
 
+.form-group input[type="text"]:focus,
+.form-group input[type="file"]:focus {
+    border-color: var(--input-focus-color);
+    outline: none;
+}
+
+/* Estilização do botão */
 .btn {
     width: 100%;
-    border: none;
-    background-color: #4CAF50;
+    padding: 16px;
+    font-size: 1.1rem;
+    background-color: var(--secondary-color);
     color: white;
-    padding: 14px 20px;
-    margin: 8px 0;
+    border: none;
+    border-radius: 8px;
     cursor: pointer;
-    border-radius: 4px;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
+    transition: background-color var(--transition-speed), transform var(--transition-speed);
 }
 
 .btn:hover {
-    background-color: #45a049;
+    background-color: #218838;
+    transform: translateY(-2px); /* Efeito de elevação no hover */
 }
 
-.form-group label i {
-    margin-right: 10px;
+.btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
 }
 
+/* Estilos do loader */
 .loader {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    z-index: 9999;
+    background-color: rgba(0, 0, 0, 0.5);
     display: none;
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
 }
 
 .loader .spinner {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-size: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
 }
 
-select {
-    padding: 8px;
-    font-size: 1em;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 200px;
-    box-sizing: border-box;
-    margin-bottom: 10px;
+/* Animação do loader */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
-option:checked {
-    background-color: #f0f0f0;
-}
-@media only screen and (max-width: 600px) {
-    body {
-        font-size: 18px;
-        line-height: 1.5;
-    }
-
-    .form-group label {
-        font-size: 16px;
-    }
-
-    .result-item p {
-        font-size: 16px;
-    }
-
-    .btn-new, input[type="submit"] {
-        padding: 12px 20px;
-        font-size: 18px;
-        width: 100%;
-    }
-
-    .form-group input {
-        width: 100%;
-    }
-
-    .result-container {
-        max-height: 300px;
-    }
-
-    .main-menu ul {
-        text-align: center;
-    }
-
-    .main-menu ul li {
-        display: inline-block;
-        margin: 0 5px;
-    }
-
-    .main-menu ul li a {
-        font-size: 14px;
-    }
-    
-    .main-menu ul li i {
-        font-size: 20px;
-    }
-
-    .container, .result-container {
-        padding: 15px;
-        width: 100%;
-        max-width: 100%;
-    }
-
-    .logo-container img {
-        max-width: 100%;
-        height: auto;
-    }
-}
-
+/* Responsividade para dispositivos móveis */
 @media only screen and (max-width: 768px) {
-    nav.main-menu {
-        width: 60px; /* Reduzir a largura do menu em telas pequenas */
+    .container {
+        padding: 20px;
+        width: 100%;
     }
 
-    .container, .result-container {
-        width: calc(100% - 60px); /* Ajusta a largura para considerar o menu */
-        margin-left: 60px; /* Ajusta a margem para evitar sobreposição */
+    .form-group input[type="text"],
+    .form-group input[type="file"] {
+        font-size: 1rem;
     }
 
-    nav.main-menu ul li .nav-text {
-        display: none; /* Oculta o texto do menu para dar mais espaço ao ícone */
-    }
-
-    nav.main-menu ul li i {
-        font-size: 24px;
+    .btn {
+        padding: 14px;
+        font-size: 1rem;
     }
 }
 
 @media only screen and (max-width: 480px) {
-    nav.main-menu {
-        display: none; /* Oculta o menu completamente em telas muito pequenas */
-    }
-
-    .container, .result-container {
-        width: 100%; /* Usa toda a largura disponível */
-        margin: 0 auto; /* Centraliza o container */
-    }
-}
-
-.menu-toggle {
-    display: none;
-    font-size: 2em;
-    cursor: pointer;
-    position: absolute;
-    top: 10px;
-    left: 5px;
-    color: #0056b3; /* Ajuste a cor conforme necessário */
-    z-index: 1100; /* Maior que o z-index do menu */
-}
-
-@media (max-width: 768px) {
-    .main-menu {
-        display: none;
-        position: absolute;
-        top: 0;
-        left: 0;
+    .container {
         width: 100%;
-        height: 100%;
-        background-color: #333;
-        z-index: 1000;
+        margin: 0 auto;
     }
 
-    .main-menu.active {
-        display: block;
-    }
-
-    .menu-toggle {
-        display: block;
+    .btn {
+        padding: 14px;
+        font-size: 1rem;
     }
 }
+/* Tema escuro */
+body.dark-mode {
+    background-color: #121212;
+    color: #f1f1f1;
+}
 
-img {
-    max-width: 100%;
-    height: auto;
-    display: block;
+body.dark-mode .form-group label {
+    color: #f1f1f1;
+}
+
+body.dark-mode .container {
+    background-color: #1f1f1f;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode h1 {
+    color: var(--primary-color);
+}
+
+
+body.dark-mode .form-group input[type="text"],
+body.dark-mode .form-group input[type="file"] {
+    border: 1px solid var(--border-color);
+    background-color: #333;
+    color: #f1f1f1;
+}
+
+body.dark-mode .form-group input[type="text"]:focus,
+body.dark-mode .form-group input[type="file"]:focus {
+    border-color: var(--input-focus-color);
+}
+
+body.dark-mode .btn {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+body.dark-mode .btn:hover {
+    background-color: #218838;
+}
+
+body.dark-mode .loader .spinner {
+    border-top: 4px solid #007bff;
+}
+
+body.dark-mode .btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
 }

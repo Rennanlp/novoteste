@@ -769,3 +769,151 @@ label {
   background-color: #45a049;
 }
 
+/* Dark Mode General Toggle */
+body.dark-mode {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+/* Form Containers in Dark Mode */
+.dark-mode .form-container,
+.dark-mode .list-container {
+  background-color: #1e1e1e;
+  border: 1px solid #333;
+}
+
+.dark-mode .nova-input {
+  background-color: #333;
+  color: #e0e0e0;
+  border: 1px solid #666;
+}
+
+.dark-mode .nova-input:focus,
+.dark-mode .nova-input:hover {
+  border: 2px solid #4A9DEC;
+  box-shadow: 0px 0px 0px 7px rgba(74, 157, 236, 0.2);
+  background-color: #222;
+}
+
+/* Buttons in Dark Mode */
+.dark-mode .button,
+.dark-mode .limpar,
+.dark-mode .add-task,
+.dark-mode .enviar {
+  background-color: #333;
+  color: #fff;
+  border: 2px solid #444;
+  box-shadow: 4px 4px #222;
+}
+
+.dark-mode .button__icon,
+.dark-mode .limpar__icon,
+.dark-mode .add-task__icon,
+.dark-mode .enviar__icon {
+  background-color: #444;
+}
+
+.dark-mode .button:hover,
+.dark-mode .limpar:hover,
+.dark-mode .add-task:hover,
+.dark-mode .enviar:hover {
+  background-color: #444;
+}
+
+.dark-mode .button:active,
+.dark-mode .limpar:active,
+.dark-mode .add-task:active,
+.dark-mode .enviar:active {
+  background-color: #555;
+  border: 1px solid #555;
+}
+
+/* Checkbox in Dark Mode */
+.dark-mode .checkbox-input label {
+  background: #333;
+  border-color: #555;
+}
+
+.dark-mode .checkbox-input input[type="checkbox"]:checked + label {
+  background: #0b76ef;
+}
+
+.dark-mode .checkbox-input label:hover {
+  border-color: #0b76ef;
+}
+
+/* Modals in Dark Mode */
+.dark-mode .modal-content {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+  border: 1px solid #444;
+}
+
+.dark-mode .close {
+  color: #e0e0e0;
+}
+
+.dark-mode .close:hover {
+  color: #f0f0f0;
+}
+
+/* Inputs in Dark Mode */
+.dark-mode .numb-input,
+.dark-mode .date-input {
+  background-color: #333;
+  color: #e0e0e0;
+  border: 1px solid #666;
+}
+
+.dark-mode .date-input:focus {
+  border: 2px solid #4A9DEC;
+}
+
+/* Labels and Headers in Dark Mode */
+.dark-mode label,
+.dark-mode .label-page,
+.dark-mode .label-pesq {
+  color: #bbb;
+}
+
+/* Result and Card Display in Dark Mode */
+.dark-mode #resultado {
+  background-color: #333;
+  color: #e0e0e0;
+}
+
+.dark-mode .card-title {
+  color: #ddd;
+}
+
+.dark-mode .card-text {
+  color: #ccc;
+}
+
+/* Task Remove Button in Dark Mode */
+.dark-mode .remove-task {
+  background-color: #333;
+  box-shadow: 0px 0px 20px rgba(255, 0, 0, 0.2);
+}
+
+.dark-mode .remove-task:hover {
+  background-color: #ff4545;
+}
+
+.dark-mode .remove-svgIcon path {
+  fill: #fff;
+}
+
+/* Search and Submit Buttons in Dark Mode */
+.dark-mode #pesquisar-btn {
+  background-color: #333;
+  color: #e0e0e0;
+}
+
+.dark-mode #pesquisa-form input[type="submit"] {
+  background-color: #555;
+}
+
+.dark-mode #pesquisa-form input[type="submit"]:hover {
+  background-color: #666;
+}

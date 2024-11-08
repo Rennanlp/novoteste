@@ -12,71 +12,13 @@ body {
     background: #f4f4f4; /* Cor de fundo mais suave */
 }
 
-/* Estilo do menu lateral */
-.main-menu {
-    background: #212121;
-    border-right: 1px solid #e5e5e5;
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    height: 100%;
-    left: 0;
-    width: 50px; /* Largura padrão */
-    overflow: hidden;
-    transition: width 0.3s ease;
-    z-index: 1000;
-}
-
-.main-menu:hover, nav.main-menu.expanded {
-    width: 200px; /* Largura expandida do menu */
-    overflow: visible;
-}
-
-.main-menu > ul {
-    margin: 10px 0;
-}
-
-.main-menu li {
-    position: relative;
-    display: block;
-    width: 200px;
-}
-
-.main-menu li > a {
-    display: flex;
-    align-items: center;
-    color: #999;
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-    text-decoration: none;
-    padding: 15px;
-    transition: color 0.3s ease, background-color 0.3s ease;
-}
-
-.main-menu .nav-icon {
-    font-size: 20px;
-    margin-right: 15px;
-}
-
-.main-menu .nav-text {
-    font-family: 'Titillium Web', sans-serif;
-}
-
-.main-menu li:hover > a,
-nav.main-menu li.active > a {
-    color: #fff;
-    background-color: #333;
-}
-
-/* Estilo do conteúdo principal */
 .content-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    margin-left: 50px; /* Margem para o menu lateral */
-    width: calc(100% - 50px); /* Ajusta o conteúdo para evitar sobreposição */
+    width: 100%; /* Ajusta a largura para ocupar toda a tela */
 }
 
 .logo-container {
@@ -100,6 +42,9 @@ nav.main-menu li.active > a {
 
 h1 {
     margin-top: 10px;
+    font-size: 2.5rem; /* Aumenta o tamanho da fonte para títulos */
+    color: #212121; /* Cor mais escura para maior contraste */
+    text-align: center;
 }
 
 form {
@@ -107,11 +52,14 @@ form {
     flex-direction: column;
     align-items: center;
     margin-top: 10px;
+    width: 100%; /* Garantir que o formulário ocupe toda a largura disponível */
 }
 
 label {
     margin-bottom: 5px;
     margin-left: 10px;
+    font-size: 1.2rem; /* Aumenta o tamanho da fonte das labels */
+    color: #333; /* Torna a cor das labels mais escura */
 }
 
 button, .logout-button {
@@ -125,15 +73,14 @@ button, .logout-button {
     overflow: hidden;
     z-index: 1;
     box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
-    border-color: #212121;
-    border: #212121;
     color: rgb(5, 5, 5);
     cursor: pointer;
     text-align: center;
-    margin-top: 20px; /* Margem superior para o botão */
+    margin-top: 20px;
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Transição para animação */
 }
 
-button::before {
+button::before, .logout-button::before {
     content: '';
     width: 0;
     height: 3em;
@@ -147,24 +94,25 @@ button::before {
 }
 
 .logout-button::before{
-    content: '';
-    width: 0;
-    height: 3em;
-    border-radius: 30em;
-    position: absolute;
-    top: 0;
-    left: 0;
     background-image: linear-gradient(to right, #db3333 0%, #f00808 100%);
-    transition: width 0.5s ease;
-    z-index: -1;
 }
 
 button:hover::before, .logout-button:hover::before {
     width: 9em;
 }
 
+button:hover, .logout-button:hover {
+    transform: scale(1.05); /* Adiciona um leve aumento ao botão quando hover */
+}
+
 #result {
-    margin-top: 10px; /* Ajusta a margem superior do resultado */
+    display: none; /* Inicialmente oculto */
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background: #fff; /* Fundo branco para destacar o resultado */
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.1); /* Sombra suave para mais destaque */
 }
 
 #welcomeMessage {
@@ -172,8 +120,10 @@ button:hover::before, .logout-button:hover::before {
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
-    background: #fff; /* Fundo branco para destacar a mensagem */
-    box-shadow: 0px 4px 8px rgba(0,0,0,0.1); /* Adiciona sombra para mais destaque */
+    background: #fff;
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+    color: #212121; /* Cor do texto mais escura para contraste */
+    display: block; /* Garante que o #welcomeMessage esteja visível */
 }
 
 /* Estilos responsivos */
@@ -206,66 +156,37 @@ button:hover::before, .logout-button:hover::before {
         max-height: 300px;
     }
 
-    .main-menu ul {
-        text-align: center;
-        padding: 0; /* Remove o padding */
-        margin: 0; /* Remove a margem */
-    }
-
-    .main-menu ul li {
-        display: inline-block;
-        margin: 0 5px;
-    }
-
-    .main-menu ul li a {
-        font-size: 14px;
-    }
-    
-    .main-menu ul li i {
-        font-size: 20px;
-    }
-
-    .container, .result-container {
-        padding: 15px;
-        width: 100%;
-        max-width: 100%;
-    }
-
     .logo-container img {
         max-width: 100%;
         height: auto;
+    }
+
+    h1 {
+        font-size: 1.8rem; /* Ajusta o tamanho do título para telas menores */
     }
 }
 
 /* Estilos para dispositivos com largura máxima de 768px */
 @media only screen and (max-width: 768px) {
-    nav.main-menu {
-        width: 60px; /* Reduzir a largura do menu em telas pequenas */
-    }
-
     .container, .result-container {
-        width: calc(100% - 60px); /* Ajusta a largura para considerar o menu */
-        margin-left: 60px; /* Ajusta a margem para evitar sobreposição */
-    }
-
-    nav.main-menu ul li .nav-text {
-        display: none; /* Oculta o texto do menu para dar mais espaço ao ícone */
-    }
-
-    nav.main-menu ul li i {
-        font-size: 24px;
+        width: 100%; /* Ajusta a largura para considerar o menu */
+        margin-left: 0; /* Ajusta a margem para evitar sobreposição */
     }
 }
 
 /* Estilos para dispositivos com largura máxima de 480px */
 @media only screen and (max-width: 480px) {
-    nav.main-menu {
-        display: none; /* Oculta o menu completamente em telas muito pequenas */
-    }
-
     .container, .result-container {
         width: 100%; /* Usa toda a largura disponível */
         margin: 0 auto; /* Centraliza o container */
+    }
+
+    h1 {
+        font-size: 1.5rem; /* Reduz o tamanho do título para telas pequenas */
+    }
+
+    button, .logout-button {
+        width: 100%; /* Faz os botões ocuparem toda a largura */
     }
 }
 
@@ -277,36 +198,67 @@ button:hover::before, .logout-button:hover::before {
     position: absolute;
     top: 10px;
     left: 5px;
-    color: #0056b3; /* Ajuste a cor conforme necessário */
+    color: #0056b3;
     z-index: 1100; /* Maior que o z-index do menu */
 }
-
-/* Estilos para o menu lateral em telas pequenas */
-@media (max-width: 768px) {
-    .main-menu {
-        display: none;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: #333;
-        z-index: 1000;
-        overflow-y: auto; /* Adiciona rolagem se necessário */
-    }
-
-    .main-menu.active {
-        display: block;
-    }
-
-    .menu-toggle {
-        display: block;
-    }
+/* Tema escuro */
+body.dark-mode {
+    background: #121212;
+    color: #f1f1f1;
 }
 
-/* Estilo para imagens responsivas */
-img {
-    max-width: 100%;
-    height: auto;
-    display: block;
+body.dark-mode .content-container {
+    background: #1f1f1f;
+}
+
+body.dark-mode h1 {
+    color: #ffffff; /* Cor mais clara para o título no modo escuro */
+}
+
+body.dark-mode label {
+    color: #bbbbbb; /* Cor das labels no modo escuro */
+}
+
+body.dark-mode .logo-container {
+    background-color: transparent;
+}
+
+body.dark-mode button,
+body.dark-mode .logout-button {
+    color: #ffffff;
+    background-color: #333333; /* Cor de fundo mais escura para o botão */
+    box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.4), -6px -6px 12px rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode button::before,
+body.dark-mode .logout-button::before {
+    background-image: linear-gradient(to right, #32a852 0%, #26c157 100%);
+}
+
+body.dark-mode .logout-button::before {
+    background-image: linear-gradient(to right, #e94b4b 0%, #f94b4b 100%);
+}
+
+body.dark-mode button:hover::before,
+body.dark-mode .logout-button:hover::before {
+    width: 9em;
+}
+
+body.dark-mode #result,
+body.dark-mode #welcomeMessage {
+    background: #333333; /* Fundo mais escuro para o resultado */
+    border: 1px solid #444; /* Bordas mais escuras */
+    color: #f1f1f1;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Modo escuro para responsividade */
+@media only screen and (max-width: 600px) {
+    body.dark-mode h1 {
+        color: #f1f1f1;
+    }
+
+    body.dark-mode label {
+        color: #cccccc;
+    }
 }

@@ -257,3 +257,48 @@ h2 {
 .button:hover {
     background-color: #0056b3;
 }
+/* Estilos para o tema escuro */
+body.dark-mode {
+    background-color: #121212;
+    color: #f1f1f1;
+}
+
+body.dark-mode .player {
+    background-color: #222; /* Cor de fundo mais escura para o modo escuro */
+}
+
+body.dark-mode #conexao-img {
+    content: url('/static/images/conexao2.png'); /* Troca a imagem para conexao2.png */
+}
+
+/* Outros estilos para o modo escuro */
+body.dark-mode h2 {
+    background: linear-gradient(90deg, #2980b9, #27ae60);
+    color: transparent;
+    -webkit-background-clip: text;
+}
+
+body.dark-mode .welcome-message {
+    background: #333;
+    border: 1px solid #444;
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .weather,
+body.dark-mode .news {
+    background-color: #2c3e50;
+    border: 1px solid #34495e;
+}
+
+body.dark-mode .button {
+    background-color: #0056b3;
+}
+
+body.dark-mode .button:hover {
+    background-color: #3498db;
+}
+
+body.dark-mode .city {
+    color: #3498db;
+}
+

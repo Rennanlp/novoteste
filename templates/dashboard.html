@@ -5,6 +5,7 @@
     <title>Home</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='generic2.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='switch.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -22,6 +23,14 @@
                 allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
                 loading="lazy">
         </iframe>
+    </div>
+    <div class="ui-switch-wrapper">
+        <label class="ui-switch">
+            <input type="checkbox" id="dark-mode-toggle">
+            <div class="slider">
+                <div class="circle"></div>
+            </div>
+        </label>
     </div>
     <div class="welcome-message">
         <i class="fas fa-smile icon"></i> 
@@ -186,5 +195,25 @@
             document.getElementById("regenerate-button").addEventListener("click", displayRandomMessage);
         });
         </script>    
-        
+        <script>
+            const themeToggle = document.getElementById('dark-mode-toggle');
+            const body = document.body;
+          
+            // Verifica se o tema escuro foi armazenado no localStorage
+            if (localStorage.getItem('dark-mode') === 'enabled') {
+              body.classList.add('dark-mode');
+              themeToggle.checked = true;
+            }
+          
+            // Alterna o tema quando o checkbox é marcado/desmarcado
+            themeToggle.addEventListener('change', () => {
+              if (themeToggle.checked) {
+                body.classList.add('dark-mode');
+                localStorage.setItem('dark-mode', 'enabled');
+              } else {
+                body.classList.remove('dark-mode');
+                localStorage.setItem('dark-mode', 'disabled');
+              }
+            });
+          </script>
 </html>

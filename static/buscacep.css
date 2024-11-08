@@ -292,3 +292,44 @@ img {
     height: auto;
     display: block;
 }
+/* Estilos para o Tema Escuro */
+body.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+.dark-mode .container, 
+.dark-mode .result-container {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .form-group input, 
+.dark-mode select {
+    background-color: #333;
+    border: 1px solid #888;
+    color: #e0e0e0;
+}
+
+.dark-mode input[type="submit"], 
+.dark-mode .btn-new, 
+.dark-mode .copy-btn {
+    background-color: #1a73e8;
+    color: #fff;
+}
+
+.dark-mode input[type="submit"]:hover, 
+.dark-mode .btn-new:hover, 
+.dark-mode .copy-btn:hover {
+    background-color: #135cbf;
+}
+
+.dark-mode .result-item {
+    background-color: #2c2c2c;
+    border: 1px solid #444;
+}
+
+.dark-mode .result-item.alternate {
+    background-color: #333;
+}
