@@ -1,5 +1,6 @@
 /* styles.css */
 
+/* Estilo para o modo claro */
 body {
     font-family: Arial, sans-serif;
     background-color: #f8f9fa;
@@ -78,4 +79,198 @@ body {
 .table-container a:hover {
     color: #0056b3;
     text-decoration: underline;
+}
+
+/* Estilo geral do modo escuro */
+body.dark-mode {
+    background-color: #121212;  /* Cor de fundo escura */
+    color: #e0e0e0;  /* Cor do texto clara */
+}
+
+/* Ajustes nas caixas de conteúdo */
+body.dark-mode .container-box {
+    background-color: #333; /* Cor de fundo das caixas */
+    color: #e0e0e0; /* Cor do texto nas caixas */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Estilo das tabelas no modo escuro */
+body.dark-mode .table-container table {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: #e0e0e0; /* Cor do texto na tabela */
+    background-color: #333; /* Cor de fundo das tabelas */
+    border-collapse: collapse; /* Garante que as bordas fiquem coladas */
+}
+
+body.dark-mode .table-container th,
+body.dark-mode .table-container td {
+    padding: 1rem;
+    vertical-align: top;
+    border-top: 1px solid #555; /* Cor das bordas das células */
+}
+
+body.dark-mode .table-container th {
+    background-color: #444; /* Fundo das células de cabeçalho */
+    color: #fff; /* Texto das células de cabeçalho */
+}
+
+body.dark-mode .table-container tr:nth-child(even) {
+    background-color: #555; /* Cor das linhas alternadas */
+}
+
+body.dark-mode .table-container tr:nth-child(odd) {
+    background-color: #333; /* Cor das linhas alternadas */
+}
+
+body.dark-mode .table-container a {
+    color: #66aaff; /* Cor dos links */
+}
+
+body.dark-mode .table-container a:hover {
+    color: #80cfff; /* Cor dos links ao passar o mouse */
+}
+
+/* Ajustes nos formulários */
+body.dark-mode .form-container {
+    background-color: #333; /* Fundo dos formulários */
+    color: #e0e0e0; /* Cor do texto nos formulários */
+}
+
+body.dark-mode .form-container .form-group label {
+    color: #e0e0e0; /* Cor dos rótulos nos formulários */
+}
+
+body.dark-mode .form-container .form-control {
+    background-color: #444; /* Fundo dos campos de input */
+    color: #e0e0e0; /* Cor do texto nos campos de input */
+    border: 1px solid #555; /* Cor da borda dos campos */
+}
+
+body.dark-mode .form-container .form-control:focus {
+    border-color: #66aaff; /* Cor da borda quando o campo está em foco */
+    background-color: #555; /* Cor de fundo quando o campo está em foco */
+}
+
+/* Botões no modo escuro */
+body.dark-mode .btn-primary {
+    background-color: #007bff; /* Cor de fundo do botão */
+    border: none;
+    color: white; /* Cor do texto */
+}
+
+body.dark-mode .btn-primary:hover {
+    background-color: #66aaff; /* Cor de fundo do botão ao passar o mouse */
+}
+
+/* Títulos no modo escuro */
+body.dark-mode h1, body.dark-mode h2 {
+    color: #66aaff; /* Cor dos títulos */
+}
+
+/* Ajustes gerais no layout */
+body.dark-mode .centralizar-container {
+    background-color: #121212; /* Fundo escuro para o container */
+}
+
+body.dark-mode .centralizar-container h1,
+body.dark-mode .centralizar-container h2 {
+    color: #66aaff; /* Cor do título */
+    margin-top: 20px;
+    text-align: center;
+    width: 100%;
+}
+
+/* Ajustes na tabela de clientes e links */
+body.dark-mode #tabelaClientes, body.dark-mode #outraTabela {
+    width: 100%;
+    background-color: #333; /* Cor de fundo da tabela */
+    color: #e0e0e0; /* Cor do texto na tabela */
+    border-collapse: collapse; /* Garante que as bordas fiquem coladas */
+}
+
+body.dark-mode #tabelaClientes th, body.dark-mode #outraTabela th,
+body.dark-mode #tabelaClientes td, body.dark-mode #outraTabela td {
+    padding: 1rem;
+    border: 1px solid #555; /* Cor das bordas das células */
+}
+
+body.dark-mode #tabelaClientes th, body.dark-mode #outraTabela th {
+    background-color: #444; /* Fundo das células de cabeçalho */
+    color: #fff; /* Texto das células de cabeçalho */
+}
+
+body.dark-mode #tabelaClientes tr:nth-child(even), body.dark-mode #outraTabela tr:nth-child(even),
+body.dark-mode #tabelaClientes tr:nth-child(odd), body.dark-mode #outraTabela tr:nth-child(odd) {
+    background-color: #333; /* Cor das linhas alternadas */
+}
+
+/* Estilo do botão de download */
+body.dark-mode #btnDownloadExcel {
+    background-color: #007bff; /* Cor de fundo do botão */
+    border: none;
+    color: white; /* Cor do texto */
+}
+
+body.dark-mode #btnDownloadExcel:hover {
+    background-color: #66aaff; /* Cor de fundo do botão ao passar o mouse */
+}
+
+/* Ajustes dos ícones */
+body.dark-mode i {
+    color: #e0e0e0; /* Cor dos ícones */
+}
+/* Ajustes no DataTables */
+body.dark-mode .dataTables_wrapper {
+    background-color: #333; /* Cor de fundo do wrapper do DataTables */
+    color: #e0e0e0; /* Cor do texto dentro do wrapper */
+    border: 1px solid #555; /* Cor da borda */
+}
+
+body.dark-mode .dataTables_wrapper .dataTables_length,
+body.dark-mode .dataTables_wrapper .dataTables_filter,
+body.dark-mode .dataTables_wrapper .dataTables_info,
+body.dark-mode .dataTables_wrapper .dataTables_processing,
+body.dark-mode .dataTables_wrapper .dataTables_paginate {
+    background-color: #444; /* Fundo mais claro para os controles do DataTables */
+    color: #e0e0e0; /* Cor do texto */
+}
+
+body.dark-mode .dataTables_wrapper .dataTables_length label,
+body.dark-mode .dataTables_wrapper .dataTables_filter label,
+body.dark-mode .dataTables_wrapper .dataTables_info {
+    color: #e0e0e0; /* Cor dos textos dos labels */
+}
+
+body.dark-mode .dataTables_wrapper .dataTables_length select,
+body.dark-mode .dataTables_wrapper .dataTables_filter input {
+    background-color: #555; /* Cor de fundo dos inputs e selects */
+    color: #e0e0e0; /* Cor do texto nos inputs e selects */
+    border: 1px solid #555; /* Borda das inputs e selects */
+}
+
+body.dark-mode .dataTables_wrapper .dataTables_length select:focus,
+body.dark-mode .dataTables_wrapper .dataTables_filter input:focus {
+    background-color: #666; /* Cor de fundo dos inputs quando em foco */
+    border-color: #66aaff; /* Cor da borda ao focar */
+}
+
+body.dark-mode .dataTables_wrapper .dataTables_paginate {
+    color: #e0e0e0; /* Cor do texto da paginação */
+}
+
+body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button {
+    background-color: #444; /* Cor de fundo das páginas */
+    color: #e0e0e0; /* Cor do texto da paginação */
+    border: 1px solid #555; /* Borda das páginas */
+}
+
+body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background-color: #66aaff; /* Cor de fundo ao passar o mouse */
+    color: #fff; /* Cor do texto ao passar o mouse */
+}
+
+body.dark-mode .dataTables_wrapper .dataTables_processing {
+    background-color: #444; /* Fundo do texto de carregamento */
+    color: #e0e0e0; /* Cor do texto */
 }

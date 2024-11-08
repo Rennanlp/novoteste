@@ -5,9 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='switch.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
 </head>
 <body>
+    <div class="ui-switch-wrapper">
+        <label class="ui-switch">
+            <input type="checkbox" id="dark-mode-toggle">
+            <div class="slider">
+                <div class="circle"></div>
+            </div>
+        </label>
+    </div>
     {% include 'gif.html' %}
     <script>
         function logout() {
@@ -16,7 +25,7 @@
         }
     </script>
     <div class="container">
-        <img src="{{ url_for('static', filename='conexao1.png') }}" alt="Descrição da imagem" class="img-conexao">
+        <img src="{{ url_for('static', filename='conexao1.png') }}" alt="Descrição da imagem" class="img-conexao" id="conexao-img">
         <h1>Login</h1>
         {% if error %}
             <p class="error-message">{{ error }}</p>
@@ -34,5 +43,22 @@
         </form>
         <button onclick="logout()" class="logout-button">Logout</button>
     </div>
+    <script>
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        const body = document.body;
+        const conexaoImg = document.getElementById('conexao-img');
+    
+        // Evento para alternar o modo escuro
+        darkModeToggle.addEventListener('change', () => {
+            body.classList.toggle('dark-mode');
+    
+            // Altera a imagem conforme o modo
+            if (body.classList.contains('dark-mode')) {
+                conexaoImg.src = "{{ url_for('static', filename='conexao2.png') }}";
+            } else {
+                conexaoImg.src = "{{ url_for('static', filename='conexao1.png') }}";
+            }
+        });
+    </script>
 </body>
 </html>

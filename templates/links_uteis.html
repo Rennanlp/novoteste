@@ -9,10 +9,19 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='links2.css') }}"> 
     <link rel="stylesheet" href="{{ url_for('static', filename='generic.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='switch.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.0/xlsx.full.min.js" integrity="sha512-... (hash)" crossorigin="anonymous"></script>
 </head>
 <body>
+    <div class="ui-switch-wrapper">
+        <label class="ui-switch">
+            <input type="checkbox" id="dark-mode-toggle">
+            <div class="slider">
+                <div class="circle"></div>
+            </div>
+        </label>
+    </div>
     {% include 'gif.html' %}
     {% include 'menu.html' %}
     <div class="container centralizar-container">
@@ -225,5 +234,26 @@
             });
         });
     </script>
+    <script>
+        const themeToggle = document.getElementById('dark-mode-toggle');
+        const body = document.body;
+      
+        // Verifica se o tema escuro foi armazenado no localStorage
+        if (localStorage.getItem('dark-mode') === 'enabled') {
+          body.classList.add('dark-mode');
+          themeToggle.checked = true;
+        }
+      
+        // Alterna o tema quando o checkbox é marcado/desmarcado
+        themeToggle.addEventListener('change', () => {
+          if (themeToggle.checked) {
+            body.classList.add('dark-mode');
+            localStorage.setItem('dark-mode', 'enabled');
+          } else {
+            body.classList.remove('dark-mode');
+            localStorage.setItem('dark-mode', 'disabled');
+          }
+        });
+      </script>
 </body>
 </html>
