@@ -10,14 +10,14 @@
   }
   
   .ui-switch-wrapper {
-    position: fixed;
-    top: 10px;    /* Distância do topo da página */
-    right: 10px;  /* Distância do lado direito */
-    z-index: 100; /* Garante que o switch esteja acima de outros elementos */
+    position: absolute;
+    top: 10px;  
+    right: 10px; 
+    z-index: 100;
   }
 
   .ui-switch input[type="checkbox"] {
-    display: none; /* Oculta o checkbox padrão */
+    display: none;
   }
   
   .ui-switch {

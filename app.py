@@ -26,6 +26,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Frame, Page
 from reportlab.pdfgen import canvas
 import io
 import textwrap
+import pprint
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY') or b'_5#y2L"F4Q8z\n\xec]/'
@@ -602,7 +603,7 @@ async def lista_completa():
             return "Erro ao obter dados da primeira API"
         
         if not isinstance(dados_api_crm, list):
-            print(f"Erro: dados_api_crm deveria ser uma lista, mas é {type(dados_api_crm)}")
+            # print(f"Erro: dados_api_crm deveria ser uma lista, mas é {type(dados_api_crm)}")
             return "Erro ao obter dados da primeira API"
 
         search_query = request.args.get('search', '')
@@ -1223,6 +1224,73 @@ def dashboard():
     username = user_database.get(session.get('username', ''), {}).get('name', 'Convidado')
     
     return render_template("dashboard.html", weather=weather, news=news, username=username)
+
+from google.oauth2.service_account import Credentials
+import gspread
+
+escopo = [
+    "https://spreadsheets.google.com/feeds",
+    "https://www.googleapis.com/auth/drive"
+]
+caminho_credenciais = "credentials.json"
+planilha_id = "13Ivq0l0ueMB6GjO0xr6umLx7qHMvPJRAomjgxf3CunE"
+
+# Cabeçalho personalizado, incluindo a coluna "Acessos Plat. NFs"
+cabecalho_personalizado = ["Data",
+                           "Nome da Empresa",
+                           "Email",
+                           "Nome dos Produtos",
+                           "Quando inicar os envios",
+                           "Pedidos em atraso",
+                           "Kits",
+                           "Envie Fotos",
+                           "Acessos Plat. Vendas",
+                           "Acessos Plat. NFs",  # Mantido no cabeçalho
+                           "CNPJ",
+                           "Fornecedor"]
+
+async def acessar_planilha_forms():
+    try:
+        credenciais = Credentials.from_service_account_file(caminho_credenciais, scopes=escopo)
+        cliente = gspread.authorize(credenciais)
+
+        planilha = cliente.open_by_key(planilha_id)
+        aba_forms = planilha.worksheet("Respostas ao formulário 1")
+        
+        # Pegar todos os dados da planilha
+        dados_raw = aba_forms.get_all_records(empty2zero=False)  # Evitar capturar células vazias como 0
+        
+        # Filtrando os dados para remover células vazias no final
+        dados_filtrados = [registro for registro in dados_raw if any(registro.values())]  # Ignora registros vazios
+        
+        # Garantir que o número de colunas corresponda ao cabeçalho
+        colunas_planilha = aba_forms.row_values(1)
+        
+        # Criando a estrutura final com cabeçalho personalizado, ignorando a coluna H
+        dados_formatados = []
+        for registro in dados_filtrados:
+            dados_formatados.append({
+                # Pular a coluna "8 - Por gentileza nos encaminhe imagens dos produtos. (WHATSAPP)"
+                cabecalho_personalizado[i]: registro.get(colunas_planilha[i], "") 
+                for i in range(len(cabecalho_personalizado))  # Iterar apenas sobre o cabeçalho personalizado
+                if colunas_planilha[i] != "8 - Por gentileza nos encaminhe imagens dos produtos. (WHATSAPP)"  # Ignorar a coluna H
+            })
+
+        return dados_formatados
+
+    except gspread.exceptions.WorksheetNotFound:
+        return {"erro": "A aba especificada não foi encontrada."}
+    except Exception as e:
+        return {"erro": f"Erro inesperado: {str(e)}"}
+
+@app.route('/dados-forms')
+@login_required
+def exibir_dados():
+    dados = asyncio.run(acessar_planilha_forms())
+    if "erro" in dados:
+        return jsonify(dados)
+    return render_template('dados_forms.html', dados=dados)
+
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)

@@ -158,3 +158,41 @@
       -webkit-transition:all .1s linear;
       transition:all .1s linear;
     }
+
+    .main-menu .subnav {
+      position: absolute;
+      left: 135px; 
+      top: 0;
+      background: #333; 
+      padding: 0;
+      margin: 0;
+      display: none;
+      list-style: none;
+      width: 140px; 
+      border: 1px solid #444; 
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); 
+  }
+  
+  .main-menu .subnav li {
+      width: 100%; 
+  }
+  
+  .main-menu .subnav a {
+      display: block;
+      padding: 10px 15px; 
+      color: #bbb; 
+      font-size: 12px;
+      text-decoration: none;
+      font-family: 'Titillium Web', sans-serif;
+      transition: background 0.3s, color 0.3s;
+  }
+  
+  .main-menu .subnav a:hover {
+      background: #444; 
+      color: #fff; 
+  }
+  
+  .main-menu li.has-subnav:hover .subnav {
+      display: block; 
+  }
+  

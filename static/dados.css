@@ -1,0 +1,187 @@
+/* Reset de estilo básico para garantir consistência */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    background-color: #f9f9f9; /* Cor de fundo clara para o modo claro */
+    color: #333; /* Cor de texto escura para o modo claro */
+    padding: 20px;
+    transition: background-color 0.3s, color 0.3s; /* Transições suaves para tema escuro */
+    overflow-x: hidden; /* Evitar rolagem horizontal geral */
+}
+
+/* Modo escuro */
+body.dark-mode {
+    background-color: #2c2c2c; /* Fundo escuro */
+    color: #fff; /* Texto claro */
+}
+
+/* Estilo do cabeçalho */
+h1 {
+    font-size: 2rem;
+    text-align: center;
+    margin: 20px 0;
+    color: #333; /* Cor do cabeçalho no modo claro */
+}
+
+/* Cabeçalho no modo escuro */
+body.dark-mode h1 {
+    color: #fff; /* Cor do cabeçalho no modo escuro */
+}
+
+/* Estilo do campo de busca */
+#searchInput {
+    width: 100%;
+    max-width: 400px; /* Limita a largura da barra de pesquisa */
+    padding: 10px;
+    margin: 20px auto;
+    border: 1px solid #ccc; /* Cor de borda no modo claro */
+    border-radius: 4px;
+    font-size: 16px;
+    transition: border 0.3s ease;
+    display: block; /* Faz o input ser tratado como um bloco para facilitar o centralização */
+}
+
+#searchInput:focus {
+    border-color: #007BFF;
+    outline: none;
+}
+
+/* Campo de busca no modo escuro */
+body.dark-mode #searchInput {
+    border-color: #444; /* Cor de borda no modo escuro */
+    background-color: #444; /* Fundo do campo de busca escuro */
+    color: #fff; /* Texto claro no campo de busca */
+}
+
+/* Estilos para a tabela */
+.table-container {
+    width: 100%; /* Garante que a tabela ocupe 100% da largura disponível */
+    max-width: 1000px; /* Máxima largura da tabela */
+    margin: 0 auto 20px;
+    overflow: auto; /* Permite rolagem se necessário */
+    border: 1px solid #ddd; /* Borda ao redor da tabela */
+    border-radius: 8px; /* Bordas arredondadas */
+    padding: 10px; /* Espaçamento interno */
+}
+
+/* Adiciona barras de rolagem específicas para a tabela */
+.table-container::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+}
+
+#dadosTable {
+    width: 100%;
+    min-width: 600px; /* Largura mínima para evitar que a tabela encolha demais */
+    border-collapse: collapse;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    overflow: auto; /* Permite rolagem interna */
+    border: 1px solid #ddd; /* Borda na tabela */
+    display: block; /* Faz a tabela se comportar como bloco e permitir rolagem interna */
+    max-height: 400px; /* Limita a altura da tabela e ativa a rolagem vertical */
+}
+
+/* Tabela no modo escuro */
+body.dark-mode #dadosTable th, body.dark-mode #dadosTable td {
+    border-color: #555; /* Borda escura na tabela */
+}
+
+#dadosTable th, #dadosTable td {
+    padding: 10px 12px; /* Padding ajustado */
+    text-align: left;
+    font-size: 14px;
+    border: 1px solid #ddd; /* Borda nas células */
+}
+
+#dadosTable th {
+    background-color: #007BFF;
+    color: white;
+    font-weight: bold;
+    position: sticky;   /* Fixa o cabeçalho */
+    top: 0;             /* Fixa no topo do contêiner */
+    z-index: 2;         /* Garante que o cabeçalho fique sobre as linhas da tabela */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Adiciona sombra para destaque */
+}
+
+/* Cabeçalho da tabela no modo escuro */
+body.dark-mode #dadosTable th {
+    background-color: #333; /* Cor escura para o cabeçalho */
+    color: #fff; /* Texto claro no cabeçalho */
+}
+
+#dadosTable tr:nth-child(even) {
+    background-color: #f4f4f4; /* Cor de fundo para linhas pares no modo claro */
+}
+
+/* Linhas pares da tabela no modo escuro */
+body.dark-mode #dadosTable tr:nth-child(even) {
+    background-color: #444; /* Cor de fundo para linhas pares no modo escuro */
+}
+
+#dadosTable tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Linhas da tabela no modo escuro ao passar o mouse */
+body.dark-mode #dadosTable tr:hover {
+    background-color: #555; /* Cor para o hover nas linhas no modo escuro */
+}
+
+/* Estilo de mensagem quando não há dados */
+p {
+    font-size: 1.2rem;
+    color: #777;
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* Estilo da mensagem de "Nenhum dado encontrado" no modo escuro */
+body.dark-mode p {
+    color: #bbb; /* Cor da mensagem mais clara no modo escuro */
+}
+
+/* Responsividade para telas pequenas */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    #searchInput {
+        max-width: 100%; /* Ajusta a largura do campo de busca para telas menores */
+    }
+
+    .table-container {
+        margin: 0 10px; /* Pequenas margens laterais para telas pequenas */
+    }
+
+    #dadosTable th, #dadosTable td {
+        font-size: 12px;
+    }
+
+    #dadosTable {
+        min-width: 100%; /* Garante que a tabela ocupe toda a largura disponível */
+    }
+}
+
+.img-conexao {
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    margin: auto 365px;
+    display: block;
+}

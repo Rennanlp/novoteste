@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Formulario Respostas.">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dados.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='switch.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='generic2.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
+    <title>Formulario Empresas</title>
+</head>
+<body>
+    {% include 'menu.html' %}
+    
+    <main>
+        <div class="ui-switch-wrapper">
+            <label class="ui-switch" aria-label="Alternar modo escuro">
+                <input type="checkbox" id="dark-mode-toggle">
+                <div class="slider">
+                    <div class="circle"></div>
+                </div>
+            </label>
+        </div>
+        <img src="{{ url_for('static', filename='conexao1.png') }}" alt="Descrição da imagem" class="img-conexao" id="conexao-img">
+        <h1>Respostas do Forms</h1>
+        
+        <input type="text" id="searchInput" placeholder="Pesquisar..." aria-label="Pesquisar respostas">
+        
+        {% if dados %}
+            <section class="table-container">
+                <table id="dadosTable">
+                    <thead>
+                        <tr>
+                            {% for coluna in dados[0].keys() %}
+                                <th>{{ coluna }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for linha in dados %}
+                            <tr>
+                                {% for valor in linha.values() %}
+                                    <td>{{ valor }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        {% else %}
+            <p>Nenhum dado encontrado.</p>
+        {% endif %}
+    </main>
+
+    <script>
+        function toggleDarkMode() {
+            const themeToggle = document.getElementById('dark-mode-toggle');
+            const body = document.body;
+            const conexaoImg = document.getElementById('conexao-img'); 
+        
+            // Aplicar o estado inicial do tema
+            if (localStorage.getItem('dark-mode') === 'enabled') {
+                body.classList.add('dark-mode');
+                themeToggle.checked = true;
+                conexaoImg.src = "{{ url_for('static', filename='conexao2.png') }}";
+            } else {
+                body.classList.remove('dark-mode');
+                themeToggle.checked = false;
+                conexaoImg.src = "{{ url_for('static', filename='conexao1.png') }}"; 
+            }
+        
+            themeToggle.addEventListener('change', () => {
+                if (themeToggle.checked) {
+                    body.classList.add('dark-mode');
+                    localStorage.setItem('dark-mode', 'enabled');
+                    conexaoImg.src = "{{ url_for('static', filename='conexao2.png') }}"; 
+                } else {
+                    body.classList.remove('dark-mode');
+                    localStorage.setItem('dark-mode', 'disabled');
+                    conexaoImg.src = "{{ url_for('static', filename='conexao1.png') }}"; 
+                }
+            });
+        }
+        
+        function filterTable() {
+            let input = document.getElementById("searchInput").value.toLowerCase();
+            let table = document.getElementById("dadosTable");
+            let trs = table.getElementsByTagName("tr");
+        
+            for (let i = 1; i < trs.length; i++) {
+                let tds = trs[i].getElementsByTagName("td");
+                let showRow = false;
+        
+                for (let j = 0; j < tds.length; j++) {
+                    if (tds[j].textContent.toLowerCase().includes(input)) {
+                        showRow = true;
+                        break;
+                    }
+                }
+        
+                trs[i].style.display = showRow ? "" : "none";
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById("searchInput").addEventListener("keyup", filterTable);
+            toggleDarkMode();
+        });
+    </script>
+</body>
+</html>
