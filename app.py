@@ -1228,17 +1228,21 @@ def dashboard():
 from google.oauth2.service_account import Credentials
 import gspread
 import logging
+import os
+import json
+from datetime import datetime, timedelta, timezone
 
+# Configurar logging para melhor rastreamento
 logging.basicConfig(level=logging.DEBUG)
 
+# Configurar escopos e ID da planilha
 escopo = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/drive"
 ]
-caminho_credenciais = "credentials.json"
 planilha_id = "13Ivq0l0ueMB6GjO0xr6umLx7qHMvPJRAomjgxf3CunE"
 
-# Cabeçalho
+# Cabeçalho personalizado
 cabecalho_personalizado = ["Data",
                            "Nome da Empresa",
                            "Email",
@@ -1254,31 +1258,37 @@ cabecalho_personalizado = ["Data",
 
 async def acessar_planilha_forms():
     try:
-        # Caminho do arquivo de credenciais
+        # Validar variável de ambiente
         caminho_credenciais = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
         if not caminho_credenciais:
             raise EnvironmentError("A variável de ambiente GOOGLE_APPLICATION_CREDENTIALS não foi configurada.")
         
-        credenciais_info = json.loads(credenciais_json)
-        credenciais = Credentials.from_service_account_file(caminho_credenciais, scopes=escopo)
-
-        # Autorizar cliente gspread
-        cliente = gspread.authorize(credenciais)
+        # Validar arquivo de credenciais
+        if not os.path.exists(caminho_credenciais):
+            raise FileNotFoundError(f"Arquivo de credenciais não encontrado: {caminho_credenciais}")
         
+        # Validar horário atual do servidor
+        horario_servidor = datetime.now(timezone.utc)
+        logging.debug(f"Horário atual do servidor (UTC): {horario_servidor}")
+
+        # Autenticar com credenciais
+        credenciais = Credentials.from_service_account_file(caminho_credenciais, scopes=escopo)
+        cliente = gspread.authorize(credenciais)
+
         # Abrir a planilha pelo ID
         planilha = cliente.open_by_key(planilha_id)
         aba_forms = planilha.worksheet("Respostas ao formulário 1")
         
-        # Obter os dados
+        # Obter os dados da planilha
         dados_raw = aba_forms.get_all_records(empty2zero=False)
         
-        # Filtrar os dados
+        # Filtrar registros com valores válidos
         dados_filtrados = [registro for registro in dados_raw if any(registro.values())] 
         
-        # Cabeçalho original
+        # Cabeçalho original da planilha
         colunas_planilha = aba_forms.row_values(1)
         
-        # Organizar dados de acordo com o cabeçalho personalizado
+        # Formatando dados de acordo com o cabeçalho personalizado
         dados_formatados = []
         for registro in dados_filtrados:
             dados_formatados.append({
@@ -1292,6 +1302,12 @@ async def acessar_planilha_forms():
     except gspread.exceptions.WorksheetNotFound:
         logging.error("A aba especificada não foi encontrada.")
         return {"erro": "A aba especificada não foi encontrada."}
+    except EnvironmentError as env_err:
+        logging.error(f"Erro de ambiente: {str(env_err)}")
+        return {"erro": f"Erro de ambiente: {str(env_err)}"}
+    except FileNotFoundError as fnf_err:
+        logging.error(f"Erro no arquivo de credenciais: {str(fnf_err)}")
+        return {"erro": f"Erro no arquivo de credenciais: {str(fnf_err)}"}
     except Exception as e:
         logging.error(f"Erro inesperado: {str(e)}")
         return {"erro": f"Erro inesperado: {str(e)}"}
@@ -1299,6 +1315,7 @@ async def acessar_planilha_forms():
 @app.route('/dados-forms')
 @login_required
 def exibir_dados():
+    # Executa a função assíncrona e verifica os dados
     dados = asyncio.run(acessar_planilha_forms())
     if "erro" in dados:
         return jsonify(dados)
