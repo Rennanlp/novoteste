@@ -1228,53 +1228,64 @@ def dashboard():
 from google.oauth2.service_account import Credentials
 import gspread
 
-escopo = [
+# Configurações
+ESCOPOS = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/drive"
 ]
-caminho_credenciais = "diretorio1/diretorio2/diretorio3/facil.json"
-planilha_id = "13Ivq0l0ueMB6GjO0xr6umLx7qHMvPJRAomjgxf3CunE"
+PLANILHA_ID = "13Ivq0l0ueMB6GjO0xr6umLx7qHMvPJRAomjgxf3CunE"
+CREDENCIAIS_JSON = os.getenv("GOOGLE_CREDENTIALS")  # Variável de ambiente para o JSON compactado
 
-# Cabeçalho personalizado, incluindo a coluna "Acessos Plat. NFs"
-cabecalho_personalizado = ["Data",
-                           "Nome da Empresa",
-                           "Email",
-                           "Nome dos Produtos",
-                           "Quando inicar os envios",
-                           "Pedidos em atraso",
-                           "Kits",
-                           "Envie Fotos",
-                           "Acessos Plat. Vendas",
-                           "Acessos Plat. NFs",  # Mantido no cabeçalho
-                           "CNPJ",
-                           "Fornecedor"]
+# Cabeçalho personalizado
+CABECALHO_PERSONALIZADO = [
+    "Data",
+    "Nome da Empresa",
+    "Email",
+    "Nome dos Produtos",
+    "Quando inicar os envios",
+    "Pedidos em atraso",
+    "Kits",
+    "Envie Fotos",
+    "Acessos Plat. Vendas",
+    "Acessos Plat. NFs",  # Mantido no cabeçalho
+    "CNPJ",
+    "Fornecedor"
+]
+
 
 async def acessar_planilha_forms():
+    """Função assíncrona para acessar a planilha e formatar os dados."""
     try:
-        credenciais = Credentials.from_service_account_file(caminho_credenciais, scopes=escopo)
-        cliente = gspread.authorize(credenciais)
+        # Salvar credenciais em um arquivo temporário
+        if not CREDENCIAIS_JSON:
+            raise Exception("Credenciais do Google não foram configuradas.")
+        
+        caminho_temp = "/tmp/credentials.json"  # Caminho temporário no servidor
+        with open(caminho_temp, "w") as cred_file:
+            cred_file.write(CREDENCIAIS_JSON)
 
-        planilha = cliente.open_by_key(planilha_id)
+        # Autenticação e acesso à planilha
+        credenciais = Credentials.from_service_account_file(caminho_temp, scopes=ESCOPOS)
+        cliente = gspread.authorize(credenciais)
+        planilha = cliente.open_by_key(PLANILHA_ID)
         aba_forms = planilha.worksheet("Respostas ao formulário 1")
-        
-        # Pegar todos os dados da planilha
-        dados_raw = aba_forms.get_all_records(empty2zero=False)  # Evitar capturar células vazias como 0
-        
-        # Filtrando os dados para remover células vazias no final
-        dados_filtrados = [registro for registro in dados_raw if any(registro.values())]  # Ignora registros vazios
-        
-        # Garantir que o número de colunas corresponda ao cabeçalho
+
+        # Obter dados da planilha
+        dados_raw = aba_forms.get_all_records(empty2zero=False)
         colunas_planilha = aba_forms.row_values(1)
-        
-        # Criando a estrutura final com cabeçalho personalizado, ignorando a coluna H
+
+        # Filtrar e formatar os dados
+        dados_filtrados = [registro for registro in dados_raw if any(registro.values())]
         dados_formatados = []
+
         for registro in dados_filtrados:
-            dados_formatados.append({
-                # Pular a coluna "8 - Por gentileza nos encaminhe imagens dos produtos. (WHATSAPP)"
-                cabecalho_personalizado[i]: registro.get(colunas_planilha[i], "") 
-                for i in range(len(cabecalho_personalizado))  # Iterar apenas sobre o cabeçalho personalizado
-                if colunas_planilha[i] != "8 - Por gentileza nos encaminhe imagens dos produtos. (WHATSAPP)"  # Ignorar a coluna H
-            })
+            novo_registro = {}
+            for i, coluna in enumerate(colunas_planilha):
+                if coluna == "8 - Por gentileza nos encaminhe imagens dos produtos. (WHATSAPP)":
+                    continue  # Ignora esta coluna específica
+                chave = CABECALHO_PERSONALIZADO[i] if i < len(CABECALHO_PERSONALIZADO) else coluna
+                novo_registro[chave] = registro.get(coluna, "")
+            dados_formatados.append(novo_registro)
 
         return dados_formatados
 
@@ -1283,9 +1294,11 @@ async def acessar_planilha_forms():
     except Exception as e:
         return {"erro": f"Erro inesperado: {str(e)}"}
 
+
 @app.route('/dados-forms')
 @login_required
 def exibir_dados():
+    """Rota para exibir os dados da planilha."""
     dados = asyncio.run(acessar_planilha_forms())
     if "erro" in dados:
         return jsonify(dados)
