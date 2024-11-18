@@ -1254,7 +1254,6 @@ cabecalho_personalizado = ["Data",
 
 async def acessar_planilha_forms():
     try:
-    try:
         # Caminho do arquivo de credenciais
         caminho_credenciais = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
         if not caminho_credenciais:
