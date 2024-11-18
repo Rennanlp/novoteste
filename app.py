@@ -1227,6 +1227,9 @@ def dashboard():
 
 from google.oauth2.service_account import Credentials
 import gspread
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 escopo = [
     "https://spreadsheets.google.com/feeds",
@@ -1235,7 +1238,7 @@ escopo = [
 caminho_credenciais = "credentials.json"
 planilha_id = "13Ivq0l0ueMB6GjO0xr6umLx7qHMvPJRAomjgxf3CunE"
 
-# Cabeçalho personalizado, incluindo a coluna "Acessos Plat. NFs"
+# Cabeçalho
 cabecalho_personalizado = ["Data",
                            "Nome da Empresa",
                            "Email",
@@ -1245,42 +1248,52 @@ cabecalho_personalizado = ["Data",
                            "Kits",
                            "Envie Fotos",
                            "Acessos Plat. Vendas",
-                           "Acessos Plat. NFs",  # Mantido no cabeçalho
+                           "Acessos Plat. NFs",
                            "CNPJ",
                            "Fornecedor"]
 
 async def acessar_planilha_forms():
     try:
-        credenciais = Credentials.from_service_account_file(caminho_credenciais, scopes=escopo)
-        cliente = gspread.authorize(credenciais)
+        # Validar e carregar as credenciais
+        credenciais_json = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+        if not credenciais_json:
+            raise EnvironmentError("A variável de ambiente GOOGLE_APPLICATION_CREDENTIALS não foi configurada.")
+        
+        credenciais_info = json.loads(credenciais_json)
+        credenciais = Credentials.from_service_account_info(credenciais_info, scopes=escopo)
 
+        # Autorizar cliente gspread
+        cliente = gspread.authorize(credenciais)
+        
+        # Abrir a planilha pelo ID
         planilha = cliente.open_by_key(planilha_id)
         aba_forms = planilha.worksheet("Respostas ao formulário 1")
         
-        # Pegar todos os dados da planilha
-        dados_raw = aba_forms.get_all_records(empty2zero=False)  # Evitar capturar células vazias como 0
+        # Obter os dados
+        dados_raw = aba_forms.get_all_records(empty2zero=False)
         
-        # Filtrando os dados para remover células vazias no final
-        dados_filtrados = [registro for registro in dados_raw if any(registro.values())]  # Ignora registros vazios
+        # Filtrar os dados
+        dados_filtrados = [registro for registro in dados_raw if any(registro.values())] 
         
-        # Garantir que o número de colunas corresponda ao cabeçalho
+        # Cabeçalho original
         colunas_planilha = aba_forms.row_values(1)
         
-        # Criando a estrutura final com cabeçalho personalizado, ignorando a coluna H
+        # Organizar dados de acordo com o cabeçalho personalizado
         dados_formatados = []
         for registro in dados_filtrados:
             dados_formatados.append({
-                # Pular a coluna "8 - Por gentileza nos encaminhe imagens dos produtos. (WHATSAPP)"
                 cabecalho_personalizado[i]: registro.get(colunas_planilha[i], "") 
-                for i in range(len(cabecalho_personalizado))  # Iterar apenas sobre o cabeçalho personalizado
-                if colunas_planilha[i] != "8 - Por gentileza nos encaminhe imagens dos produtos. (WHATSAPP)"  # Ignorar a coluna H
+                for i in range(len(cabecalho_personalizado))
+                if colunas_planilha[i] != "8 - Por gentileza nos encaminhe imagens dos produtos. (WHATSAPP)"
             })
 
         return dados_formatados
 
     except gspread.exceptions.WorksheetNotFound:
+        logging.error("A aba especificada não foi encontrada.")
         return {"erro": "A aba especificada não foi encontrada."}
     except Exception as e:
+        logging.error(f"Erro inesperado: {str(e)}")
         return {"erro": f"Erro inesperado: {str(e)}"}
 
 @app.route('/dados-forms')
