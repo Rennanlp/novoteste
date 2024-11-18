@@ -1254,7 +1254,8 @@ cabecalho_personalizado = ["Data",
 
 async def acessar_planilha_forms():
     try:
-        # Validar e carregar as credenciais
+    try:
+        # Caminho do arquivo de credenciais
         caminho_credenciais = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
         if not caminho_credenciais:
             raise EnvironmentError("A variável de ambiente GOOGLE_APPLICATION_CREDENTIALS não foi configurada.")
