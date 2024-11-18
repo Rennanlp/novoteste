@@ -1255,12 +1255,12 @@ cabecalho_personalizado = ["Data",
 async def acessar_planilha_forms():
     try:
         # Validar e carregar as credenciais
-        credenciais_json = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-        if not credenciais_json:
+        caminho_credenciais = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+        if not caminho_credenciais:
             raise EnvironmentError("A variável de ambiente GOOGLE_APPLICATION_CREDENTIALS não foi configurada.")
         
         credenciais_info = json.loads(credenciais_json)
-        credenciais = Credentials.from_service_account_info(credenciais_info, scopes=escopo)
+        credenciais = Credentials.from_service_account_file(caminho_credenciais, scopes=escopo)
 
         # Autorizar cliente gspread
         cliente = gspread.authorize(credenciais)
