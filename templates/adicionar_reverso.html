@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -48,9 +48,13 @@
                 </select>
             </div>
             <div class="mb-3">
-                <label for="cod_rastreio" class="form-label">Codigo de Rastreio</label>
-                <input type="text" class="form-control" id="cod_rastreio" name="cod_rastreio" required>
+                <label for="cod_rastreio" class="form-label">Código de Rastreio</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="cod_rastreio" name="cod_rastreio" required>
+                    <button type="button" class="btn btn-secondary" id="scan-barcode">📷 Escanear</button>
+                </div>
             </div>
+            <div id="scanner" style="width: 100%; height: 300px; display: none; position: relative; border: 1px solid #ccc;"></div>
             <div class="mb-3">
                 <label for="descricao" class="form-label">Descrição</label>
                 <textarea class="form-control" id="descricao" name="descricao" rows="3" required></textarea>
@@ -65,24 +69,59 @@
         <a href="/reversos" class="btn btn-secondary mt-3">Voltar para a lista</a>
         <a href="/cadastro_cliente" class="btn btn-secondary mt-3">Cadastrar Clientes</a>
     </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
     <script>
         const themeToggle = document.getElementById('dark-mode-toggle');
         const body = document.body;
-      
+
         if (localStorage.getItem('dark-mode') === 'enabled') {
-          body.classList.add('dark-mode');
-          themeToggle.checked = true;
-        }
-      
-        themeToggle.addEventListener('change', () => {
-          if (themeToggle.checked) {
             body.classList.add('dark-mode');
-            localStorage.setItem('dark-mode', 'enabled');
-          } else {
-            body.classList.remove('dark-mode');
-            localStorage.setItem('dark-mode', 'disabled');
-          }
+            themeToggle.checked = true;
+        }
+
+        themeToggle.addEventListener('change', () => {
+            if (themeToggle.checked) {
+                body.classList.add('dark-mode');
+                localStorage.setItem('dark-mode', 'enabled');
+            } else {
+                body.classList.remove('dark-mode');
+                localStorage.setItem('dark-mode', 'disabled');
+            }
         });
-      </script>
+
+        document.getElementById('scan-barcode').addEventListener('click', () => {
+            const scannerContainer = document.getElementById('scanner');
+            scannerContainer.style.display = 'block';
+
+            Quagga.init(
+                {
+                    inputStream: {
+                        name: "Live",
+                        type: "LiveStream",
+                        target: scannerContainer,
+                    },
+                    decoder: {
+                        readers: ["code_128_reader"],
+                    },
+                },
+                (err) => {
+                    if (err) {
+                        console.error(err);
+                        alert("Erro ao inicializar o scanner!");
+                        return;
+                    }
+                    Quagga.start();
+                }
+            );
+
+            Quagga.onDetected((data) => {
+                const codRastreioInput = document.getElementById('cod_rastreio');
+                codRastreioInput.value = data.codeResult.code;
+                Quagga.stop();
+                scannerContainer.style.display = 'none';
+            });
+        });
+    </script>
 </body>
 </html>
