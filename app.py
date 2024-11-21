@@ -26,20 +26,37 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Frame, Page
 from reportlab.pdfgen import canvas
 import io
 import textwrap
-import pprint
+from flask_mail import Mail, Message
+from openpyxl import Workbook
+from sqlalchemy import or_
 
+# CONFUGURAÇÕES FLASK #
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY') or b'_5#y2L"F4Q8z\n\xec]/'
-app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['UPLOAD_FOLDER'] = 'static/images'
 app.config['ALLOWED_EXTENSIONS'] = {'csv'}
 app.config['STATIC_FOLDER'] = 'static'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tasks.db'
+app.config['MAX_CONTENT_LENGTH'] = 48 * 1024 * 1024
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_BINDS'] = {
     'database1': 'sqlite:///database1.db'
 }
 db = SQLAlchemy(app)
 CORS(app)
 migrate = Migrate(app, db)
+
+# CONFIGURAÇÕES MAIL #
+app.config['MAIL_SERVER'] = 'smtp.sendgrid.net'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USERNAME'] = 'apikey'  # Nome de usuário fixo para SendGrid
+app.config['MAIL_PASSWORD'] = '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'  # Substitua pela chave da API
+app.config['MAIL_DEFAULT_SENDER'] = 'conexaopremium26@gmail.com'  # E-mail do remetente
+
+
+mail = Mail(app)
 
 
 def format_date(value, format='%d/%m/%Y'):
@@ -1303,6 +1320,286 @@ def exibir_dados():
     if "erro" in dados:
         return jsonify(dados)
     return render_template('dados_forms.html', dados=dados)
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+class Reverso(db.Model):
+    __tablename__ = 'reverso'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    remetente = db.Column(db.String(100), nullable=False)
+    cliente_id = db.Column(db.Integer, db.ForeignKey('cliente.id', ondelete='SET NULL'), nullable=True)  # Mudando para nullable=True
+    cod_rastreio = db.Column(db.String(100), nullable=False)
+    descricao = db.Column(db.String(255), nullable=False)
+    imagem = db.Column(db.String(255))
+    criado_em = db.Column(db.DateTime, default=datetime.utcnow)
+
+    cliente = db.relationship('Cliente', backref=db.backref('reversos', lazy=True, passive_deletes=True))
+    
+    def __repr__(self):
+        return f'<Reverso {self.remetente} - {self.cod_rastreio}>'
+
+class Cliente(db.Model):
+    __tablename__ = 'cliente'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    nome = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+
+    def __repr__(self):
+        return f'<Cliente {self.nome} - {self.email}>'
+
+from flask_paginate import Pagination
+
+@app.route('/reversos', methods=['GET'])
+@login_required
+def reversos():
+    query = request.args.get('q', '')
+    start_date = request.args.get('start_date', '')
+    end_date = request.args.get('end_date', '')
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+
+    filters = []
+
+    if query:
+        filters.append(
+            or_(
+                Cliente.nome.ilike(f'%{query}%'),  # Aplicando 'ilike' diretamente no campo Cliente.nome
+                Reverso.remetente.ilike(f'%{query}%')
+            )
+        )
+
+    if start_date:
+        filters.append(Reverso.criado_em >= datetime.strptime(start_date, '%Y-%m-%d'))
+
+    if end_date:
+        filters.append(Reverso.criado_em <= datetime.strptime(end_date, '%Y-%m-%d'))
+
+    reversos_query = Reverso.query.join(Cliente).filter(*filters).add_columns(
+        Reverso.id,
+        Cliente.nome.label('cliente'),
+        Reverso.cod_rastreio.label('codigo'),
+        Cliente.email.label('email'),
+        Reverso.criado_em.label('data'),
+        Reverso.remetente.label('remetente'),
+        Reverso.descricao.label('descricao'),
+        Reverso.imagem.label('imagem')
+    )
+
+    reversos = reversos_query.paginate(page=page, per_page=per_page, error_out=False)
+    pagination = Pagination(page=page, total=reversos.total, per_page=per_page, record_name='reversos')
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render_template('partials/reversos_list.html', reversos=reversos.items)
+
+    return render_template('listar_reversos.html', 
+                           reversos=reversos.items, 
+                           pagination=pagination, 
+                           query=query,
+                           start_date=start_date,
+                           end_date=end_date)
+
+@app.route('/reversos/exportar', methods=['GET'])
+@login_required
+def exportar_reversos():
+    query = request.args.get('q', '')
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+
+    start_date = datetime.strptime(start_date, '%Y-%m-%d') if start_date else None
+    end_date = datetime.strptime(end_date, '%Y-%m-%d') if end_date else None
+
+    filters = []
+    if query:
+        filters.append(
+            (Cliente.nome.contains(query) | Reverso.remetente.contains(query))
+        )
+    if start_date:
+        filters.append(Reverso.criado_em >= start_date)
+    if end_date:
+        filters.append(Reverso.criado_em <= end_date)
+
+    reversos_query = Reverso.query.join(Cliente).filter(*filters).add_columns(
+        Cliente.nome.label('cliente'),
+        Reverso.cod_rastreio.label('codigo'),
+        Cliente.email.label('email'),
+        Reverso.criado_em.label('data'),
+        Reverso.remetente.label('remetente'),
+        Reverso.descricao.label('descricao')
+    ).all()
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Reversos"
+    
+    ws.append(['Cliente', 'Codigo', 'Email', 'Data', 'Remetente', 'Descrição'])
+
+    for reverso in reversos_query:
+        ws.append([
+            reverso.cliente,
+            reverso.codigo,
+            reverso.email,
+            reverso.data.strftime('%d/%m/%Y'), 
+            reverso.remetente,
+            reverso.descricao
+        ])
+
+    output = BytesIO()
+    wb.save(output)
+    output.seek(0)
+
+    today = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    filename = f"Reversos-{today}.xlsx"
+
+    response = make_response(output.getvalue())
+    response.headers["Content-Disposition"] = f"attachment; filename={filename}"
+    response.headers["Content-type"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
+    return response
+
+from flask import flash, redirect, url_for
+
+@app.route('/reversos/adicionar', methods=['GET', 'POST'])
+@login_required
+def adicionar_reverso():
+    if request.method == 'POST':
+        remetente = request.form['remetente']
+        cliente_id = request.form['cliente'] 
+        cod_rastreio = request.form['cod_rastreio']
+        descricao = request.form['descricao']
+        imagem = request.files['imagem'] if 'imagem' in request.files else None
+
+        if imagem and allowed_file(imagem.filename):
+            filename = secure_filename(imagem.filename) 
+            save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename) 
+            imagem.save(save_path) 
+            imagem_path = f"images/{filename}" 
+        else:
+            imagem_path = None
+
+        cliente = Cliente.query.get(cliente_id)
+
+        novo_reverso = Reverso(
+            remetente=remetente,
+            cliente=cliente, 
+            cod_rastreio=cod_rastreio,
+            descricao=descricao,
+            imagem=imagem_path
+        )
+
+        db.session.add(novo_reverso)
+        db.session.commit()
+
+        try:
+            msg = Message(
+                subject="Logistica Reversa Recebida",
+                sender=app.config['MAIL_DEFAULT_SENDER'],
+                recipients=[cliente.email],
+                body=f"""
+                Olá {cliente.nome},
+
+                Recebemos uma devolução de Logística Reversa com os seguintes detalhes:
+                - Remetente: {remetente}
+                - Código de Rastreio: {cod_rastreio}
+                - Descrição: {descricao}
+
+                Atenciosamente,
+                Equipe Conexão Premium
+                """
+            )
+
+            if imagem_path:
+                with open(os.path.join(app.config['UPLOAD_FOLDER'], os.path.basename(imagem_path)), 'rb') as img:
+                    msg.attach(
+                        filename=os.path.basename(imagem_path),
+                        content_type='image/jpg',
+                        data=img.read()
+                    )
+
+            mail.send(msg)
+            flash("E-mail enviado com sucesso!", "success")
+
+        except Exception as e:
+            print(f"Erro ao enviar e-mail: {e}")
+            flash(f"Erro ao enviar o e-mail: {str(e)}", "danger")
+
+        return redirect(url_for('adicionar_reverso'))
+
+    clientes = Cliente.query.all()
+    return render_template('adicionar_reverso.html', clientes=clientes)
+
+@app.route('/reversos/delete/<int:id>', methods=['GET'])
+@login_required
+def deletar_reverso(id):
+    reverso = Reverso.query.get(id)
+
+    if reverso:
+        if reverso.imagem:
+            try:
+                os.remove(os.path.join(app.config['UPLOAD_FOLDER'], reverso.imagem))
+            except FileNotFoundError:
+                pass
+
+        db.session.delete(reverso)
+        db.session.commit()
+
+    return redirect(url_for('reversos'))
+    
+@app.route('/cadastro_cliente', methods=['GET', 'POST'])
+@login_required
+def cadastro_cliente():
+    if request.method == 'POST':
+        nome = request.form['nome']
+        email = request.form['email']
+        
+        if Cliente.query.filter_by(email=email).first():
+            return "Este email já está cadastrado. Tente outro."
+        
+        novo_cliente = Cliente(nome=nome, email=email)
+        db.session.add(novo_cliente)
+        db.session.commit()
+        
+        return redirect(url_for('clientes')) 
+    
+    return render_template('clientes_reverso.html')
+
+@app.route('/clientes')
+@login_required
+def clientes():
+    clientes = Cliente.query.all()
+    return render_template('clientes.html', clientes=clientes)
+
+@app.route('/excluir_cliente/<int:id>', methods=['POST'])
+@login_required
+def excluir_cliente(id):
+    cliente = Cliente.query.get_or_404(id)
+    
+    Reverso.query.filter_by(cliente_id=id).delete()
+    
+    db.session.delete(cliente)
+    db.session.commit()
+    
+    return redirect(url_for('clientes'))
+
+@app.route('/editar_cliente/<int:id>', methods=['GET', 'POST'])
+@login_required
+def editar_cliente(id):
+    cliente = Cliente.query.get_or_404(id)
+    if request.method == 'POST':
+        cliente.nome = request.form['nome']
+        cliente.email = request.form['email']
+        
+        if Cliente.query.filter(Cliente.email == cliente.email, Cliente.id != id).first():
+            return "Este email já está em uso por outro cliente. Tente outro."
+        
+        db.session.commit()
+        return redirect(url_for('clientes'))
+    
+    return render_template('editar_cliente.html', cliente=cliente)
 
 
 if __name__ == '__main__':
