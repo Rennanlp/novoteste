@@ -1498,7 +1498,7 @@ def adicionar_reverso():
             cod_rastreio=cod_rastreio,
             descricao=descricao,
             imagem=imagem_path,
-            data_criacao=agora
+            criado_em=agora
         )
 
         db.session.add(novo_reverso)
