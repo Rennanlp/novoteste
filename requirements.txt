@@ -64,3 +64,4 @@ xlrd==2.0.1
 httpx==0.27.0
 gspread==5.12.2
 Flask-Mail==0.10.0
+flask-paginate==2024.4.12
