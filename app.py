@@ -35,7 +35,8 @@ import pytz
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY') or b'_5#y2L"F4Q8z\n\xec]/'
 app.config['UPLOAD_FOLDER'] = 'static/images'
-app.config['ALLOWED_EXTENSIONS'] = {'csv'}
+app.config['UPLOAD_FOLDER1'] = 'uploads'
+app.config['ALLOWED_EXTENSIONS'] = {'csv', }
 app.config['STATIC_FOLDER'] = 'static'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tasks.db'
 app.config['MAX_CONTENT_LENGTH'] = 48 * 1024 * 1024
@@ -161,7 +162,7 @@ def generate_excel(username, tasks):
     print("Observations:", observations)
     print("Quantidades:", qtd)
 
-    output_filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'lista_de_tarefas.xlsx')
+    output_filepath = os.path.join(app.config['UPLOAD_FOLDER1'], 'lista_de_tarefas.xlsx')
 
     # Gera arquivo Excel
     workbook = xlsxwriter.Workbook(output_filepath)
@@ -293,7 +294,7 @@ def remove_accent():
                     rows = [list(map(lambda x: unidecode(x) if x else x, row)) for row in reader]
 
             # Criar um arquivo de saída para o novo CSV
-            output_filepath = os.path.join(app.config['UPLOAD_FOLDER'], f'Arquivo_Ajustado_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv')
+            output_filepath = os.path.join(app.config['UPLOAD_FOLDER1'], f'Arquivo_Ajustado_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv')
             with open(output_filepath, 'w', encoding='utf-8', newline='') as output_file:
                 writer = csv.writer(output_file, delimiter=delimiter)
                 writer.writerows(rows)
@@ -1322,10 +1323,10 @@ def exibir_dados():
         return jsonify(dados)
     return render_template('dados_forms.html', dados=dados)
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS1 = {'png', 'jpg', 'jpeg', 'gif'}
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+def allowed_file1(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS1
 
 class Reverso(db.Model):
     __tablename__ = 'reverso'
@@ -1369,7 +1370,7 @@ def reversos():
     if query:
         filters.append(
             or_(
-                Cliente.nome.ilike(f'%{query}%'),  # Aplicando 'ilike' diretamente no campo Cliente.nome
+                Cliente.nome.ilike(f'%{query}%'),
                 Reverso.remetente.ilike(f'%{query}%')
             )
         )
@@ -1482,7 +1483,7 @@ def adicionar_reverso():
 
         agora = datetime.now(pytz.utc).astimezone(g.timezone)
 
-        if imagem and allowed_file(imagem.filename):
+        if imagem and allowed_file1(imagem.filename):
             filename = secure_filename(imagem.filename) 
             save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename) 
             imagem.save(save_path) 
