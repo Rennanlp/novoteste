@@ -196,3 +196,23 @@
       display: block; 
   }
   
+  @media (max-width: 768px) {
+    .main-menu {
+        display: none !important;
+    }
+
+    .main-menu.active {
+        display: block !important;
+        width: 190px; 
+    }
+
+    #menu-toggle {
+        display: block !important;
+    }
+}
+
+@media (min-width: 768px) {
+    #menu-toggle {
+        display: none !important;
+    }
+}

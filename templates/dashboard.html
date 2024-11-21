@@ -199,13 +199,11 @@
             const themeToggle = document.getElementById('dark-mode-toggle');
             const body = document.body;
           
-            // Verifica se o tema escuro foi armazenado no localStorage
             if (localStorage.getItem('dark-mode') === 'enabled') {
               body.classList.add('dark-mode');
               themeToggle.checked = true;
             }
           
-            // Alterna o tema quando o checkbox é marcado/desmarcado
             themeToggle.addEventListener('change', () => {
               if (themeToggle.checked) {
                 body.classList.add('dark-mode');

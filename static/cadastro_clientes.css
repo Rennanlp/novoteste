@@ -1,0 +1,38 @@
+body {
+    background-color: #ffffff;
+    color: #000000;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+h2 {
+    color: #000000;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #004085;
+}
+
+body.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+body.dark-mode h2 {
+    color: #ffffff;
+}
+
+body.dark-mode .btn-primary {
+    background-color: #1a73e8;
+    border-color: #1a73e8;
+}
+
+body.dark-mode .btn-primary:hover {
+    background-color: #0c5bbf;
+    border-color: #0b499e;
+}

@@ -1,3 +1,6 @@
+<button id="menu-toggle" class="btn btn-primary">
+    <i class="fa fa-bars fa-2x"></i> Menu
+</button>
 <nav class="main-menu">
     <ul>
         <li class="has-subnav">
@@ -35,6 +38,34 @@
                 <i class="fa fa-solid fa-truck-fast fa-2x"></i>
                 <span class="nav-text">Rastreamento</span>
             </a>
+        </li>
+        <li class="has-subnav">
+            <a href="javascript:void(0);" class="nav-link">
+                <i class="fa fa-solid fa-warehouse fa-2x"></i>
+                <span class="nav-text">Ferramentas CD</span>
+            </a>
+            <ul class="subnav">
+                <li>
+                    <a href="/reversos/adicionar">
+                        <i class="fa fa-solid fa-paperclip fa-2x"></i> Cadastrar Reverso
+                    </a>
+                </li>
+                <li>
+                    <a href="/reversos">
+                        <i class="fa fa-solid fa-right-left fa-2x"></i> Reversos
+                    </a>
+                </li>
+                <li>
+                    <a href="/cadastro_cliente">
+                        <i class="fa fa-solid fa-user-plus fa-2x"></i> Cadastrar Clientes
+                    </a>
+                </li>
+                <li>
+                    <a href="/clientes">
+                        <i class="fa fa-solid fa-users fa-2x"></i> Clientes
+                    </a>
+                </li>
+            </ul>
         </li>
         <li>
             <a href="/get_notes">
@@ -81,4 +112,21 @@
             </a>
         </li>
     </ul>
+    <script>
+        document.getElementById('menu-toggle').addEventListener('click', function(event) {
+            event.stopPropagation();
+            var menu = document.querySelector('.main-menu');
+            menu.classList.toggle('active');
+        });
+        
+        document.addEventListener('click', function(event) {
+            var menu = document.querySelector('.main-menu');
+            var toggleButton = document.getElementById('menu-toggle');
+        
+            if (!menu.contains(event.target) && event.target !== toggleButton) {
+                menu.classList.remove('active'); 
+            }
+        });
+    </script>
+
 </nav>

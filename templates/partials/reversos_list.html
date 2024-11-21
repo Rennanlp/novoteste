@@ -1,0 +1,21 @@
+<div id="results" class="list-group mt-3">
+    {% for reverso in reversos %}
+        <a href="#" class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{ reverso.cliente }}</h5>
+                <h5 class="mb-1">{{ reverso.codigo }}</h5>
+                <small>{{ reverso.remetente }} - 
+                    Incluído em: {{ reverso.data.strftime('%d/%m/%Y') }}
+                </small>
+            </div>
+            <p class="mb-1">{{ reverso.descricao }}</p>
+            
+            {% if reverso.imagem %}
+                <img src="{{ url_for('static', filename=reverso.imagem) }}" alt="Imagem do Reverso" class="img-thumbnail" style="max-width: 150px;">
+            {% endif %}
+
+            <!-- Botão de excluir -->
+            <a href="#" class="btn btn-danger btn-sm mt-2" onclick="confirmDelete({{ reverso.id }})">Deletar</a>
+        </a>
+    {% endfor %}
+</div>

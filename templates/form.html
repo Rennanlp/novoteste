@@ -171,9 +171,8 @@
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Inicializa o Flatpickr no elemento com a ID 'data'
             flatpickr('#data', {
-                dateFormat: 'd/m/Y',  // Ajuste o formato conforme necessário
+                dateFormat: 'd/m/Y',
                 locale: {
                     weekdays: {
                         shorthand: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
@@ -228,9 +227,7 @@
                 xhr.send();
             });
         
-            // Adicionando um ouvinte de evento para detectar mudanças no select
             select.addEventListener('change', function() {
-                // Atribuindo o nomeFantasia do option selecionado ao valor do input
                 input.value = select.value;
             });
         }
@@ -238,13 +235,11 @@
         document.addEventListener('DOMContentLoaded', () => {
             const darkModeToggle = document.getElementById('dark-mode-toggle');
             
-            // Verifica o armazenamento local para manter a preferência do usuário
             if (localStorage.getItem('darkMode') === 'enabled') {
                 enableDarkMode();
                 darkModeToggle.checked = true;
             }
         
-            // Alterna o modo escuro
             darkModeToggle.addEventListener('change', () => {
                 if (darkModeToggle.checked) {
                     enableDarkMode();

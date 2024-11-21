@@ -5,7 +5,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(255, 255, 255, 0.9); /* Fundo levemente transparente */
+        background: black;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -14,11 +14,29 @@
     }
 
     .loading-overlay img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+        width: 80%;
+        max-width: 1024px;
+        height: auto;
+        object-fit: contain;
     }
 
+    @media (max-width: 1024px) {
+        .loading-overlay img {
+            width: 85%;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .loading-overlay img {
+            width: 90%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .loading-overlay img {
+            width: 95%;
+        }
+    }
 </style>
 
 <div class="loading-overlay" id="loading">
