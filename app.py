@@ -51,9 +51,9 @@ app.config['MAIL_SERVER'] = 'smtp.sendgrid.net'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
-app.config['MAIL_USERNAME'] = 'apikey'  # Nome de usuário fixo para SendGrid
-app.config['MAIL_PASSWORD'] = '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'  # Substitua pela chave da API
-app.config['MAIL_DEFAULT_SENDER'] = 'conexaopremium26@gmail.com'  # E-mail do remetente
+app.config['MAIL_USERNAME'] = 'apikey' 
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = 'conexaopremium26@gmail.com'
 
 
 mail = Mail(app)
