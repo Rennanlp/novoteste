@@ -29,6 +29,7 @@ import textwrap
 from flask_mail import Mail, Message
 from openpyxl import Workbook
 from sqlalchemy import or_
+import pytz
 
 # CONFUGURAÇÕES FLASK #
 app = Flask(__name__)
@@ -1463,6 +1464,12 @@ def exportar_reversos():
 
 from flask import flash, redirect, url_for
 
+br_tz = pytz.timezone('America/Sao_Paulo')
+
+@app.before_request
+def before_request():
+    g.timezone = br_tz
+
 @app.route('/reversos/adicionar', methods=['GET', 'POST'])
 @login_required
 def adicionar_reverso():
@@ -1472,6 +1479,8 @@ def adicionar_reverso():
         cod_rastreio = request.form['cod_rastreio']
         descricao = request.form['descricao']
         imagem = request.files['imagem'] if 'imagem' in request.files else None
+
+        agora = datetime.now(pytz.utc).astimezone(g.timezone)
 
         if imagem and allowed_file(imagem.filename):
             filename = secure_filename(imagem.filename) 
@@ -1488,7 +1497,8 @@ def adicionar_reverso():
             cliente=cliente, 
             cod_rastreio=cod_rastreio,
             descricao=descricao,
-            imagem=imagem_path
+            imagem=imagem_path,
+            data_criacao=agora
         )
 
         db.session.add(novo_reverso)
