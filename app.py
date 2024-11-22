@@ -128,6 +128,10 @@ user_database = {
     'Juliana': {
     'password': 'juliana@10',
     'name': 'Juliana'
+    },
+    'ConexaoCD': {
+    'password': 'conexaocd@10',
+    'name': 'Conexão CD'
     }
     
 }

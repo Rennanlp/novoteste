@@ -39,14 +39,12 @@
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
     <script>
-        // Seleciona o checkbox do modo escuro
+
         const darkModeToggle = document.getElementById('dark-mode-toggle');
         
-        // Função para alternar o modo escuro
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
         
-            // Salva a preferência de modo no localStorage para persistência
             if (document.body.classList.contains('dark-mode')) {
                 localStorage.setItem('darkMode', 'enabled');
             } else {
@@ -54,13 +52,11 @@
             }
         }
         
-        // Verifica a preferência de modo salva ao carregar a página
         if (localStorage.getItem('darkMode') === 'enabled') {
             document.body.classList.add('dark-mode');
-            darkModeToggle.checked = true; // Marca o checkbox se o modo escuro estava ativado
+            darkModeToggle.checked = true;
         }
         
-        // Adiciona o evento de clique ao toggle
         darkModeToggle.addEventListener('change', toggleDarkMode);
         </script>
 </body>

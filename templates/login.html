@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='switch.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="ui-switch-wrapper">
@@ -37,8 +38,11 @@
             </div>
             <div class="input-group">
                 <label for="senha">Senha:</label>
-                <input type="password" id="senha" name="senha" required>
-            </div>
+                <div style="position: relative; display: inline-block; width: 100%; max-width: 300px;">
+                  <input type="password" id="senha" name="senha" required>
+                  <i id="toggleSenha" class="fa fa-eye" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+                </div>
+              </div>
             <button type="submit" class="login-button">Login</button>
         </form>
         <button onclick="logout()" class="logout-button">Logout</button>
@@ -48,11 +52,15 @@
         const body = document.body;
         const conexaoImg = document.getElementById('conexao-img');
     
-        // Evento para alternar o modo escuro
         darkModeToggle.addEventListener('change', () => {
             body.classList.toggle('dark-mode');
+
+            if (document.body.classList.contains('dark-mode')) {
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                localStorage.setItem('darkMode', 'disabled');
+            }
     
-            // Altera a imagem conforme o modo
             if (body.classList.contains('dark-mode')) {
                 conexaoImg.src = "{{ url_for('static', filename='conexao2.png') }}";
             } else {
@@ -60,5 +68,21 @@
             }
         });
     </script>
+    <script>
+        const toggleSenha = document.getElementById('toggleSenha');
+        const senhaInput = document.getElementById('senha');
+      
+        toggleSenha.addEventListener('click', () => {
+          if (senhaInput.type === 'password') {
+            senhaInput.type = 'text';
+            toggleSenha.classList.remove('fa-eye');
+            toggleSenha.classList.add('fa-eye-slash');
+          } else {
+            senhaInput.type = 'password';
+            toggleSenha.classList.remove('fa-eye-slash');
+            toggleSenha.classList.add('fa-eye');
+          }
+        });
+      </script>
 </body>
 </html>
