@@ -120,18 +120,15 @@ h1 {
   color: #4285f4;
 }
 
-/* Estilos para o Dark Mode */
 body.dark-mode {
-  background-color: #121212; /* Cor de fundo escura */
-  color: #e0e0e0; /* Texto claro */
+  background-color: #121212; 
+  color: #e0e0e0; 
 }
 
-/* Estilos para o header */
 body.dark-mode header {
-  background-color: #333; /* Cor de fundo escura para o header */
+  background-color: #333;
 }
 
-/* Estilos para a navegação */
 body.dark-mode nav {
   margin-bottom: 10px;
   display: flex;
@@ -143,16 +140,15 @@ body.dark-mode nav {
 
 body.dark-mode nav select {
   padding: 8px;
-  border: 1px solid #555; /* Borda mais escura */
+  border: 1px solid #555;
   border-radius: 5px;
   cursor: pointer;
   margin-right: 20px;
   margin-left: 10px;
-  background-color: #333; /* Fundo escuro para o select */
-  color: #e0e0e0; /* Cor do texto no select */
+  background-color: #333;
+  color: #e0e0e0;
 }
 
-/* Estilos para a imagem */
 body.dark-mode .img-conexao {
   width: 550px;
   height: auto;
@@ -161,14 +157,12 @@ body.dark-mode .img-conexao {
   margin-left: -40px;
 }
 
-/* Estilos para os inputs */
 body.dark-mode .input-group input {
-  background-color: #333; /* Fundo escuro para o input */
-  color: #e0e0e0; /* Cor do texto no input */
-  border: 1px solid #555; /* Borda escura */
+  background-color: #333;
+  color: #0c0c0c; 
+  border: 1px solid #555;
 }
 
-/* Estilos para os botões */
 body.dark-mode .login-button,
 body.dark-mode .logout-button {
   border-radius: 30px;
@@ -183,12 +177,12 @@ body.dark-mode .logout-button {
 }
 
 body.dark-mode .login-button {
-  background-color: #4285f4; /* Mantém o azul do login */
+  background-color: #4285f4;
   color: white;
 }
 
 body.dark-mode .logout-button {
-  background-color: #db4437; /* Mantém o vermelho do logout */
+  background-color: #db4437;
   color: white;
 }
 
@@ -197,26 +191,100 @@ body.dark-mode .google-login {
   color: white;
 }
 
-/* Estilos para o título */
 body.dark-mode h1 {
   margin-bottom: 20px;
   color: #4285f4;
 }
 
 body.dark-mode .login-button:hover {
-  background-color: #0b46a5; /* Cor mais escura para o hover do login */
+  background-color: #0b46a5; 
 }
 
 body.dark-mode .logout-button:hover {
-  background-color: #9f2a1f; /* Cor mais escura para o hover do logout */
+  background-color: #9f2a1f; 
 }
 
 body.dark-mode .google-login:hover {
-  background-color: #c1351d; /* Cor mais escura para o hover do google login */
+  background-color: #c1351d;
 }
 
-/* Ajuste de imagem e container */
 body.dark-mode .container {
-  background-color: #222; /* Cor de fundo do container escuro */
-  color: #e0e0e0; /* Texto claro dentro do container */
+  background-color: #222;
+  color: #e0e0e0;
 }
+
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+    text-align: left;
+    margin: 0;
+    padding: 0 10px;
+  }
+
+  header {
+    padding: 10px 5px;
+  }
+
+  nav {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    margin: 10px 0;
+  }
+
+  nav select {
+    width: 100%;
+    margin: 5px 0;
+  }
+
+  .img-conexao {
+    width: 100%;
+    height: auto;
+    margin: 20px 0;
+  }
+
+  .container {
+    margin-top: 10px;
+    padding: 10px;
+    width: 100%;
+  }
+
+  .input-group input {
+    max-width: 100%; 
+    padding: 10px;
+  }
+
+  .login-button,
+  .logout-button {
+    font-size: 14px;
+    padding: 12px;
+    max-width: 100%;
+  }
+
+  h1 {
+    font-size: 18px;
+    margin-bottom: 15px;
+  }
+
+  .google-login {
+    font-size: 12px;
+    padding: 10px;
+    width: 100%;
+    text-align: center;
+  }
+
+  body.dark-mode {
+    padding: 0 10px;
+  }
+
+  body.dark-mode .img-conexao {
+    width: 100%;
+    height: auto;
+    margin: 20px 0;
+  }
+
+  body.dark-mode #toggleSenha{
+    color: #121212;
+  }
+}
+

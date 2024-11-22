@@ -232,7 +232,7 @@ h2 {
 }
 
 .motivational-message {
-    width: 100%; /* Mantém a largura total para responsividade */
+    width: 100%; 
 }
 
 .motivational-text {
@@ -257,14 +257,13 @@ h2 {
 .button:hover {
     background-color: #0056b3;
 }
-/* Estilos para o tema escuro */
 body.dark-mode {
     background-color: #121212;
     color: #f1f1f1;
 }
 
 body.dark-mode .player {
-    background-color: #222; /* Cor de fundo mais escura para o modo escuro */
+    background-color: #222;
 }
 
 body.dark-mode #conexao-img {
@@ -300,5 +299,137 @@ body.dark-mode .button:hover {
 
 body.dark-mode .city {
     color: #3498db;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    h2 {
+        font-size: 1.5em;
+        padding: 5px;
+    }
+
+    .welcome-message {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .welcome-message h2 {
+        font-size: 1.2em;
+    }
+
+    .welcome-message p {
+        font-size: 0.9em;
+    }
+
+    .dashboard {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .news,
+    .weather,
+    .motivational-message {
+        max-width: 100%;
+        margin: 10px 0;
+        padding: 10px;
+    }
+
+    .news .article {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .news .article img {
+        width: 100%;
+        height: auto;
+        margin-bottom: 10px;
+    }
+
+    .news .article .content {
+        text-align: center;
+    }
+
+    .img-conexao {
+        max-width: 100%;
+        margin-right: 0;
+        margin-left: 0;
+    }
+
+    .button,
+    .form-control,
+    .btn {
+        width: 100%;
+        padding: 0.75rem;
+    }
+
+    .weather-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .temperature,
+    .feels-like-temperature {
+        font-size: 1.2em;
+        text-align: left;
+    }
+
+    .city {
+        font-size: 1.5em;
+    }
+
+    #main-nav {
+        display: none !important;
+    }
+
+    .navbar-dark .navbar-nav {
+        text-align: center;
+    }
+
+    .navbar-dark .navbar-nav .nav-link {
+        padding: 8px 16px;
+    }
+
+    .alert {
+        font-size: 0.9rem;
+    }
+
+    .ui-switch-wrapper {
+        margin-top: 10px;
+        margin-right: 25px;
+    }
+    #menu-toggle{
+        color: white;
+        background-color: #0056b3;
+        border: none;
+    }
+}
+
+@media (max-width: 576px) {
+    h1 {
+        font-size: 1.25rem;
+    }
+
+    .btn {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .navbar {
+        font-size: 0.9rem;
+    }
+
+    .form-label {
+        font-size: 0.875rem;
+    }
+
+    .form-control {
+        font-size: 0.875rem;
+    }
 }
 

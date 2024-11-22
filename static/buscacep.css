@@ -168,7 +168,7 @@ select:focus {
     display: inline-block;
 }
 
-@media only screen and (max-width: 600px) {
+@media (max-width: 600px) {
     body {
         font-size: 18px;
         line-height: 1.5;
@@ -227,16 +227,16 @@ select:focus {
 
 @media only screen and (max-width: 768px) {
     nav.main-menu {
-        width: 60px; /* Reduzir a largura do menu em telas pequenas */
+        width: 60px;
     }
 
     .container, .result-container {
-        width: calc(100% - 60px); /* Ajusta a largura para considerar o menu */
-        margin-left: 60px; /* Ajusta a margem para evitar sobreposição */
+        width: calc(100% - 60px);
+        margin-left: 60px;
     }
 
     nav.main-menu ul li .nav-text {
-        display: none; /* Oculta o texto do menu para dar mais espaço ao ícone */
+        display: none;
     }
 
     nav.main-menu ul li i {
@@ -246,25 +246,21 @@ select:focus {
 
 @media only screen and (max-width: 480px) {
     nav.main-menu {
-        display: none; /* Oculta o menu completamente em telas muito pequenas */
+        display: none;
     }
 
     .container, .result-container {
-        width: 100%; /* Usa toda a largura disponível */
-        margin: 0 auto; /* Centraliza o container */
+        width: 100%;
+        margin: 0 auto;
     }
 }
 
-.menu-toggle {
-    display: none;
-    font-size: 2em;
-    cursor: pointer;
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    color: #0056b3; /* Ajuste a cor conforme necessário */
-    z-index: 1100; /* Maior que o z-index do menu */
-}
+    #menu-toggle{
+        color: white;
+        background-color: #0056b3;
+        border: none;
+        width: 100%;
+    }
 
 @media (max-width: 768px) {
     .main-menu {
@@ -292,7 +288,7 @@ img {
     height: auto;
     display: block;
 }
-/* Estilos para o Tema Escuro */
+
 body.dark-mode {
     background-color: #121212;
     color: #e0e0e0;
