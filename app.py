@@ -30,6 +30,9 @@ from flask_mail import Mail, Message
 from openpyxl import Workbook
 from sqlalchemy import or_
 import pytz
+import pymysql
+import boto3
+from botocore.exceptions import NoCredentialsError
 
 # CONFUGURAÇÕES FLASK #
 app = Flask(__name__)
@@ -39,6 +42,9 @@ app.config['UPLOAD_FOLDER1'] = 'uploads'
 app.config['ALLOWED_EXTENSIONS'] = {'csv', }
 app.config['STATIC_FOLDER'] = 'static'
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+app.config['AWS_SECRET_ACCESS_KEY'] = os.getenv('AWS_SECRET_ACCESS_KEY')
+app.config['AWS_S3_BUCKET_NAME'] = os.getenv('AWS_S3_BUCKET_NAME')
+app.config['AWS_S3_REGION_NAME'] = os.getenv('AWS_S3_REGION_NAME', 'us-west-2')
 app.config['MAX_CONTENT_LENGTH'] = 48 * 1024 * 1024
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_BINDS'] = {
@@ -1277,27 +1283,22 @@ CABECALHO_PERSONALIZADO = [
 
 
 async def acessar_planilha_forms():
-    """Função assíncrona para acessar a planilha e formatar os dados."""
     try:
-        # Salvar credenciais em um arquivo temporário
         if not CREDENCIAIS_JSON:
             raise Exception("Credenciais do Google não foram configuradas.")
         
-        caminho_temp = "/tmp/credentials.json"  # Caminho temporário no servidor
+        caminho_temp = "/tmp/credentials.json" 
         with open(caminho_temp, "w") as cred_file:
             cred_file.write(CREDENCIAIS_JSON)
 
-        # Autenticação e acesso à planilha
         credenciais = Credentials.from_service_account_file(caminho_temp, scopes=ESCOPOS)
         cliente = gspread.authorize(credenciais)
         planilha = cliente.open_by_key(PLANILHA_ID)
         aba_forms = planilha.worksheet("Respostas ao formulário 1")
 
-        # Obter dados da planilha
         dados_raw = aba_forms.get_all_records(empty2zero=False)
         colunas_planilha = aba_forms.row_values(1)
 
-        # Filtrar e formatar os dados
         dados_filtrados = [registro for registro in dados_raw if any(registro.values())]
         dados_formatados = []
 
@@ -1305,7 +1306,7 @@ async def acessar_planilha_forms():
             novo_registro = {}
             for i, coluna in enumerate(colunas_planilha):
                 if coluna == "8 - Por gentileza nos encaminhe imagens dos produtos. (WHATSAPP)":
-                    continue  # Ignora esta coluna específica
+                    continue 
                 chave = CABECALHO_PERSONALIZADO[i] if i < len(CABECALHO_PERSONALIZADO) else coluna
                 novo_registro[chave] = registro.get(coluna, "")
             dados_formatados.append(novo_registro)
@@ -1486,23 +1487,41 @@ def adicionar_reverso():
         imagem = request.files['imagem'] if 'imagem' in request.files else None
 
         agora = datetime.now(pytz.utc).astimezone(g.timezone)
+        imagem_url = None
 
         if imagem and allowed_file1(imagem.filename):
-            filename = secure_filename(imagem.filename) 
-            save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename) 
-            imagem.save(save_path) 
-            imagem_path = f"images/{filename}" 
-        else:
-            imagem_path = None
+            filename = secure_filename(imagem.filename)
+
+            s3 = boto3.client(
+                's3',
+                aws_access_key_id=app.config['AWS_ACCESS_KEY_ID'],
+                aws_secret_access_key=app.config['AWS_SECRET_ACCESS_KEY'],
+                region_name=app.config['AWS_S3_REGION_NAME']
+            )
+
+            try:
+                s3.upload_fileobj(
+                    imagem,
+                    app.config['AWS_S3_BUCKET_NAME'],
+                    f"uploads/{filename}",
+                    ExtraArgs={'ACL': 'public-read', 'ContentType': imagem.content_type}
+                )
+                imagem_url = f"https://{app.config['AWS_S3_BUCKET_NAME']}.s3.{app.config['AWS_S3_REGION_NAME']}.amazonaws.com/uploads/{filename}"
+            except NoCredentialsError:
+                flash("Erro: Credenciais da AWS inválidas!", "danger")
+                return redirect(url_for('adicionar_reverso'))
+            except Exception as e:
+                flash(f"Erro ao enviar a imagem ao S3: {e}", "danger")
+                return redirect(url_for('adicionar_reverso'))
 
         cliente = Cliente.query.get(cliente_id)
 
         novo_reverso = Reverso(
             remetente=remetente,
-            cliente=cliente, 
+            cliente=cliente,
             cod_rastreio=cod_rastreio,
             descricao=descricao,
-            imagem=imagem_path,
+            imagem=imagem_url,
             criado_em=agora
         )
 
@@ -1511,7 +1530,7 @@ def adicionar_reverso():
 
         try:
             msg = Message(
-                subject="Logistica Reversa Recebida",
+                subject=f"Logistica Reversa Recebida {cod_rastreio}",
                 sender=app.config['MAIL_DEFAULT_SENDER'],
                 recipients=[cliente.email],
                 body=f"""
@@ -1527,13 +1546,8 @@ def adicionar_reverso():
                 """
             )
 
-            if imagem_path:
-                with open(os.path.join(app.config['UPLOAD_FOLDER'], os.path.basename(imagem_path)), 'rb') as img:
-                    msg.attach(
-                        filename=os.path.basename(imagem_path),
-                        content_type='image/jpg',
-                        data=img.read()
-                    )
+            if imagem_url:
+                msg.body += f"\nLink da imagem: {imagem_url}"
 
             mail.send(msg)
             flash("E-mail enviado com sucesso!", "success")
@@ -1588,17 +1602,31 @@ def clientes():
     clientes = Cliente.query.all()
     return render_template('clientes.html', clientes=clientes)
 
-@app.route('/excluir_cliente/<int:id>', methods=['POST'])
+@app.route('/reversos/delete/<int:id>', methods=['GET'])
 @login_required
-def excluir_cliente(id):
-    cliente = Cliente.query.get_or_404(id)
-    
-    Reverso.query.filter_by(cliente_id=id).delete()
-    
-    db.session.delete(cliente)
-    db.session.commit()
-    
-    return redirect(url_for('clientes'))
+def deletar_reverso(id):
+    reverso = Reverso.query.get(id)
+
+    if reverso:
+        if reverso.imagem:
+            try:
+                s3 = boto3.client('s3')
+                bucket_name = 'nome-do-seu-bucket'
+                s3.delete_object(Bucket=bucket_name, Key=reverso.imagem)
+                print(f"Imagem {reverso.imagem} excluída do S3.")
+            except ClientError as e:
+                print(f"Erro ao excluir a imagem do S3: {e}")
+                flash("Erro ao excluir a imagem do S3.", "danger")
+        
+        try:
+            db.session.delete(reverso)
+            db.session.commit()
+            flash("Reverso excluído com sucesso!", "success")
+        except Exception as e:
+            print(f"Erro ao excluir o reverso do banco de dados: {e}")
+            flash("Erro ao excluir o reverso.", "danger")
+
+    return redirect(url_for('reversos'))
 
 @app.route('/editar_cliente/<int:id>', methods=['GET', 'POST'])
 @login_required
