@@ -67,3 +67,5 @@ Flask-Mail==0.10.0
 flask-paginate==2024.4.12
 psycopg2-binary==2.9.10
 PyMySQL==1.1.1
+boto3==1.35.69
+botocore==1.35.69
