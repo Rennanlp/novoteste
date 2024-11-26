@@ -1615,33 +1615,44 @@ def clientes():
 @login_required
 def editar_cliente(id):
     cliente = Cliente.query.get_or_404(id)
+
     if request.method == 'POST':
         cliente.nome = request.form['nome']
         cliente.email = request.form['email']
-        
-        if Cliente.query.filter(Cliente.email == cliente.email, Cliente.id != id).first():
-            return "Este email já está em uso por outro cliente. Tente outro."
-        
-        db.session.commit()
-        return redirect(url_for('clientes'))
+
+        try:
+            if Cliente.query.filter(Cliente.email == cliente.email, Cliente.id != id).first():
+                flash("Este email já está em uso por outro cliente. Tente outro.", "warning")
+                return redirect(url_for('editar_cliente', id=id))
+
+            db.session.commit()
+            flash("Cliente atualizado com sucesso!", "success")
+            return redirect(url_for('clientes'))
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Erro ao editar cliente: {e}", "danger")
     
     return render_template('editar_cliente.html', cliente=cliente)
 
-@app.route('/editar_cliente/<int:id>', methods=['GET', 'POST'])
+@app.route('/excluir_cliente/<int:id>', methods=['POST'])
 @login_required
-def editar_cliente(id):
+def excluir_cliente(id):
     cliente = Cliente.query.get_or_404(id)
-    if request.method == 'POST':
-        cliente.nome = request.form['nome']
-        cliente.email = request.form['email']
-        
-        if Cliente.query.filter(Cliente.email == cliente.email, Cliente.id != id).first():
-            return "Este email já está em uso por outro cliente. Tente outro."
-        
+
+    try:
+        Reverso.query.filter_by(cliente_id=id).delete()
         db.session.commit()
-        return redirect(url_for('clientes'))
-    
-    return render_template('editar_cliente.html', cliente=cliente)
+
+        db.session.delete(cliente)
+        db.session.commit()
+
+        flash("Cliente e reversos excluídos com sucesso!", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Erro ao excluir cliente: {e}", "danger")
+
+    return redirect(url_for('clientes'))
 
 
 if __name__ == '__main__':
