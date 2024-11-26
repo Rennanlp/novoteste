@@ -1569,12 +1569,21 @@ def deletar_reverso(id):
     if reverso:
         if reverso.imagem:
             try:
-                os.remove(os.path.join(app.config['UPLOAD_FOLDER'], reverso.imagem))
-            except FileNotFoundError:
-                pass
-
-        db.session.delete(reverso)
-        db.session.commit()
+                s3 = boto3.client('s3')
+                bucket_name = 'nome-do-seu-bucket'
+                s3.delete_object(Bucket=bucket_name, Key=reverso.imagem)
+                print(f"Imagem {reverso.imagem} excluída do S3.")
+            except ClientError as e:
+                print(f"Erro ao excluir a imagem do S3: {e}")
+                flash("Erro ao excluir a imagem do S3.", "danger")
+        
+        try:
+            db.session.delete(reverso)
+            db.session.commit()
+            flash("Reverso excluído com sucesso!", "success")
+        except Exception as e:
+            print(f"Erro ao excluir o reverso do banco de dados: {e}")
+            flash("Erro ao excluir o reverso.", "danger")
 
     return redirect(url_for('reversos'))
     
@@ -1602,31 +1611,21 @@ def clientes():
     clientes = Cliente.query.all()
     return render_template('clientes.html', clientes=clientes)
 
-@app.route('/reversos/delete/<int:id>', methods=['GET'])
+@app.route('/editar_cliente/<int:id>', methods=['GET', 'POST'])
 @login_required
-def deletar_reverso(id):
-    reverso = Reverso.query.get(id)
-
-    if reverso:
-        if reverso.imagem:
-            try:
-                s3 = boto3.client('s3')
-                bucket_name = 'nome-do-seu-bucket'
-                s3.delete_object(Bucket=bucket_name, Key=reverso.imagem)
-                print(f"Imagem {reverso.imagem} excluída do S3.")
-            except ClientError as e:
-                print(f"Erro ao excluir a imagem do S3: {e}")
-                flash("Erro ao excluir a imagem do S3.", "danger")
+def editar_cliente(id):
+    cliente = Cliente.query.get_or_404(id)
+    if request.method == 'POST':
+        cliente.nome = request.form['nome']
+        cliente.email = request.form['email']
         
-        try:
-            db.session.delete(reverso)
-            db.session.commit()
-            flash("Reverso excluído com sucesso!", "success")
-        except Exception as e:
-            print(f"Erro ao excluir o reverso do banco de dados: {e}")
-            flash("Erro ao excluir o reverso.", "danger")
-
-    return redirect(url_for('reversos'))
+        if Cliente.query.filter(Cliente.email == cliente.email, Cliente.id != id).first():
+            return "Este email já está em uso por outro cliente. Tente outro."
+        
+        db.session.commit()
+        return redirect(url_for('clientes'))
+    
+    return render_template('editar_cliente.html', cliente=cliente)
 
 @app.route('/editar_cliente/<int:id>', methods=['GET', 'POST'])
 @login_required
