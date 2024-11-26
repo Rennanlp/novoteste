@@ -43,6 +43,7 @@ app.config['ALLOWED_EXTENSIONS'] = {'csv', }
 app.config['STATIC_FOLDER'] = 'static'
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['AWS_SECRET_ACCESS_KEY'] = os.getenv('AWS_SECRET_ACCESS_KEY')
+APP.CONFIG['AWS_ACCESS_KEY_ID'] = os.getenv('AWS_ACCESS_KEY_ID')
 app.config['AWS_S3_BUCKET_NAME'] = os.getenv('AWS_S3_BUCKET_NAME')
 app.config['AWS_S3_REGION_NAME'] = os.getenv('AWS_S3_REGION_NAME', 'us-west-2')
 app.config['MAX_CONTENT_LENGTH'] = 48 * 1024 * 1024
