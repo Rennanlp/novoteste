@@ -1505,7 +1505,7 @@ def adicionar_reverso():
                     imagem,
                     app.config['AWS_S3_BUCKET_NAME'],
                     f"uploads/{filename}",
-                    ExtraArgs={'ACL': 'public-read', 'ContentType': imagem.content_type}
+                    ExtraArgs={'ContentType': imagem.content_type}
                 )
                 imagem_url = f"https://{app.config['AWS_S3_BUCKET_NAME']}.s3.{app.config['AWS_S3_REGION_NAME']}.amazonaws.com/uploads/{filename}"
             except NoCredentialsError:
@@ -1526,8 +1526,12 @@ def adicionar_reverso():
             criado_em=agora
         )
 
-        db.session.add(novo_reverso)
-        db.session.commit()
+        try:
+            db.session.add(novo_reverso)
+            db.session.commit()
+        except Exception as e:
+            flash(f"Erro ao salvar os dados do reverso: {e}", "danger")
+            return redirect(url_for('adicionar_reverso'))
 
         try:
             msg = Message(
@@ -1535,15 +1539,11 @@ def adicionar_reverso():
                 sender=app.config['MAIL_DEFAULT_SENDER'],
                 recipients=[cliente.email],
                 body=f"""
-                Olá {cliente.nome},
-
+                Olá {cliente.nome},\n
                 Recebemos uma devolução de Logística Reversa com os seguintes detalhes:
                 - Remetente: {remetente}
                 - Código de Rastreio: {cod_rastreio}
                 - Descrição: {descricao}
-
-                Atenciosamente,
-                Equipe Conexão Premium
                 """
             )
 
@@ -1552,7 +1552,6 @@ def adicionar_reverso():
 
             mail.send(msg)
             flash("E-mail enviado com sucesso!", "success")
-
         except Exception as e:
             print(f"Erro ao enviar e-mail: {e}")
             flash(f"Erro ao enviar o e-mail: {str(e)}", "danger")
