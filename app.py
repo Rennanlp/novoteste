@@ -1500,17 +1500,15 @@ def adicionar_reverso():
                 region_name=app.config['AWS_S3_REGION_NAME']
             )
 
-            try:
+             try:
                 s3.upload_fileobj(
                     imagem,
                     app.config['AWS_S3_BUCKET_NAME'],
                     f"uploads/{filename}",
-                    ExtraArgs={
-                        'ContentType': imagem.content_type,
-                        'ACL': 'public-read'
-                    }
+                    ExtraArgs={'ContentType': imagem.content_type}
                 )
                 imagem_url = f"https://{app.config['AWS_S3_BUCKET_NAME']}.s3.{app.config['AWS_S3_REGION_NAME']}.amazonaws.com/uploads/{filename}"
+                 
             except NoCredentialsError:
                 flash("Erro: Credenciais da AWS inválidas!", "danger")
                 return redirect(url_for('adicionar_reverso'))
