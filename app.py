@@ -1505,7 +1505,10 @@ def adicionar_reverso():
                     imagem,
                     app.config['AWS_S3_BUCKET_NAME'],
                     f"uploads/{filename}",
-                    ExtraArgs={'ContentType': imagem.content_type}
+                    ExtraArgs={
+                        'ContentType': imagem.content_type,
+                        'ACL': 'public-read'
+                    }
                 )
                 imagem_url = f"https://{app.config['AWS_S3_BUCKET_NAME']}.s3.{app.config['AWS_S3_REGION_NAME']}.amazonaws.com/uploads/{filename}"
             except NoCredentialsError:
