@@ -32,7 +32,7 @@ from sqlalchemy import or_
 import pytz
 import pymysql
 import boto3
-from botocore.exceptions import NoCredentialsError
+from botocore.exceptions import NoCredentialsError, ClientError
 
 # CONFUGURAÇÕES FLASK #
 app = Flask(__name__)
@@ -1573,7 +1573,7 @@ def deletar_reverso(id):
         if reverso.imagem:
             try:
                 s3 = boto3.client('s3')
-                bucket_name = 'nome-do-seu-bucket'
+                bucket_name = 'reversoscd-11cb1e80b53bd2a6b33fa34d587970b2'
                 s3.delete_object(Bucket=bucket_name, Key=reverso.imagem)
                 print(f"Imagem {reverso.imagem} excluída do S3.")
             except ClientError as e:
