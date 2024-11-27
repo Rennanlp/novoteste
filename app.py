@@ -1500,7 +1500,7 @@ def adicionar_reverso():
                 region_name=app.config['AWS_S3_REGION_NAME']
             )
 
-             try:
+            try:
                 s3.upload_fileobj(
                     imagem,
                     app.config['AWS_S3_BUCKET_NAME'],
