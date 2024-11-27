@@ -1548,8 +1548,13 @@ def adicionar_reverso():
                 """
             )
 
-            if imagem_url:
-                msg.body += f"\nLink da imagem: {imagem_url}"
+            if imagem:
+                imagem.seek(0)
+                msg.attach(
+                    filename=imagem.filename,
+                    content_type=imagem.content_type,
+                    data=imagem.read()
+                )
 
             mail.send(msg)
             flash("E-mail enviado com sucesso!", "success")
