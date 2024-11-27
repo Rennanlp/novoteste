@@ -1546,7 +1546,11 @@ def adicionar_reverso():
                 Recebemos uma devolução de Logística Reversa com os seguintes detalhes:
                 - Remetente: {remetente}
                 - Código de Rastreio: {cod_rastreio}
+                
                 - Descrição: {descricao}
+
+                Atenciosamente,
+                Equipe Conexão Premium
                 """
             )
 
