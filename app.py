@@ -1489,8 +1489,11 @@ def adicionar_reverso():
 
         agora = datetime.now(pytz.utc).astimezone(g.timezone)
         imagem_url = None
+        imagem_bytes = None
 
         if imagem and allowed_file1(imagem.filename):
+            imagem_bytes = imagem.read()
+
             filename = secure_filename(imagem.filename)
 
             s3 = boto3.client(
@@ -1502,13 +1505,12 @@ def adicionar_reverso():
 
             try:
                 s3.upload_fileobj(
-                    imagem,
+                    BytesIO(imagem_bytes),
                     app.config['AWS_S3_BUCKET_NAME'],
                     f"uploads/{filename}",
                     ExtraArgs={'ContentType': imagem.content_type}
                 )
                 imagem_url = f"https://{app.config['AWS_S3_BUCKET_NAME']}.s3.{app.config['AWS_S3_REGION_NAME']}.amazonaws.com/uploads/{filename}"
-                 
             except NoCredentialsError:
                 flash("Erro: Credenciais da AWS inválidas!", "danger")
                 return redirect(url_for('adicionar_reverso'))
@@ -1548,14 +1550,11 @@ def adicionar_reverso():
                 """
             )
 
-            if imagem:
-                from io import BytesIO
-                imagem_buffer = BytesIO(imagem.read())  # Armazena o conteúdo do arquivo na memória
-                imagem.seek(0)  # Reposiciona o ponteiro do arquivo original
+            if imagem_bytes:
                 msg.attach(
                     filename=imagem.filename,
                     content_type=imagem.content_type,
-                    data=imagem_buffer.getvalue()
+                    data=imagem_bytes
                 )
 
             mail.send(msg)
@@ -1568,6 +1567,7 @@ def adicionar_reverso():
 
     clientes = Cliente.query.all()
     return render_template('adicionar_reverso.html', clientes=clientes)
+
 
 @app.route('/reversos/delete/<int:id>', methods=['GET'])
 @login_required
