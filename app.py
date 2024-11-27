@@ -1549,11 +1549,13 @@ def adicionar_reverso():
             )
 
             if imagem:
-                imagem.seek(0)
+                from io import BytesIO
+                imagem_buffer = BytesIO(imagem.read())  # Armazena o conteúdo do arquivo na memória
+                imagem.seek(0)  # Reposiciona o ponteiro do arquivo original
                 msg.attach(
                     filename=imagem.filename,
                     content_type=imagem.content_type,
-                    data=imagem.read()
+                    data=imagem_buffer.getvalue()
                 )
 
             mail.send(msg)
