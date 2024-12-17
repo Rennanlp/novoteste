@@ -15,10 +15,7 @@
             <p class="mb-1">{{ reverso.descricao }}</p>
             
             {% if reverso.imagem %}
-                <img src="{{ url_for('static', filename=reverso.imagem) }}" 
-                     alt="Imagem do Reverso" 
-                     class="img-thumbnail mt-2" 
-                     style="max-width: 150px;">
+            <img src="{{ reverso.imagem }}" alt="Imagem do Reverso" class="img-thumbnail" style="max-width: 150px;">
             {% endif %}
             
             <button class="btn btn-danger btn-sm mt-2" 
