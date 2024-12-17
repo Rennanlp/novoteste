@@ -26,7 +26,11 @@
 
     <div class="container my-4">
         <h1 class="mb-4">Lista de Reversos</h1>
-        <a href="/reversos/adicionar" class="btn btn-secondary mt-3">Adicionar Reverso</a>
+
+        <div class="d-flex justify-content-start mb-3">
+            <a href="/reversos/adicionar" class="btn btn-secondary me-2">Adicionar Reverso</a>
+            <a href="/reversos/exportar?q={{ query }}&start_date={{ start_date }}&end_date={{ end_date }}" class="btn btn-success">Exportar Relatório</a>
+        </div>
 
         <form method="get" action="/reversos" class="d-flex mb-3">
             <input type="text" name="q" id="search-input" class="form-control me-2" placeholder="Buscar..." value="{{ query }}">
@@ -35,24 +39,22 @@
             <button type="submit" class="btn btn-primary">Filtrar</button>
         </form>
 
-        <a href="/reversos/exportar?q={{ query }}&start_date={{ start_date }}&end_date={{ end_date }}" class="btn btn-success mt-3">Exportar Relatório</a>
-
         <div id="results" class="list-group mt-3">
             {% for reverso in reversos %}
-                <a href="#" class="list-group-item list-group-item-action">
+                <div class="list-group-item">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">{{ reverso.cliente }}</h5>
                         <h5 class="mb-1">{{ reverso.codigo }}</h5>
                         <small>{{ reverso.remetente }} - Incluído em: {{ reverso.data.strftime('%d/%m/%Y') }}</small>
                     </div>
                     <p class="mb-1">{{ reverso.descricao }}</p>
-                    
+
                     {% if reverso.imagem %}
-                        <img src="{{ reverso.imagem }}" alt="Imagem do Reverso" class="img-thumbnail" style="max-width: 150px;">
+                        <img src="{{ reverso.imagem }}" alt="Imagem do Reverso" class="img-thumbnail" style="max-width: 150px;" onerror="this.style.display='none'">
                     {% endif %}
-                    
-                    <a href="#" class="btn btn-danger btn-sm mt-2" onclick="confirmDelete({{ reverso.id }})">Deletar</a>
-                </a>
+
+                    <button class="btn btn-danger btn-sm mt-2" onclick="confirmDelete({{ reverso.id }})" aria-label="Deletar reverso">Deletar</button>
+                </div>
             {% endfor %}
         </div>
 
@@ -80,12 +82,25 @@
             fetch(`/reversos?q=${encodeURIComponent(query)}&start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             })
-            .then(response => response.text())
+            .then(response => response.json())
             .then(data => {
-                resultsContainer.innerHTML = data;
+                resultsContainer.innerHTML = data.html;
+                paginationContainer.innerHTML = createPagination(data.pagination);
+                attachPaginationLinks();
             })
             .catch(error => console.error('Erro ao buscar:', error));
         });
+
+        function createPagination(pagination) {
+            let html = '';
+            if (pagination.has_prev) {
+                html += `<a href="?page=${pagination.prev_page}" class="btn btn-outline-secondary">Anterior</a>`;
+            }
+            if (pagination.has_next) {
+                html += `<a href="?page=${pagination.next_page}" class="btn btn-outline-secondary">Próximo</a>`;
+            }
+            return html;
+        }
 
         document.addEventListener('DOMContentLoaded', function () {
             function loadPage(url) {
