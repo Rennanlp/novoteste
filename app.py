@@ -1377,7 +1377,8 @@ def reversos():
         filters.append(
             or_(
                 Cliente.nome.ilike(f'%{query}%'),
-                Reverso.remetente.ilike(f'%{query}%')
+                Reverso.remetente.ilike(f'%{query}%'),
+                Reverso.cod_rastreio.like(f'%{query}%')
             )
         )
 
@@ -1402,7 +1403,7 @@ def reversos():
     pagination = Pagination(page=page, total=reversos.total, per_page=per_page, record_name='reversos')
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render_template('partials/reversos_list.html', reversos=reversos.items)
+        return render_template('partials/reversos_list.html', reversos=reversos.items, pagination=pagination)
 
     return render_template('listar_reversos.html', 
                            reversos=reversos.items, 

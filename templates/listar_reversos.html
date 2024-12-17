@@ -55,7 +55,13 @@
         </div>
 
         <div class="mt-3">
-            {{ pagination.links }}
+            <ul class="pagination" id="pagination-links">
+                {% for link in pagination.links %}
+                    <li class="page-item {% if link.active %}active{% endif %}">
+                        <a class="page-link" href="#" data-page="{{ link.page }}">{{ link.label }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
         </div>
     </div>
 
@@ -81,31 +87,54 @@
             })
             .then(response => response.text())
             .then(data => {
-
                 resultsContainer.innerHTML = data;
             })
             .catch(error => console.error('Erro ao buscar:', error));
         });
-    </script>
-    <script>
+
+        document.getElementById('pagination-links').addEventListener('click', function (e) {
+            e.preventDefault();
+
+            if (e.target && e.target.classList.contains('page-link')) {
+                const page = e.target.getAttribute('data-page');
+                const query = document.getElementById('search-input').value;
+                const startDate = document.querySelector('[name="start_date"]').value;
+                const endDate = document.querySelector('[name="end_date"]').value;
+
+                fetch(`/reversos?q=${encodeURIComponent(query)}&start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}&page=${page}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(data => {
+
+                    document.getElementById('results').innerHTML = data.match(/<div id="results" class="list-group mt-3">([\s\S]*?)<\/div>/)[0];
+
+                    const paginationLinks = document.getElementById('pagination-links');
+                    paginationLinks.innerHTML = data.match(/<ul class="pagination">([\s\S]*?)<\/ul>/)[0];
+                })
+                .catch(error => console.error('Erro ao carregar a página:', error));
+            }
+        });
+
         const themeToggle = document.getElementById('dark-mode-toggle');
         const body = document.body;
-      
+
         if (localStorage.getItem('dark-mode') === 'enabled') {
-          body.classList.add('dark-mode');
-          themeToggle.checked = true;
-        }
-      
-        themeToggle.addEventListener('change', () => {
-          if (themeToggle.checked) {
             body.classList.add('dark-mode');
-            localStorage.setItem('dark-mode', 'enabled');
-          } else {
-            body.classList.remove('dark-mode');
-            localStorage.setItem('dark-mode', 'disabled');
-          }
+            themeToggle.checked = true;
+        }
+
+        themeToggle.addEventListener('change', () => {
+            if (themeToggle.checked) {
+                body.classList.add('dark-mode');
+                localStorage.setItem('dark-mode', 'enabled');
+            } else {
+                body.classList.remove('dark-mode');
+                localStorage.setItem('dark-mode', 'disabled');
+            }
         });
-      </script>
-      
+    </script>
 </body>
 </html>
