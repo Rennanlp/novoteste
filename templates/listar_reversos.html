@@ -87,7 +87,12 @@
             })
             .then(response => response.text())
             .then(data => {
-                resultsContainer.innerHTML = data;
+
+                resultsContainer.innerHTML = data.match(/<div id="results" class="list-group mt-3">([\s\S]*?)<\/div>/)[0];
+
+                // Atualiza os links da paginação
+                const paginationLinks = document.getElementById('pagination-links');
+                paginationLinks.innerHTML = data.match(/<ul class="pagination">([\s\S]*?)<\/ul>/)[0];
             })
             .catch(error => console.error('Erro ao buscar:', error));
         });
@@ -108,9 +113,10 @@
                 })
                 .then(response => response.text())
                 .then(data => {
+                    // Atualiza os resultados
+                    resultsContainer.innerHTML = data.match(/<div id="results" class="list-group mt-3">([\s\S]*?)<\/div>/)[0];
 
-                    document.getElementById('results').innerHTML = data.match(/<div id="results" class="list-group mt-3">([\s\S]*?)<\/div>/)[0];
-
+                    // Atualiza os links da paginação
                     const paginationLinks = document.getElementById('pagination-links');
                     paginationLinks.innerHTML = data.match(/<ul class="pagination">([\s\S]*?)<\/ul>/)[0];
                 })
@@ -120,12 +126,12 @@
 
         const themeToggle = document.getElementById('dark-mode-toggle');
         const body = document.body;
-
+      
         if (localStorage.getItem('dark-mode') === 'enabled') {
             body.classList.add('dark-mode');
             themeToggle.checked = true;
         }
-
+      
         themeToggle.addEventListener('change', () => {
             if (themeToggle.checked) {
                 body.classList.add('dark-mode');
