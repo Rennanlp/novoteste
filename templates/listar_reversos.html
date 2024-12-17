@@ -55,13 +55,7 @@
         </div>
 
         <div class="mt-3">
-            <ul class="pagination" id="pagination-links">
-                {% for link in pagination.links %}
-                    <li class="page-item {% if link.active %}active{% endif %}">
-                        <a class="page-link" href="#" data-page="{{ link.page }}">{{ link.label }}</a>
-                    </li>
-                {% endfor %}
-            </ul>
+            {{ pagination.links }}
         </div>
     </div>
 
@@ -90,7 +84,6 @@
 
                 resultsContainer.innerHTML = data.match(/<div id="results" class="list-group mt-3">([\s\S]*?)<\/div>/)[0];
 
-                // Atualiza os links da paginação
                 const paginationLinks = document.getElementById('pagination-links');
                 paginationLinks.innerHTML = data.match(/<ul class="pagination">([\s\S]*?)<\/ul>/)[0];
             })
@@ -113,10 +106,8 @@
                 })
                 .then(response => response.text())
                 .then(data => {
-                    // Atualiza os resultados
                     resultsContainer.innerHTML = data.match(/<div id="results" class="list-group mt-3">([\s\S]*?)<\/div>/)[0];
 
-                    // Atualiza os links da paginação
                     const paginationLinks = document.getElementById('pagination-links');
                     paginationLinks.innerHTML = data.match(/<ul class="pagination">([\s\S]*?)<\/ul>/)[0];
                 })
