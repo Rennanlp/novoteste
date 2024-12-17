@@ -1402,8 +1402,8 @@ def reversos():
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return render_template('partials/reversos_list.html', 
-                            reversos=reversos.items,
-                            pagination=pagination)
+                                reversos=reversos.items, 
+                                pagination=pagination.links)
 
     return render_template('listar_reversos.html', 
                            reversos=reversos.items, 

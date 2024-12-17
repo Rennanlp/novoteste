@@ -12,7 +12,6 @@
     <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
 </head>
 <body>
-    <!-- Dark Mode Toggle -->
     <div class="ui-switch-wrapper">
         <label class="ui-switch">
             <input type="checkbox" id="dark-mode-toggle">
@@ -21,15 +20,12 @@
             </div>
         </label>
     </div>
-
     {% include 'gif.html' %}
     {% include 'menu.html' %}
-
     <div class="container my-4">
         <h1 class="mb-4">Lista de Reversos</h1>
         <a href="/reversos/adicionar" class="btn btn-secondary mt-3">Adicionar Reverso</a>
 
-        <!-- Filtro de Busca -->
         <form method="get" action="/reversos" class="d-flex mb-3">
             <input type="text" name="q" id="search-input" class="form-control me-2" placeholder="Buscar..." value="{{ query }}">
             <input type="date" name="start_date" class="form-control me-2" value="{{ start_date }}">
@@ -39,66 +35,77 @@
 
         <a href="/reversos/exportar?q={{ query }}&start_date={{ start_date }}&end_date={{ end_date }}" class="btn btn-success mt-3">Exportar Relatório</a>
 
-        <!-- Lista de Resultados e Paginação -->
-        <div id="results-container">
-            {% include 'partials/reversos_list.html' %}
+        <div id="results" class="list-group mt-3">
+            {% for reverso in reversos %}
+                <a href="#" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ reverso.cliente }}</h5>
+                        <h5 class="mb-1">{{ reverso.codigo }}</h5>
+                        <small>{{ reverso.remetente }} - Incluído em: {{ reverso.data.strftime('%d/%m/%Y') }}</small>
+                    </div>
+                    <p class="mb-1">{{ reverso.descricao }}</p>
+                    
+                    {% if reverso.imagem %}
+                        <img src="{{ reverso.imagem }}" alt="Imagem do Reverso" class="img-thumbnail" style="max-width: 150px;">
+                    {% endif %}
+                    
+                    <a href="#" class="btn btn-danger btn-sm mt-2" onclick="confirmDelete({{ reverso.id }})">Deletar</a>
+                </a>
+            {% endfor %}
+        </div>
+
+        <div class="mt-3">
+            {{ pagination.links }}
         </div>
     </div>
 
-    <!-- Scripts -->
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const resultsContainer = document.getElementById('results-container');
-
-            // Função para carregar resultados via AJAX
-            function loadResults(url) {
-                fetch(url, {
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                })
-                .then(response => response.text())
-                .then(data => {
-                    // Atualiza o conteúdo da lista e da paginação
-                    resultsContainer.innerHTML = data;
-                    attachPaginationListeners();
-                })
-                .catch(error => console.error('Erro ao buscar:', error));
+        function confirmDelete(id) {
+            if (confirm("Tem certeza de que deseja excluir?")) {
+                window.location.href = "/reversos/delete/" + id;
             }
+        }
 
-            // Anexa eventos aos links de paginação
-            function attachPaginationListeners() {
-                const paginationLinks = resultsContainer.querySelectorAll('a.page-link');
-                paginationLinks.forEach(link => {
-                    link.addEventListener('click', function (event) {
-                        event.preventDefault();
-                        const url = this.href;
-                        loadResults(url);
-                    });
-                });
-            }
+        const searchInput = document.getElementById('search-input');
+        const resultsContainer = document.getElementById('results');
 
-            attachPaginationListeners(); // Inicializa os eventos na primeira carga
+        searchInput.addEventListener('input', function () {
+            const query = searchInput.value;
+            const startDate = document.querySelector('[name="start_date"]').value;
+            const endDate = document.querySelector('[name="end_date"]').value;
+
+            fetch(`/reversos?q=${encodeURIComponent(query)}&start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(data => {
+
+                resultsContainer.innerHTML = data;
+            })
+            .catch(error => console.error('Erro ao buscar:', error));
         });
     </script>
-
-    <!-- Dark Mode -->
     <script>
         const themeToggle = document.getElementById('dark-mode-toggle');
         const body = document.body;
-
+      
         if (localStorage.getItem('dark-mode') === 'enabled') {
-            body.classList.add('dark-mode');
-            themeToggle.checked = true;
+          body.classList.add('dark-mode');
+          themeToggle.checked = true;
         }
-
+      
         themeToggle.addEventListener('change', () => {
-            if (themeToggle.checked) {
-                body.classList.add('dark-mode');
-                localStorage.setItem('dark-mode', 'enabled');
-            } else {
-                body.classList.remove('dark-mode');
-                localStorage.setItem('dark-mode', 'disabled');
-            }
+          if (themeToggle.checked) {
+            body.classList.add('dark-mode');
+            localStorage.setItem('dark-mode', 'enabled');
+          } else {
+            body.classList.remove('dark-mode');
+            localStorage.setItem('dark-mode', 'disabled');
+          }
         });
-    </script>
+      </script>
+      
 </body>
 </html>
