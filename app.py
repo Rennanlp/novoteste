@@ -1362,6 +1362,12 @@ class Cliente(db.Model):
 
 from flask_paginate import Pagination
 
+def parse_date(date_str):
+    try:
+        return datetime.strptime(date_str, '%Y-%m-%d')
+    except (ValueError, TypeError):
+        return None
+
 @app.route('/reversos', methods=['GET'])
 @login_required
 def reversos():
@@ -1372,41 +1378,60 @@ def reversos():
     per_page = 10
 
     filters = []
-
     if query:
         filters.append(
             or_(
                 Cliente.nome.ilike(f'%{query}%'),
-                Reverso.remetente.ilike(f'%{query}%')
+                Reverso.remetente.ilike(f'%{query}%'),
+                Reverso.cod_rastreio.ilike(f'%{query}%')
             )
         )
 
     if start_date:
-        filters.append(Reverso.criado_em >= datetime.strptime(start_date, '%Y-%m-%d'))
+        parsed_start_date = parse_date(start_date)
+        if parsed_start_date:
+            filters.append(Reverso.criado_em >= parsed_start_date)
 
     if end_date:
-        filters.append(Reverso.criado_em <= datetime.strptime(end_date, '%Y-%m-%d'))
+        parsed_end_date = parse_date(end_date)
+        if parsed_end_date:
+            filters.append(Reverso.criado_em <= parsed_end_date)
 
-    reversos_query = Reverso.query.join(Cliente).filter(*filters).add_columns(
-        Reverso.id,
-        Cliente.nome.label('cliente'),
-        Reverso.cod_rastreio.label('codigo'),
-        Cliente.email.label('email'),
-        Reverso.criado_em.label('data'),
-        Reverso.remetente.label('remetente'),
-        Reverso.descricao.label('descricao'),
-        Reverso.imagem.label('imagem')
+    reversos_query = (
+        Reverso.query
+        .join(Cliente)
+        .filter(*filters)
+        .add_columns(
+            Reverso.id,
+            Cliente.nome.label('cliente'),
+            Reverso.cod_rastreio.label('codigo'),
+            Cliente.email.label('email'),
+            Reverso.criado_em.label('data'),
+            Reverso.remetente.label('remetente'),
+            Reverso.descricao.label('descricao'),
+            Reverso.imagem.label('imagem')
+        )
     )
 
-    reversos = reversos_query.paginate(page=page, per_page=per_page, error_out=False)
-    pagination = Pagination(page=page, total=reversos.total, per_page=per_page, record_name='reversos')
+    reversos_paginated = reversos_query.paginate(page=page, per_page=per_page, error_out=False)
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render_template('partials/reversos_list.html', reversos=reversos.items)
+        return jsonify({
+            "html": render_template('partials/reversos_list.html', reversos=reversos_paginated.items),
+            "pagination": {
+                "page": reversos_paginated.page,
+                "total": reversos_paginated.total,
+                "pages": reversos_paginated.pages,
+                "has_next": reversos_paginated.has_next,
+                "has_prev": reversos_paginated.has_prev,
+                "next_page": reversos_paginated.next_num,
+                "prev_page": reversos_paginated.prev_num
+            }
+        })
 
-    return render_template('listar_reversos.html', 
-                           reversos=reversos.items, 
-                           pagination=pagination, 
+    return render_template('listar_reversos.html',
+                           reversos=reversos_paginated.items,
+                           pagination=reversos_paginated,
                            query=query,
                            start_date=start_date,
                            end_date=end_date)
