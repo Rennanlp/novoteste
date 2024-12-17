@@ -20,17 +20,11 @@
             </div>
         </label>
     </div>
-
     {% include 'gif.html' %}
     {% include 'menu.html' %}
-
     <div class="container my-4">
         <h1 class="mb-4">Lista de Reversos</h1>
-
-        <div class="d-flex justify-content-start mb-3">
-            <a href="/reversos/adicionar" class="btn btn-secondary me-2">Adicionar Reverso</a>
-            <a href="/reversos/exportar?q={{ query }}&start_date={{ start_date }}&end_date={{ end_date }}" class="btn btn-success">Exportar Relatório</a>
-        </div>
+        <a href="/reversos/adicionar" class="btn btn-secondary mt-3">Adicionar Reverso</a>
 
         <form method="get" action="/reversos" class="d-flex mb-3">
             <input type="text" name="q" id="search-input" class="form-control me-2" placeholder="Buscar..." value="{{ query }}">
@@ -39,26 +33,28 @@
             <button type="submit" class="btn btn-primary">Filtrar</button>
         </form>
 
+        <a href="/reversos/exportar?q={{ query }}&start_date={{ start_date }}&end_date={{ end_date }}" class="btn btn-success mt-3">Exportar Relatório</a>
+
         <div id="results" class="list-group mt-3">
             {% for reverso in reversos %}
-                <div class="list-group-item">
+                <a href="#" class="list-group-item list-group-item-action">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">{{ reverso.cliente }}</h5>
                         <h5 class="mb-1">{{ reverso.codigo }}</h5>
                         <small>{{ reverso.remetente }} - Incluído em: {{ reverso.data.strftime('%d/%m/%Y') }}</small>
                     </div>
                     <p class="mb-1">{{ reverso.descricao }}</p>
-
+                    
                     {% if reverso.imagem %}
-                        <img src="{{ reverso.imagem }}" alt="Imagem do Reverso" class="img-thumbnail" style="max-width: 150px;" onerror="this.style.display='none'">
+                        <img src="{{ reverso.imagem }}" alt="Imagem do Reverso" class="img-thumbnail" style="max-width: 150px;">
                     {% endif %}
-
-                    <button class="btn btn-danger btn-sm mt-2" onclick="confirmDelete({{ reverso.id }})" aria-label="Deletar reverso">Deletar</button>
-                </div>
+                    
+                    <a href="#" class="btn btn-danger btn-sm mt-2" onclick="confirmDelete({{ reverso.id }})">Deletar</a>
+                </a>
             {% endfor %}
         </div>
 
-        <div id="pagination-container" class="mt-3">
+        <div class="mt-3">
             {{ pagination.links }}
         </div>
     </div>
@@ -72,7 +68,6 @@
 
         const searchInput = document.getElementById('search-input');
         const resultsContainer = document.getElementById('results');
-        const paginationContainer = document.getElementById('pagination-container');
 
         searchInput.addEventListener('input', function () {
             const query = searchInput.value;
@@ -80,74 +75,37 @@
             const endDate = document.querySelector('[name="end_date"]').value;
 
             fetch(`/reversos?q=${encodeURIComponent(query)}&start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
             })
-            .then(response => response.json())
+            .then(response => response.text())
             .then(data => {
-                resultsContainer.innerHTML = data.html;
-                paginationContainer.innerHTML = createPagination(data.pagination);
-                attachPaginationLinks();
+
+                resultsContainer.innerHTML = data;
             })
             .catch(error => console.error('Erro ao buscar:', error));
         });
-
-        function createPagination(pagination) {
-            let html = '';
-
-            if (pagination.has_prev) {
-                html += `<a href="?page=${pagination.prev_page}" class="btn btn-outline-secondary">Anterior</a>`;
-            }
-
-            if (pagination.has_next) {
-                html += `<a href="?page=${pagination.next_page}" class="btn btn-outline-secondary">Próximo</a>`;
-            }
-
-            return html;
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            function loadPage(url) {
-                fetch(url, {
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                })
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById('results').innerHTML = html;
-                    attachPaginationLinks();
-                })
-                .catch(error => console.error('Erro ao carregar a página:', error));
-            }
-
-            function attachPaginationLinks() {
-                document.querySelectorAll('.pagination a').forEach(link => {
-                    link.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        const url = this.href;
-                        loadPage(url);
-                    });
-                });
-            }
-
-            attachPaginationLinks();
-        });
-
+    </script>
+    <script>
         const themeToggle = document.getElementById('dark-mode-toggle');
         const body = document.body;
-
+      
         if (localStorage.getItem('dark-mode') === 'enabled') {
-            body.classList.add('dark-mode');
-            themeToggle.checked = true;
+          body.classList.add('dark-mode');
+          themeToggle.checked = true;
         }
-
+      
         themeToggle.addEventListener('change', () => {
-            if (themeToggle.checked) {
-                body.classList.add('dark-mode');
-                localStorage.setItem('dark-mode', 'enabled');
-            } else {
-                body.classList.remove('dark-mode');
-                localStorage.setItem('dark-mode', 'disabled');
-            }
+          if (themeToggle.checked) {
+            body.classList.add('dark-mode');
+            localStorage.setItem('dark-mode', 'enabled');
+          } else {
+            body.classList.remove('dark-mode');
+            localStorage.setItem('dark-mode', 'disabled');
+          }
         });
-    </script>
+      </script>
+      
 </body>
 </html>
