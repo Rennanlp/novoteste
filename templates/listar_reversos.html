@@ -12,6 +12,7 @@
     <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
 </head>
 <body>
+    <!-- Botão de Modo Escuro -->
     <div class="ui-switch-wrapper">
         <label class="ui-switch">
             <input type="checkbox" id="dark-mode-toggle">
@@ -20,12 +21,17 @@
             </div>
         </label>
     </div>
+
+    <!-- Menu e Loader -->
     {% include 'gif.html' %}
     {% include 'menu.html' %}
+
+    <!-- Container Principal -->
     <div class="container my-4">
         <h1 class="mb-4">Lista de Reversos</h1>
         <a href="/reversos/adicionar" class="btn btn-secondary mt-3">Adicionar Reverso</a>
 
+        <!-- Filtro de Pesquisa -->
         <form method="get" action="/reversos" class="d-flex mb-3">
             <input type="text" name="q" id="search-input" class="form-control me-2" placeholder="Buscar..." value="{{ query }}">
             <input type="date" name="start_date" class="form-control me-2" value="{{ start_date }}">
@@ -35,6 +41,7 @@
 
         <a href="/reversos/exportar?q={{ query }}&start_date={{ start_date }}&end_date={{ end_date }}" class="btn btn-success mt-3">Exportar Relatório</a>
 
+        <!-- Resultados -->
         <div id="results" class="list-group mt-3">
             {% for reverso in reversos %}
                 <a href="#" class="list-group-item list-group-item-action">
@@ -54,20 +61,25 @@
             {% endfor %}
         </div>
 
-        <div class="mt-3">
+        <!-- Paginação Dinâmica -->
+        <div id="pagination-container" class="mt-3">
             {{ pagination.links }}
         </div>
     </div>
 
+    <!-- Scripts -->
     <script>
+        // Função de Confirmação de Exclusão
         function confirmDelete(id) {
             if (confirm("Tem certeza de que deseja excluir?")) {
                 window.location.href = "/reversos/delete/" + id;
             }
         }
 
+        // Função de Busca Dinâmica
         const searchInput = document.getElementById('search-input');
         const resultsContainer = document.getElementById('results');
+        const paginationContainer = document.getElementById('pagination-container');
 
         searchInput.addEventListener('input', function () {
             const query = searchInput.value;
@@ -75,37 +87,60 @@
             const endDate = document.querySelector('[name="end_date"]').value;
 
             fetch(`/reversos?q=${encodeURIComponent(query)}&start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
             })
             .then(response => response.text())
             .then(data => {
-
                 resultsContainer.innerHTML = data;
             })
             .catch(error => console.error('Erro ao buscar:', error));
         });
-    </script>
-    <script>
+
+        // Paginação Dinâmica
+        document.addEventListener('DOMContentLoaded', function () {
+            function loadPage(url) {
+                fetch(url, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('results').innerHTML = html;
+                    attachPaginationLinks();
+                })
+                .catch(error => console.error('Erro ao carregar a página:', error));
+            }
+
+            function attachPaginationLinks() {
+                document.querySelectorAll('.pagination a').forEach(link => {
+                    link.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const url = this.href;
+                        loadPage(url);
+                    });
+                });
+            }
+
+            attachPaginationLinks();
+        });
+
+        // Modo Escuro Persistente
         const themeToggle = document.getElementById('dark-mode-toggle');
         const body = document.body;
-      
+
         if (localStorage.getItem('dark-mode') === 'enabled') {
-          body.classList.add('dark-mode');
-          themeToggle.checked = true;
-        }
-      
-        themeToggle.addEventListener('change', () => {
-          if (themeToggle.checked) {
             body.classList.add('dark-mode');
-            localStorage.setItem('dark-mode', 'enabled');
-          } else {
-            body.classList.remove('dark-mode');
-            localStorage.setItem('dark-mode', 'disabled');
-          }
+            themeToggle.checked = true;
+        }
+
+        themeToggle.addEventListener('change', () => {
+            if (themeToggle.checked) {
+                body.classList.add('dark-mode');
+                localStorage.setItem('dark-mode', 'enabled');
+            } else {
+                body.classList.remove('dark-mode');
+                localStorage.setItem('dark-mode', 'disabled');
+            }
         });
-      </script>
-      
+    </script>
 </body>
 </html>
