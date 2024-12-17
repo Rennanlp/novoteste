@@ -93,12 +93,15 @@
 
         function createPagination(pagination) {
             let html = '';
+
             if (pagination.has_prev) {
                 html += `<a href="?page=${pagination.prev_page}" class="btn btn-outline-secondary">Anterior</a>`;
             }
+
             if (pagination.has_next) {
                 html += `<a href="?page=${pagination.next_page}" class="btn btn-outline-secondary">Próximo</a>`;
             }
+
             return html;
         }
 
