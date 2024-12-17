@@ -32,7 +32,7 @@ from sqlalchemy import or_
 import pytz
 import pymysql
 import boto3
-from botocore.exceptions import NoCredentialsError, ClientError
+from botocore.exceptions import NoCredentialsError
 
 # CONFUGURAÇÕES FLASK #
 app = Flask(__name__)
@@ -1258,15 +1258,13 @@ def dashboard():
 from google.oauth2.service_account import Credentials
 import gspread
 
-# Configurações
 ESCOPOS = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/drive"
 ]
 PLANILHA_ID = "13Ivq0l0ueMB6GjO0xr6umLx7qHMvPJRAomjgxf3CunE"
-CREDENCIAIS_JSON = os.getenv("GOOGLE_CREDENTIALS")  # Variável de ambiente para o JSON compactado
+CREDENCIAIS_JSON = os.getenv("GOOGLE_CREDENTIALS")
 
-# Cabeçalho personalizado
 CABECALHO_PERSONALIZADO = [
     "Data",
     "Nome da Empresa",
@@ -1277,7 +1275,7 @@ CABECALHO_PERSONALIZADO = [
     "Kits",
     "Envie Fotos",
     "Acessos Plat. Vendas",
-    "Acessos Plat. NFs",  # Mantido no cabeçalho
+    "Acessos Plat. NFs", 
     "CNPJ",
     "Fornecedor"
 ]
@@ -1403,7 +1401,9 @@ def reversos():
     pagination = Pagination(page=page, total=reversos.total, per_page=per_page, record_name='reversos')
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render_template('partials/reversos_list.html', reversos=reversos.items, pagination=pagination)
+        return render_template('partials/reversos_list.html', 
+                            reversos=reversos.items,
+                            pagination=pagination)
 
     return render_template('listar_reversos.html', 
                            reversos=reversos.items, 
@@ -1490,11 +1490,8 @@ def adicionar_reverso():
 
         agora = datetime.now(pytz.utc).astimezone(g.timezone)
         imagem_url = None
-        imagem_bytes = None
 
         if imagem and allowed_file1(imagem.filename):
-            imagem_bytes = imagem.read()
-
             filename = secure_filename(imagem.filename)
 
             s3 = boto3.client(
@@ -1506,10 +1503,13 @@ def adicionar_reverso():
 
             try:
                 s3.upload_fileobj(
-                    BytesIO(imagem_bytes),
+                    imagem,
                     app.config['AWS_S3_BUCKET_NAME'],
                     f"uploads/{filename}",
-                    ExtraArgs={'ContentType': imagem.content_type}
+                    ExtraArgs={
+                        'ContentType': imagem.content_type,
+                        'ACL': 'public-read'
+                    }
                 )
                 imagem_url = f"https://{app.config['AWS_S3_BUCKET_NAME']}.s3.{app.config['AWS_S3_REGION_NAME']}.amazonaws.com/uploads/{filename}"
             except NoCredentialsError:
@@ -1547,20 +1547,12 @@ def adicionar_reverso():
                 Recebemos uma devolução de Logística Reversa com os seguintes detalhes:
                 - Remetente: {remetente}
                 - Código de Rastreio: {cod_rastreio}
-                
                 - Descrição: {descricao}
-
-                Atenciosamente,
-                Equipe Conexão Premium
                 """
             )
 
-            if imagem_bytes:
-                msg.attach(
-                    filename=imagem.filename,
-                    content_type=imagem.content_type,
-                    data=imagem_bytes
-                )
+            if imagem_url:
+                msg.body += f"\nLink da imagem: {imagem_url}"
 
             mail.send(msg)
             flash("E-mail enviado com sucesso!", "success")
@@ -1573,7 +1565,6 @@ def adicionar_reverso():
     clientes = Cliente.query.all()
     return render_template('adicionar_reverso.html', clientes=clientes)
 
-
 @app.route('/reversos/delete/<int:id>', methods=['GET'])
 @login_required
 def deletar_reverso(id):
@@ -1583,7 +1574,7 @@ def deletar_reverso(id):
         if reverso.imagem:
             try:
                 s3 = boto3.client('s3')
-                bucket_name = 'reversoscd-11cb1e80b53bd2a6b33fa34d587970b2'
+                bucket_name = 'nome-do-seu-bucket'
                 s3.delete_object(Bucket=bucket_name, Key=reverso.imagem)
                 print(f"Imagem {reverso.imagem} excluída do S3.")
             except ClientError as e:
