@@ -37,9 +37,9 @@
 
         <a href="/reversos/exportar?q={{ query }}&start_date={{ start_date }}&end_date={{ end_date }}" class="btn btn-success mt-3">Exportar Relatório</a>
 
-        <div class="list-group mt-3">
+        <div id="results" class="list-group mt-3">
             {% for reverso in reversos %}
-                <div class="list-group-item">
+                <a href="#" class="list-group-item list-group-item-action">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">{{ reverso.cliente }}</h5>
                         <h5 class="mb-1">{{ reverso.codigo }}</h5>
@@ -51,8 +51,8 @@
                         <img src="{{ reverso.imagem }}" alt="Imagem do Reverso" class="img-thumbnail" style="max-width: 150px;">
                     {% endif %}
                     
-                    <button class="btn btn-danger btn-sm mt-2" onclick="confirmDelete({{ reverso.id }})">Deletar</button>
-                </div>
+                    <a href="#" class="btn btn-danger btn-sm mt-2" onclick="confirmDelete({{ reverso.id }})">Deletar</a>
+                </a>
             {% endfor %}
         </div>
 
