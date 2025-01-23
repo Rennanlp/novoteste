@@ -32,7 +32,8 @@ from sqlalchemy import or_
 import pytz
 import pymysql
 import boto3
-from botocore.exceptions import NoCredentialsError
+from botocore.exceptions import NoCredentialsError, ClientError
+import re
 
 # CONFUGURAÇÕES FLASK #
 app = Flask(__name__)
@@ -1658,6 +1659,108 @@ def excluir_cliente(id):
 
     return redirect(url_for('clientes'))
 
+@app.route('/analise-plataforma')
+@login_required
+def upload_page():
+    return render_template('analise.html')
+
+@app.route('/analise', methods=['POST'])
+def analyze_file():
+    if 'file' not in request.files:
+        return "Nenhum arquivo enviado", 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return "Arquivo inválido", 400
+
+    output = BytesIO()
+    resultados, relatorio_detalhado = analyze_excel(file, output)
+    output.seek(0)
+
+    with open("resultado_analise.xlsx", "wb") as f:
+        f.write(output.read())
+    output.seek(0)
+
+    with pd.ExcelWriter("relatorio_detalhado.xlsx", engine='openpyxl') as writer:
+        relatorio_detalhado.to_excel(writer, index=False)
+
+    return render_template('analise.html', result=resultados)
+
+@app.route('/download-analise', methods=['GET'])
+@login_required
+def download_anl():
+    output = "resultado_analise.xlsx"
+    return send_file(output, as_attachment=True, download_name="resultado_analise.xlsx")
+
+@app.route('/download-relatorio-detalhado', methods=['GET'])
+@login_required
+def download_relatorio_detalhado():
+    output = "relatorio_detalhado.xlsx"
+    return send_file(output, as_attachment=True, download_name="relatorio_detalhado.xlsx")
+
+def analyze_excel(file, output):
+    df = pd.read_excel(file, sheet_name="Envios Conexao")
+
+    if "Identificador do Pedido" not in df.columns:
+        raise ValueError("Coluna 'Identificador do Pedido' não encontrada na planilha.")
+
+    pedidos = df["Identificador do Pedido"].astype(str).fillna("")
+
+    categorias = [
+        "Pedidos Manuais",
+        "CoD",
+        "Monetizze",
+        "Reenvio",
+        "Vazio",
+        "Payt",
+        "Braipp",
+        "Outras Plataformas",
+        "Nota Manual"
+    ]
+
+    contadores = {categoria: 0 for categoria in categorias}
+    relatorio_detalhado = []
+
+    for pedido in pedidos:
+        sub_pedidos = pedido.split("|")
+        for sub_pedido in sub_pedidos:
+            sub_pedido = sub_pedido.strip()
+            categoria = "Outras Plataformas"
+
+            if sub_pedido == "":
+                contadores["Vazio"] += 1
+                categoria = "Vazio"
+            elif sub_pedido.startswith("TmF"):
+                contadores["Pedidos Manuais"] += 1
+                categoria = "Pedidos Manuais"
+            elif sub_pedido.startswith("ONDEM"):
+                contadores["CoD"] += 1
+                categoria = "CoD"
+            elif sub_pedido.isdigit():
+                contadores["Monetizze"] += 1
+                categoria = "Monetizze"
+            elif sub_pedido.startswith("Reenvio"):
+                contadores["Reenvio"] += 1
+                categoria = "Reenvio"
+            elif re.fullmatch(r"[A-Za-z0-9]{6,7}|[A-Za-z]{6,7}", sub_pedido) and not (sub_pedido.startswith("M") and sub_pedido[1:].isdigit()):
+                contadores["Payt"] += 1
+                categoria = "Payt"
+            elif sub_pedido.startswith("ven") and 3 < len(sub_pedido) <= 10:
+                contadores["Braipp"] += 1
+                categoria = "Braipp"
+            elif sub_pedido.startswith("M") and sub_pedido[1:].isdigit():
+                contadores["Nota Manual"] += 1
+                categoria = "Nota Manual"
+
+            relatorio_detalhado.append({"Identificador do Pedido": sub_pedido, "Plataforma": categoria})
+
+    resultados_df = pd.DataFrame(list(contadores.items()), columns=["Categoria", "Quantidade"])
+    relatorio_detalhado_df = pd.DataFrame(relatorio_detalhado)
+
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        resultados_df.to_excel(writer, index=False)
+
+    return contadores, relatorio_detalhado_df
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
