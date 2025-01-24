@@ -33,6 +33,7 @@ import pytz
 import pymysql
 import boto3
 from botocore.exceptions import NoCredentialsError, ClientError
+import re
 
 # CONFUGURAÇÕES FLASK #
 app = Flask(__name__)
