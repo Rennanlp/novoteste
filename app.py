@@ -34,7 +34,6 @@ import pymysql
 import boto3
 from botocore.exceptions import NoCredentialsError, ClientError
 import re
-from dotenv import load_dotenv
 
 # CONFUGURAÇÕES FLASK #
 app = Flask(__name__)
@@ -43,8 +42,6 @@ app.config['UPLOAD_FOLDER'] = 'static/images'
 app.config['UPLOAD_FOLDER1'] = 'uploads'
 app.config['ALLOWED_EXTENSIONS'] = {'csv', }
 app.config['STATIC_FOLDER'] = 'static'
-
-load_dotenv()
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['AWS_SECRET_ACCESS_KEY'] = os.getenv('AWS_SECRET_ACCESS_KEY')
 app.config['AWS_ACCESS_KEY_ID'] = os.getenv('AWS_ACCESS_KEY_ID')
