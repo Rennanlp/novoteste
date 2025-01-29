@@ -26,7 +26,7 @@
         <h1 class="mb-4">Lista de Reversos</h1>
         <a href="/reversos/adicionar" class="btn btn-secondary mt-3">Adicionar Reverso</a>
 
-        <form method="get" action="/reversos" class="d-flex mb-3">
+        <form id="search-form" method="get" action="/reversos" class="d-flex mb-3">
             <input type="text" name="q" id="search-input" class="form-control me-2" placeholder="Buscar..." value="{{ query }}">
             <input type="date" name="start_date" class="form-control me-2" value="{{ start_date }}">
             <input type="date" name="end_date" class="form-control me-2" value="{{ end_date }}">
@@ -44,68 +44,128 @@
                         <small>{{ reverso.remetente }} - Incluído em: {{ reverso.data.strftime('%d/%m/%Y') }}</small>
                     </div>
                     <p class="mb-1">{{ reverso.descricao }}</p>
-                    
                     {% if reverso.imagem %}
                         <img src="{{ reverso.imagem }}" alt="Imagem do Reverso" class="img-thumbnail" style="max-width: 150px;">
                     {% endif %}
-                    
                     <a href="#" class="btn btn-danger btn-sm mt-2" onclick="confirmDelete({{ reverso.id }})">Deletar</a>
                 </a>
             {% endfor %}
         </div>
 
-        <div class="mt-3">
-            {{ pagination.links }}
+        <div id="pagination" class="mt-3">
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    {% if pagination.has_prev %}
+                        <li class="page-item"><a class="page-link" href="#" data-page="{{ pagination.page - 1 }}">Anterior</a></li>
+                    {% endif %}
+                    <li class="page-item disabled"><span class="page-link">Página {{ pagination.page }}</span></li>
+                    {% if pagination.has_next %}
+                        <li class="page-item"><a class="page-link" href="#" data-page="{{ pagination.page + 1 }}">Próxima</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
         </div>
     </div>
 
-    <script>
-        function confirmDelete(id) {
-            if (confirm("Tem certeza de que deseja excluir?")) {
-                window.location.href = "/reversos/delete/" + id;
+<script>
+    function confirmDelete(id) {
+        if (confirm("Tem certeza de que deseja excluir?")) {
+            fetch(`/reversos/delete/${id}`, {
+                method: 'DELETE',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            }).then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      loadPage(1);  // Atualiza a lista após deletar
+                  } else {
+                      alert("Erro ao excluir");
+                  }
+              })
+              .catch(error => console.error("Erro ao excluir:", error));
+        }
+    }
+
+    // Função para buscar os reversos conforme o usuário digita
+    document.getElementById('search-input').addEventListener('input', function() {
+        loadPage(1);  // Carrega a primeira página após cada digitação
+    });
+
+    // Função para carregar os reversos com os filtros aplicados
+    function loadPage(page) {
+        const query = document.getElementById('search-input').value;
+        const startDate = document.querySelector('[name="start_date"]').value;
+        const endDate = document.querySelector('[name="end_date"]').value;
+
+        fetch(`/reversos?page=${page}&q=${encodeURIComponent(query)}&start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`, {
+            headers: { "X-Requested-With": "XMLHttpRequest" }
+        })
+        .then(response => response.json())
+        .then(data => {
+            let resultsContainer = document.getElementById("results");
+            resultsContainer.innerHTML = "";
+
+            data.reversos.forEach(reverso => {
+                resultsContainer.innerHTML += `
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">${reverso.cliente}</h5>
+                            <h5 class="mb-1">${reverso.codigo}</h5>
+                            <small>${reverso.remetente} - Incluído em: ${reverso.data}</small>
+                        </div>
+                        <p class="mb-1">${reverso.descricao}</p>
+                        ${reverso.imagem ? `<img src="${reverso.imagem}" class="img-thumbnail" style="max-width: 150px;">` : ""}
+                        <button class="btn btn-danger btn-sm mt-2" onclick="confirmDelete(${reverso.id})">Deletar</button>
+                    </div>
+                `;
+            });
+
+            let paginationContainer = document.getElementById("pagination");
+            paginationContainer.innerHTML = `
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        ${data.pagination.has_prev ? `<li class="page-item"><a class="page-link" href="#" data-page="${data.pagination.page - 1}">Anterior</a></li>` : ""}
+                        <li class="page-item disabled"><span class="page-link">Página ${data.pagination.page}</span></li>
+                        ${data.pagination.has_next ? `<li class="page-item"><a class="page-link" href="#" data-page="${data.pagination.page + 1}">Próxima</a></li>` : ""}
+                    </ul>
+                </nav>
+            `;
+
+            attachPaginationEvents();
+        })
+        .catch(error => console.error("Erro ao buscar:", error));
+    }
+
+    // Atualizar a navegação de páginas
+    function attachPaginationEvents() {
+        document.querySelectorAll(".page-link").forEach(link => {
+            link.addEventListener("click", function (e) {
+                e.preventDefault();
+                let page = this.getAttribute("data-page");
+                loadPage(page);
+            });
+        });
+    }
+
+    attachPaginationEvents();
+</script>
+        <script>
+            const themeToggle = document.getElementById('dark-mode-toggle');
+            const body = document.body;
+    
+            if (localStorage.getItem('dark-mode') === 'enabled') {
+                body.classList.add('dark-mode');
+                themeToggle.checked = true;
             }
-        }
-
-        const searchInput = document.getElementById('search-input');
-        const resultsContainer = document.getElementById('results');
-
-        searchInput.addEventListener('input', function () {
-            const query = searchInput.value;
-            const startDate = document.querySelector('[name="start_date"]').value;
-            const endDate = document.querySelector('[name="end_date"]').value;
-
-            fetch(`/reversos?q=${encodeURIComponent(query)}&start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
+    
+            themeToggle.addEventListener('change', () => {
+                if (themeToggle.checked) {
+                    body.classList.add('dark-mode');
+                    localStorage.setItem('dark-mode', 'enabled');
+                } else {
+                    body.classList.remove('dark-mode');
+                    localStorage.setItem('dark-mode', 'disabled');
                 }
-            })
-            .then(response => response.text())
-            .then(data => {
-
-                resultsContainer.innerHTML = data;
-            })
-            .catch(error => console.error('Erro ao buscar:', error));
-        });
-    </script>
-    <script>
-        const themeToggle = document.getElementById('dark-mode-toggle');
-        const body = document.body;
-      
-        if (localStorage.getItem('dark-mode') === 'enabled') {
-          body.classList.add('dark-mode');
-          themeToggle.checked = true;
-        }
-      
-        themeToggle.addEventListener('change', () => {
-          if (themeToggle.checked) {
-            body.classList.add('dark-mode');
-            localStorage.setItem('dark-mode', 'enabled');
-          } else {
-            body.classList.remove('dark-mode');
-            localStorage.setItem('dark-mode', 'disabled');
-          }
-        });
-      </script>
-      
+            });
+        </script>
 </body>
 </html>

@@ -34,6 +34,7 @@ import pymysql
 import boto3
 from botocore.exceptions import NoCredentialsError, ClientError
 import re
+from dotenv import load_dotenv
 
 # CONFUGURAÇÕES FLASK #
 app = Flask(__name__)
@@ -42,6 +43,8 @@ app.config['UPLOAD_FOLDER'] = 'static/images'
 app.config['UPLOAD_FOLDER1'] = 'uploads'
 app.config['ALLOWED_EXTENSIONS'] = {'csv', }
 app.config['STATIC_FOLDER'] = 'static'
+
+load_dotenv()
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['AWS_SECRET_ACCESS_KEY'] = os.getenv('AWS_SECRET_ACCESS_KEY')
 app.config['AWS_ACCESS_KEY_ID'] = os.getenv('AWS_ACCESS_KEY_ID')
@@ -1361,33 +1364,38 @@ class Cliente(db.Model):
     def __repr__(self):
         return f'<Cliente {self.nome} - {self.email}>'
 
-from flask_paginate import Pagination
+from flask_paginate import Pagination, get_page_parameter
 
 @app.route('/reversos', methods=['GET'])
 @login_required
 def reversos():
-    query = request.args.get('q', '')
-    start_date = request.args.get('start_date', '')
-    end_date = request.args.get('end_date', '')
-    page = request.args.get('page', 1, type=int)
-    per_page = 10
+    query = request.args.get('q', '')  # Captura o termo de pesquisa
+    start_date = request.args.get('start_date', '')  # Captura a data inicial
+    end_date = request.args.get('end_date', '')  # Captura a data final
+    page = request.args.get(get_page_parameter(), type=int, default=1)  # Pega a página atual
+    per_page = 10  # Número de itens por página
 
-    filters = []
+    filters = []  # Lista para armazenar os filtros aplicados
 
+    # Adiciona o filtro de pesquisa por nome do cliente, remetente ou código de rastreio
     if query:
         filters.append(
             or_(
-                Cliente.nome.ilike(f'%{query}%'),
-                Reverso.remetente.ilike(f'%{query}%')
+                Cliente.nome.ilike(f'%{query}%'),  # Filtra pelo nome do cliente
+                Reverso.remetente.ilike(f'%{query}%'),  # Filtra pelo remetente
+                Reverso.cod_rastreio.ilike(f'%{query}%')  # Filtra pelo código de rastreio
             )
         )
 
+    # Filtro de data de criação inicial
     if start_date:
         filters.append(Reverso.criado_em >= datetime.strptime(start_date, '%Y-%m-%d'))
 
+    # Filtro de data de criação final
     if end_date:
-        filters.append(Reverso.criado_em <= datetime.strptime(end_date, '%Y-%m-%d'))
+        filters.append(Reverso.criado_em <= datetime.strptime(end_date, '%Y-%m-%d') + timedelta(days=1) - timedelta(seconds=1))
 
+    # Consulta os reversos aplicando os filtros
     reversos_query = Reverso.query.join(Cliente).filter(*filters).add_columns(
         Reverso.id,
         Cliente.nome.label('cliente'),
@@ -1399,12 +1407,36 @@ def reversos():
         Reverso.imagem.label('imagem')
     )
 
+    # Paginação dos resultados
     reversos = reversos_query.paginate(page=page, per_page=per_page, error_out=False)
+
+    # Criação da navegação de páginas
     pagination = Pagination(page=page, total=reversos.total, per_page=per_page, record_name='reversos')
 
+    # Retorna a resposta no formato JSON para requisições AJAX
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render_template('partials/reversos_list.html', reversos=reversos.items)
+        return jsonify({
+            'reversos': [{
+                'id': r.id,
+                'cliente': r.cliente,
+                'codigo': r.codigo,
+                'email': r.email,
+                'data': r.data.strftime('%d/%m/%Y'),  # Formato da data
+                'remetente': r.remetente,
+                'descricao': r.descricao,
+                'imagem': r.imagem
+            } for r in reversos.items],
+            'pagination': {
+                'page': page,
+                'total': reversos.total,
+                'per_page': per_page,
+                'total_pages': reversos.pages,
+                'has_next': reversos.has_next,
+                'has_prev': reversos.has_prev
+            }
+        })
 
+    # Caso não seja uma requisição AJAX, renderiza a página normal
     return render_template('listar_reversos.html', 
                            reversos=reversos.items, 
                            pagination=pagination, 
