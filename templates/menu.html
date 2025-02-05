@@ -3,112 +3,58 @@
 </button>
 <nav class="main-menu">
     <ul>
-        <li class="has-subnav">
+        <li>
             <a href="/">
                 <i class="fa fa-solid fa-house fa-2x"></i>
                 <span class="nav-text">Home</span>
             </a>
         </li>
         <li class="has-subnav">
-            <a href="/gerar_pdf">
-                <i class="fa fa-solid fa-file-pdf fa-2x"></i>
-                <span class="nav-text">Gerar Faturas</span>
+            <a href="javascript:void(0);" class="nav-link">
+                <i class="fa fa-solid fa-file-invoice-dollar fa-2x"></i>
+                <span class="nav-text">Ferramentas Financeiro</span>
             </a>
-            <ul class="subnav">
+            <ul class="subnav scrollable">
+                <li>
+                    <a href="/gerar_pdf">
+                        <i class="fa fa-solid fa-file-pdf fa-2x"></i> Gerar Faturas
+                    </a>
+                </li>
                 <li>
                     <a href="/analise-plataforma">
                         <i class="fa fa-solid fa-chart-bar fa-2x"></i> Analisar Envios
                     </a>
                 </li>
             </ul>
-        </li>                           
-        <li>
-            <a href="/removedor">
-                <i class="fa fa-solid fa-file-csv fa-2x"></i>
-                <span class="nav-text">Removedor</span>
-            </a>
         </li>
         <li class="has-subnav">
-            <a href="/task">
-                <i class="fa fa-solid fa-list-check fa-2x"></i>
-                <span class="nav-text">Listas</span>
+            <a href="javascript:void(0);" class="nav-link">
+                <i class="fa fa-solid fa-truck fa-2x"></i>
+                <span class="nav-text">Ferramentas Logística</span>
             </a>
-        </li>
-        <li class="has-subnav">
-            <a href="/buscacep">
-                <i class="fa fa-solid fa-map-location-dot fa-2x"></i>
-                <span class="nav-text">Busca CEP</span>
-            </a>
-        </li>
-        <li>
-            <a href="/rastreamento">
-                <i class="fa fa-solid fa-truck-fast fa-2x"></i>
-                <span class="nav-text">Rastreamento</span>
-            </a>
+            <ul class="subnav scrollable">
+                <li><a href="/removedor"><i class="fa fa-solid fa-file-csv fa-2x"></i> Removedor</a></li>
+                <li><a href="/task"><i class="fa fa-solid fa-list-check fa-2x"></i> Listas</a></li>
+                <li><a href="/buscacep"><i class="fa fa-solid fa-map-location-dot fa-2x"></i> Busca CEP</a></li>
+                <li><a href="/rastreamento"><i class="fa fa-solid fa-truck-fast fa-2x"></i> Rastreamento</a></li>
+                <li><a href="/get_notes"><i class="fa fa-solid fa-table-list fa-2x"></i> Anotações</a></li>
+                <li><a href="/lista_completa"><i class="fa fa-solid fa-magnifying-glass fa-2x"></i> Conferência BOX</a></li>
+                <li><a href="/links_uteis"><i class="fa fa-solid fa-table-columns fa-2x"></i> Keep & Links</a></li>
+                <li><a href="/somar_produtos"><i class="fa fa-solid fa-calculator fa-2x"></i> Calcular Produtos</a></li>
+                <li><a href="/cancelamento_etiquetas"><i class="fa fa-solid fa-ban fa-2x"></i> Cancelar Etiquetas</a></li>
+            </ul>
         </li>
         <li class="has-subnav">
             <a href="javascript:void(0);" class="nav-link">
                 <i class="fa fa-solid fa-warehouse fa-2x"></i>
                 <span class="nav-text">Ferramentas CD</span>
             </a>
-            <ul class="subnav">
-                <li>
-                    <a href="/reversos/adicionar">
-                        <i class="fa fa-solid fa-paperclip fa-2x"></i> Cadastrar Reverso
-                    </a>
-                </li>
-                <li>
-                    <a href="/reversos">
-                        <i class="fa fa-solid fa-right-left fa-2x"></i> Reversos
-                    </a>
-                </li>
-                <li>
-                    <a href="/cadastro_cliente">
-                        <i class="fa fa-solid fa-user-plus fa-2x"></i> Cadastrar Clientes
-                    </a>
-                </li>
-                <li>
-                    <a href="/clientes">
-                        <i class="fa fa-solid fa-users fa-2x"></i> Clientes
-                    </a>
-                </li>
+            <ul class="subnav scrollable">
+                <li><a href="/reversos/adicionar"><i class="fa fa-solid fa-paperclip fa-2x"></i> Cadastrar Reverso</a></li>
+                <li><a href="/reversos"><i class="fa fa-solid fa-right-left fa-2x"></i> Reversos</a></li>
+                <li><a href="/cadastro_cliente"><i class="fa fa-solid fa-user-plus fa-2x"></i> Cadastrar Clientes</a></li>
+                <li><a href="/clientes"><i class="fa fa-solid fa-users fa-2x"></i> Clientes</a></li>
             </ul>
-        </li>
-        <li>
-            <a href="/get_notes">
-                <i class="fa fa-solid fa-table-list fa-2x"></i>
-                <span class="nav-text">Anotações</span>
-            </a>
-        </li>
-        <li>
-            <a href="/lista_completa">
-                <i class="fa fa-solid fa-magnifying-glass fa-2x"></i>
-                <span class="nav-text">Conferência BOX</span>
-            </a>
-        </li>
-        <li class="has-subnav">
-            <a href="/links_uteis">
-                <i class="fa fa-solid fa-table-columns fa-2x"></i>
-                <span class="nav-text">Keep & Links</span>
-            </a>
-            <ul class="subnav">
-                <li>
-                    <a href="/dados-forms">
-                        <i class="fa-solid fa-list-check"></i> Respostas Forms</a>
-                </li>
-            </ul>
-        </li>
-        <li>
-            <a href="/somar_produtos">
-                <i class="fa fa-solid fa-calculator fa-2x"></i>
-                <span class="nav-text">Calcular Produtos</span>
-            </a>
-        </li>
-        <li>
-            <a href="/cancelamento_etiquetas">
-                <i class="fa fa-solid fa-ban fa-2x"></i>
-                <span class="nav-text">Cancelar Etiquetas</span>
-            </a>
         </li>
     </ul>
     <ul class="logout fixed-logout">
@@ -135,5 +81,5 @@
             }
         });
     </script>
-
 </nav>
+

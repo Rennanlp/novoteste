@@ -5,7 +5,6 @@
     box-sizing: border-box;
 }
 
-/* Definição das cores principais e variáveis para reutilização */
 :root {
     --primary-color: #007bff; /* Cor principal (azul) */
     --secondary-color: #28a745; /* Cor para botões e destaque */

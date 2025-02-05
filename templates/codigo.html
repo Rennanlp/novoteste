@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Incluir Transação</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='codigo.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='generic2.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='switch.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
+</head>
+<div class="ui-switch-wrapper">
+    <label class="ui-switch">
+        <input type="checkbox" id="dark-mode-toggle">
+        <div class="slider">
+            <div class="circle"></div>
+        </div>
+    </label>
+</div>
+{% include 'gif.html' %}
+{% include 'menu.html' %}
+<body>
+
+<div class="container">
+    <h2>Enviar Arquivo</h2>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li style="color: red;">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('incluir') }}" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".csv">
+        <br>
+        <input type="submit" value="Enviar e Processar">
+    </form>
+</div>
+<script>
+    const themeToggle = document.getElementById('dark-mode-toggle');
+    const body = document.body;
+
+    if (localStorage.getItem('dark-mode') === 'enabled') {
+        body.classList.add('dark-mode');
+        themeToggle.checked = true;
+    }
+
+    themeToggle.addEventListener('change', () => {
+        if (themeToggle.checked) {
+            body.classList.add('dark-mode');
+            localStorage.setItem('dark-mode', 'enabled');
+        } else {
+            body.classList.remove('dark-mode');
+            localStorage.setItem('dark-mode', 'disabled');
+        }
+    });
+</script>
+</body>
+</html>

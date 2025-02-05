@@ -34,6 +34,8 @@ import pymysql
 import boto3
 from botocore.exceptions import NoCredentialsError, ClientError
 import re
+import logging
+import traceback
 
 # CONFUGURAÇÕES FLASK #
 app = Flask(__name__)
@@ -247,6 +249,24 @@ def obter_token_por_cliente(nome_cliente):
         return resultado[0]
     else:
         return None
+
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    logging.error(traceback.format_exc())
+    
+    mensagem_amigavel = "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde."
+    
+    if isinstance(e, ValueError):
+        mensagem_erro = str(e)
+        if "Excel file format cannot be determined" in mensagem_erro:
+            mensagem_amigavel = "Formato do arquivo incorreto, por favor envie uma planilha em formato .xlsx."
+        elif "Worksheet named 'Envios Conexao' not found" in mensagem_erro:
+            mensagem_amigavel = "Aba principal está com nome diferente de Envios Conexao, por favor, corrija e tente novamente."
+        else:
+            mensagem_amigavel = "Ocorreu um erro nos dados fornecidos. Por favor, verifique os dados e tente novamente."
+    
+    return render_template('500.html', mensagem_amigavel=mensagem_amigavel), 500
 
 @app.route('/removedor')
 @login_required
@@ -1259,15 +1279,13 @@ def dashboard():
 from google.oauth2.service_account import Credentials
 import gspread
 
-# Configurações
 ESCOPOS = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/drive"
 ]
 PLANILHA_ID = "13Ivq0l0ueMB6GjO0xr6umLx7qHMvPJRAomjgxf3CunE"
-CREDENCIAIS_JSON = os.getenv("GOOGLE_CREDENTIALS")  # Variável de ambiente para o JSON compactado
+CREDENCIAIS_JSON = os.getenv("GOOGLE_CREDENTIALS")
 
-# Cabeçalho personalizado
 CABECALHO_PERSONALIZADO = [
     "Data",
     "Nome da Empresa",
@@ -1278,7 +1296,7 @@ CABECALHO_PERSONALIZADO = [
     "Kits",
     "Envie Fotos",
     "Acessos Plat. Vendas",
-    "Acessos Plat. NFs",  # Mantido no cabeçalho
+    "Acessos Plat. NFs", 
     "CNPJ",
     "Fornecedor"
 ]
@@ -1361,38 +1379,34 @@ class Cliente(db.Model):
     def __repr__(self):
         return f'<Cliente {self.nome} - {self.email}>'
 
-from flask_paginate import Pagination, get_page_parameter
+from flask_paginate import Pagination
 
 @app.route('/reversos', methods=['GET'])
 @login_required
 def reversos():
-    query = request.args.get('q', '')  # Captura o termo de pesquisa
-    start_date = request.args.get('start_date', '')  # Captura a data inicial
-    end_date = request.args.get('end_date', '')  # Captura a data final
-    page = request.args.get(get_page_parameter(), type=int, default=1)  # Pega a página atual
-    per_page = 10  # Número de itens por página
+    query = request.args.get('q', '')
+    start_date = request.args.get('start_date', '')
+    end_date = request.args.get('end_date', '')
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
 
-    filters = []  # Lista para armazenar os filtros aplicados
+    filters = []
 
-    # Adiciona o filtro de pesquisa por nome do cliente, remetente ou código de rastreio
     if query:
         filters.append(
             or_(
-                Cliente.nome.ilike(f'%{query}%'),  # Filtra pelo nome do cliente
-                Reverso.remetente.ilike(f'%{query}%'),  # Filtra pelo remetente
-                Reverso.cod_rastreio.ilike(f'%{query}%')  # Filtra pelo código de rastreio
+                Cliente.nome.ilike(f'%{query}%'),
+                Reverso.remetente.ilike(f'%{query}%'),
+                Reverso.cod_rastreio.like(f'%{query}%')
             )
         )
 
-    # Filtro de data de criação inicial
     if start_date:
         filters.append(Reverso.criado_em >= datetime.strptime(start_date, '%Y-%m-%d'))
 
-    # Filtro de data de criação final
     if end_date:
-        filters.append(Reverso.criado_em <= datetime.strptime(end_date, '%Y-%m-%d') + timedelta(days=1) - timedelta(seconds=1))
+        filters.append(Reverso.criado_em <= datetime.strptime(end_date, '%Y-%m-%d'))
 
-    # Consulta os reversos aplicando os filtros
     reversos_query = Reverso.query.join(Cliente).filter(*filters).add_columns(
         Reverso.id,
         Cliente.nome.label('cliente'),
@@ -1404,36 +1418,14 @@ def reversos():
         Reverso.imagem.label('imagem')
     )
 
-    # Paginação dos resultados
     reversos = reversos_query.paginate(page=page, per_page=per_page, error_out=False)
-
-    # Criação da navegação de páginas
     pagination = Pagination(page=page, total=reversos.total, per_page=per_page, record_name='reversos')
 
-    # Retorna a resposta no formato JSON para requisições AJAX
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return jsonify({
-            'reversos': [{
-                'id': r.id,
-                'cliente': r.cliente,
-                'codigo': r.codigo,
-                'email': r.email,
-                'data': r.data.strftime('%d/%m/%Y'),  # Formato da data
-                'remetente': r.remetente,
-                'descricao': r.descricao,
-                'imagem': r.imagem
-            } for r in reversos.items],
-            'pagination': {
-                'page': page,
-                'total': reversos.total,
-                'per_page': per_page,
-                'total_pages': reversos.pages,
-                'has_next': reversos.has_next,
-                'has_prev': reversos.has_prev
-            }
-        })
+        return render_template('partials/reversos_list.html', 
+                                reversos=reversos.items, 
+                                pagination=pagination.links)
 
-    # Caso não seja uma requisição AJAX, renderiza a página normal
     return render_template('listar_reversos.html', 
                            reversos=reversos.items, 
                            pagination=pagination, 
@@ -1519,11 +1511,8 @@ def adicionar_reverso():
 
         agora = datetime.now(pytz.utc).astimezone(g.timezone)
         imagem_url = None
-        imagem_bytes = None
 
         if imagem and allowed_file1(imagem.filename):
-            imagem_bytes = imagem.read()
-
             filename = secure_filename(imagem.filename)
 
             s3 = boto3.client(
@@ -1535,10 +1524,13 @@ def adicionar_reverso():
 
             try:
                 s3.upload_fileobj(
-                    BytesIO(imagem_bytes),
+                    imagem,
                     app.config['AWS_S3_BUCKET_NAME'],
                     f"uploads/{filename}",
-                    ExtraArgs={'ContentType': imagem.content_type}
+                    ExtraArgs={
+                        'ContentType': imagem.content_type,
+                        'ACL': 'public-read'
+                    }
                 )
                 imagem_url = f"https://{app.config['AWS_S3_BUCKET_NAME']}.s3.{app.config['AWS_S3_REGION_NAME']}.amazonaws.com/uploads/{filename}"
             except NoCredentialsError:
@@ -1576,20 +1568,12 @@ def adicionar_reverso():
                 Recebemos uma devolução de Logística Reversa com os seguintes detalhes:
                 - Remetente: {remetente}
                 - Código de Rastreio: {cod_rastreio}
-                
                 - Descrição: {descricao}
-
-                Atenciosamente,
-                Equipe Conexão Premium
                 """
             )
 
-            if imagem_bytes:
-                msg.attach(
-                    filename=imagem.filename,
-                    content_type=imagem.content_type,
-                    data=imagem_bytes
-                )
+            if imagem_url:
+                msg.body += f"\nLink da imagem: {imagem_url}"
 
             mail.send(msg)
             flash("E-mail enviado com sucesso!", "success")
@@ -1602,7 +1586,6 @@ def adicionar_reverso():
     clientes = Cliente.query.all()
     return render_template('adicionar_reverso.html', clientes=clientes)
 
-
 @app.route('/reversos/delete/<int:id>', methods=['GET'])
 @login_required
 def deletar_reverso(id):
@@ -1612,7 +1595,7 @@ def deletar_reverso(id):
         if reverso.imagem:
             try:
                 s3 = boto3.client('s3')
-                bucket_name = 'reversoscd-11cb1e80b53bd2a6b33fa34d587970b2'
+                bucket_name = 'nome-do-seu-bucket'
                 s3.delete_object(Bucket=bucket_name, Key=reverso.imagem)
                 print(f"Imagem {reverso.imagem} excluída do S3.")
             except ClientError as e:
@@ -1789,15 +1772,112 @@ def analyze_excel(file, output):
                 contadores["Nota Manual"] += 1
                 categoria = "Nota Manual"
 
+            if categoria == "Outras Plataformas":
+                contadores["Outras Plataformas"] += 1
+
             relatorio_detalhado.append({"Identificador do Pedido": sub_pedido, "Plataforma": categoria})
 
     resultados_df = pd.DataFrame(list(contadores.items()), columns=["Categoria", "Quantidade"])
     relatorio_detalhado_df = pd.DataFrame(relatorio_detalhado)
 
+    print(resultados_df)
+    print(relatorio_detalhado_df)
+
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
         resultados_df.to_excel(writer, index=False)
 
     return contadores, relatorio_detalhado_df
+
+import random
+import string
+
+def gerar_sequencia(tamanho=6):
+    return f"REN{''.join(random.choices(string.ascii_uppercase + string.digits, k=tamanho))}"
+
+def gerar_sequencia(tamanho=6):
+    caracteres = string.ascii_uppercase + string.digits
+    return f"REN{''.join(random.choices(caracteres, k=tamanho))}"
+
+@app.route('/incluir_transacoes')
+def incluir_transacoes():
+    return render_template('codigo.html')
+
+@app.route('/incluir', methods=['POST'])
+def incluir():
+    if 'file' not in request.files:
+        flash("Nenhum arquivo enviado.")
+        return redirect(url_for('incluir_transacoes'))
+
+    file = request.files['file']
+    if file.filename == '':
+        flash("Nenhum arquivo selecionado.")
+        return redirect(url_for('incluir_transacoes'))
+
+    try:
+        df = pd.read_csv(file, sep=';', engine='python', on_bad_lines='skip')
+        df.columns = df.columns.str.strip()
+    except Exception as e:
+        flash(f"Erro ao ler o CSV: {e}")
+        return redirect(url_for('incluir_transacoes'))
+
+    if 'QUANTIDADE+PRODUTO' not in df.columns:
+        flash("A coluna 'QUANTIDADE+PRODUTO' não foi encontrada.")
+        return redirect(url_for('incluir_transacoes'))
+
+    mascara = df['QUANTIDADE+PRODUTO'].notnull() & (df['QUANTIDADE+PRODUTO'].astype(str).str.strip() != '')
+    df.loc[mascara, 'CONTEUDO'] = df.loc[mascara].apply(lambda _: gerar_sequencia(), axis=1)
+
+    buffer = BytesIO()
+    df.to_csv(buffer, sep=';', index=False)
+    buffer.seek(0)
+
+    return send_file(buffer,
+                     as_attachment=True,
+                     download_name='saida.csv',
+                     mimetype='text/csv')
+    
+def get_tracking_info(cod_rastreio):
+    url = f"https://nqvjhj9wef.execute-api.us-east-1.amazonaws.com/api/ar/{cod_rastreio}"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Vai lançar uma exceção se o código de status não for 2xx
+        return response.json()  # Retorna os dados da API em formato JSON
+    except requests.exceptions.RequestException as e:
+        return {'error': str(e)}
+
+@app.route("/consulta-img", methods=["GET", "POST"])
+@login_required
+def track_package():
+    if request.method == "POST":
+        cod_rastreio = request.form["cod_rastreio"]
+        tracking_info = get_tracking_info(cod_rastreio)
+        
+        nome_unidade, municipio, descricao_evento, imagem_base64, codigo = None, None, None, None, None
+        
+        if isinstance(tracking_info, list) and len(tracking_info) > 0:
+            tracking_info = tracking_info[0]
+            
+            eventos = tracking_info.get("eventos", [])
+            if eventos:
+                evento = eventos[0]
+                imagem_base64 = tracking_info.get("imagemBase64", None)
+                nome_unidade = evento.get("nomeUnidade", "Desconhecido")
+                municipio = evento.get("municipio", "Desconhecido")
+                descricao_evento = evento.get("descricaoEvento", "Sem descrição")
+                codigo = tracking_info.get("codigo", "Código não encontrado")
+            else:
+                nome_unidade, municipio, descricao_evento, imagem_base64 = "Sem eventos", "Sem eventos", "Sem eventos", None
+
+        return render_template(
+            "busca-img.html", 
+            tracking_info=tracking_info,
+            nome_unidade=nome_unidade,
+            municipio=municipio,
+            descricao_evento=descricao_evento,
+            imagem_base64=imagem_base64,
+            codigo=codigo
+        )
+    return render_template("busca-img.html", tracking_info=None)
 
 
 if __name__ == '__main__':

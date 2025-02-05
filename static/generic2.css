@@ -1,11 +1,12 @@
 @import url(//netdna.bootstrapcdn.com/font-awesome/6.0.0/css/font-awesome.css);
 @import url(https://fonts.googleapis.com/css?family=Titillium+Web:300);
 
-
 .fa-2x {
-  font-size: 2em;
-  }
-  .fa {
+  font-size: 2.5em; /* Aumentei o tamanho dos ícones */
+  margin-left: -5px;
+}
+
+.fa {
   position: relative;
   display: table-cell;
   width: 50px;
@@ -13,206 +14,228 @@
   text-align: center;
   margin-top: 5px;
   vertical-align: middle;
-  font-size:20px;
-  }
-  
-  .main-menu:hover,nav.main-menu.expanded {
-  width:190px;
-  overflow:visible;
-  }
-  
-  .main-menu {
-  background:#212121;
-  border-right:1px solid #e5e5e5;
-  position:fixed;
-  top:0;
-  bottom:0;
-  height:100%;
-  left:0;
-  width:50px;
-  overflow:hidden;
-  -webkit-transition:width .05s linear;
-  transition:width .05s linear;
-  -webkit-transform:translateZ(0) scale(1,1);
-  z-index:1000;
-  }
-  
-  .main-menu>ul {
-  margin:7px 0;
-  }
-  
-  .main-menu li {
-  position:relative;
-  display:block;
+  font-size: 26px; /* Aumentei o tamanho dos ícones */
+  margin-left: -5px;
+}
+
+.main-menu:hover, nav.main-menu.expanded {
   width: 190px;
-  }
-  
-  .main-menu li>a {
-  position:relative;
-  display:table;
-  border-collapse:collapse;
-  border-spacing:0;
-  color:#999;
-   font-family: arial;
-  font-size: 12px;
-  text-decoration:none;
-  -webkit-transform:translateZ(0) scale(1,1);
-  -webkit-transition:all .1s linear;
-  transition:all .1s linear;
-    
-  }
-  
+  overflow: visible;
+}
+
+.main-menu {
+  background: #212121;
+  border-right: 1px solid #e5e5e5;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  height: 100%;
+  left: 0;
+  width: 50px;
+  overflow: hidden;
+  -webkit-transition: width .05s linear;
+  transition: width .05s linear;
+  -webkit-transform: translateZ(0) scale(1, 1);
+  z-index: 1000;
+}
+
+.main-menu > ul {
+  margin: 7px 0;
+}
+
+.main-menu li {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+.main-menu li > a {
+  position: relative;
+  display: table;
+  width: 100%;
+  padding: 10px;
+  color: #999;
+  font-family: arial;
+  font-size: 14px; /* Aumentei o tamanho do texto */
+  text-decoration: none;
+}
+
 .main-menu .nav-icon {
   position: relative;
   display: table-cell;
-  width: 50px;
-  height: 30px;
+  width: 60px; /* Aumentei a largura para acomodar ícones maiores */
+  height: 60px; /* Aumentei a altura para ícones maiores */
   text-align: center;
   vertical-align: middle;
-  font-size: 18px;
-  }
-  
-  .main-menu .nav-text {
-  position:relative;
-  display:table-cell;
-  vertical-align:middle;
-  width:190px;
-    font-family: 'Titillium Web', sans-serif;
-  }
-  
-  .main-menu>ul.logout {
-  position:absolute;
-  left:0;
-  bottom:0;
-  }
-  
-  .no-touch .scrollable.hover {
-  overflow-y:hidden;
-  }
-  
-  .no-touch .scrollable.hover:hover {
-  overflow-y:auto;
-  overflow:visible;
-  }
-  
-  a:hover,a:focus {
-  text-decoration:none;
-  }
-  
-  nav {
-  -webkit-user-select:none;
-  -moz-user-select:none;
-  -ms-user-select:none;
-  -o-user-select:none;
-  user-select:none;
-  }
-  
-  nav ul,nav li {
-  outline:0;
-  margin:0;
-  padding:0;
-  }
-  .main-menu li:hover>a,nav.main-menu li.active>a,.dropdown-menu>li>a:hover,.dropdown-menu>li>a:focus,.dropdown-menu>.active>a,.dropdown-menu>.active>a:hover,.dropdown-menu>.active>a:focus,.no-touch .dashboard-page nav.dashboard-menu ul li:hover a,.dashboard-page nav.dashboard-menu ul li.active a {
-  color:#fff;
-  background-color:#000000;
-  width: 190px;
-  
-  }
-  .area {
+  font-size: 28px; /* Aumentei o tamanho do ícone */
+}
+
+.main-menu .nav-text {
+  position: relative;
+  display: table-cell;
+  vertical-align: middle;
+  font-family: 'Titillium Web', sans-serif;
+  padding-left: 22px; /* Aumentei o espaço entre ícone e texto */
+  font-size: 14px; /* Aumentei o tamanho do texto */
+}
+
+.main-menu li:hover > a {
+  background-color: #000;
+  color: #fff;
+}
+
+.main-menu > ul.logout {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+}
+
+.no-touch .scrollable.hover {
+  overflow-y: hidden;
+}
+
+.no-touch .scrollable.hover:hover {
+  overflow-y: auto;
+  overflow: visible;
+}
+
+a:hover, a:focus {
+  text-decoration: none;
+}
+
+nav {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+nav ul, nav li {
+  outline: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.area {
   float: left;
   background: #e2e2e2;
   width: 100%;
   height: 100%;
-  }
-  
-  @font-face {
-    font-family: 'Titillium Web';
-    font-style: normal;
-    font-weight: 300;
-    src: local('Titillium WebLight'), local('TitilliumWeb-Light'), url(http://themes.googleusercontent.com/static/fonts/titilliumweb/v2/anMUvcNT0H1YN4FII8wpr24bNCNEoFTpS2BTjF6FB5E.woff) format('woff');
-  }
-  
-  
-  .fixed-logout {
-      position: fixed;
-      left: 0;
-      bottom: 0;
-      width: 60px;
-    }
-    
-    .fixed-logout li {
-      display: block;
-    }
-    
-    .fixed-logout li>a {
-      display: block;
-      position:relative;
-      display:table;
-      border-collapse:collapse;
-      border-spacing:0;
-      color:#999;
-       font-family: arial;
-      font-size: 14px;
-      text-decoration:none;
-      -webkit-transform:translateZ(0) scale(1,1);
-      -webkit-transition:all .1s linear;
-      transition:all .1s linear;
-    }
+}
 
-    .main-menu .subnav {
-      position: absolute;
-      left: 135px; 
-      top: 0;
-      background: #333; 
-      padding: 0;
-      margin: 0;
-      display: none;
-      list-style: none;
-      width: 140px; 
-      border: 1px solid #444; 
-      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); 
-  }
-  
-  .main-menu .subnav li {
-      width: 100%; 
-  }
-  
-  .main-menu .subnav a {
-      display: block;
-      padding: 10px 15px; 
-      color: #bbb; 
-      font-size: 12px;
-      text-decoration: none;
-      font-family: 'Titillium Web', sans-serif;
-      transition: background 0.3s, color 0.3s;
-  }
-  
-  .main-menu .subnav a:hover {
-      background: #444; 
-      color: #fff; 
-  }
-  
-  .main-menu li.has-subnav:hover .subnav {
-      display: block; 
-  }
-  
-  @media (max-width: 768px) {
-    .main-menu {
-        display: none !important;
-    }
+@font-face {
+  font-family: 'Titillium Web';
+  font-style: normal;
+  font-weight: 300;
+  src: local('Titillium WebLight'), local('TitilliumWeb-Light'), url(http://themes.googleusercontent.com/static/fonts/titilliumweb/v2/anMUvcNT0H1YN4FII8wpr24bNCNEoFTpS2BTjF6FB5E.woff) format('woff');
+}
 
-    .main-menu.active {
-        display: block !important;
-        width: 190px; 
-    }
+.fixed-logout {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: auto; /* Ajusta a largura para caber o conteúdo */
+  padding: 10px;
+}
 
-    #menu-toggle {
-        display: block !important;
-    }
+.fixed-logout li {
+  display: block;
+}
+
+.fixed-logout li > a {
+  display: block;
+  position: relative;
+  display: table;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: #999;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  text-decoration: none;
+  white-space: nowrap; /* Impede a quebra do texto */
+  padding: 10px 15px; /* Ajuste o padding conforme necessário */
+  -webkit-transform: translateZ(0) scale(1, 1);
+  -webkit-transition: all .1s linear;
+  transition: all .1s linear;
+}
+
+
+.main-menu .subnav {
+  position: absolute;
+  left: 195px;
+  top: 0;
+  background: #333;
+  padding: 0;
+  margin: 0;
+  display: none;
+  list-style: none;
+  width: 140px;
+  border: 1px solid #444;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.main-menu .subnav li {
+  width: 100%;
+  margin-left: -20px;
+}
+
+.main-menu .subnav a {
+  display: block;
+  padding: 10px 15px;
+  color: #bbb;
+  font-size: 12px;
+  text-decoration: none;
+  font-family: 'Titillium Web', sans-serif;
+  transition: background 0.3s, color 0.3s;
+}
+
+.main-menu .subnav a:hover {
+  background: #444;
+  color: #fff;
+}
+
+.main-menu li.has-subnav:hover .subnav {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .main-menu {
+    display: none !important;
+  }
+
+  .main-menu.active {
+    display: block !important;
+    width: 190px;
+  }
+
+  #menu-toggle {
+    display: block !important;
+  }
 }
 
 @media (min-width: 768px) {
-    #menu-toggle {
-        display: none !important;
-    }
+  #menu-toggle {
+    display: none !important;
+  }
+}
+
+/* Scrollable with hover expansion adjustments */
+.scrollable {
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: visible; /* Permite expansão sem rolagem horizontal */
+  width: auto; /* Garante que o conteúdo se ajuste à largura do item */
+  white-space: nowrap; /* Impede quebra de linha */
+}
+
+.scrollable .item {
+  display: inline-block; /* Faz os itens ficarem na mesma linha */
+  transition: all 0.3s ease;
+  margin-right: 6px; /* Espaçamento entre os itens */
+}
+
+.scrollable .item:hover {
+  transform: scaleX(1.8) !important; /* Expande o item horizontalmente */
+  z-index: 1; /* Garante que o item expanda sobre os outros */
 }

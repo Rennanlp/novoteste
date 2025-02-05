@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,14 +42,24 @@
     const body = document.body;
     const conexaoImg = document.getElementById('conexao-img');
 
+    // Verifica a preferência armazenada
+    if (localStorage.getItem('darkMode') === 'enabled') {
+        body.classList.add('dark-mode');
+        darkModeToggle.checked = true;
+        conexaoImg.src = "{{ url_for('static', filename='conexao2.png') }}";
+    } else {
+        conexaoImg.src = "{{ url_for('static', filename='conexao1.png') }}";
+    }
+
     // Evento para alternar o modo escuro
     darkModeToggle.addEventListener('change', () => {
         body.classList.toggle('dark-mode');
 
-        // Altera a imagem conforme o modo
         if (body.classList.contains('dark-mode')) {
+            localStorage.setItem('darkMode', 'enabled');
             conexaoImg.src = "{{ url_for('static', filename='conexao2.png') }}";
         } else {
+            localStorage.setItem('darkMode', 'disabled');
             conexaoImg.src = "{{ url_for('static', filename='conexao1.png') }}";
         }
     });

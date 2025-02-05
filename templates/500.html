@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Erro</title>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #343a40;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 2em;
+            margin-bottom: 0.5em;
+        }
+        p {
+            font-size: 1.2em;
+        }
+        .error-details {
+            margin-top: 1em;
+            font-style: italic;
+            color: #6c757d;
+        }
+        a {
+            display: inline-block;
+            margin-top: 1em;
+            text-decoration: none;
+            color: #007bff;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ops! Algo deu errado.</h1>
+        <p class="error-details"><strong>Detalhes do erro:</strong> {{ mensagem_amigavel }}</p>
+        <a href="/analise-plataforma">Voltar para a página anterior</a>
+    </div>
+</body>
+</html>
