@@ -1389,7 +1389,7 @@ def reversos():
     if end_date:
         filters.append(Reverso.criado_em <= datetime.strptime(end_date, '%Y-%m-%d'))
 
-    reversos_query = Reverso.query.join(Cliente).filter(*filters).add_columns(
+    reversos_query = Reverso.query.join(Cliente).filter(*filters).order_by(Reverso.criado_em.desc()).add_columns(
         Reverso.id,
         Cliente.nome.label('cliente'),
         Reverso.cod_rastreio.label('codigo'),
