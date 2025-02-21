@@ -1823,7 +1823,7 @@ from flask_socketio import SocketIO, emit, join_room
 import logging
 from sqlalchemy.exc import OperationalError
 
-socketio = SocketIO(app)
+socketio = SocketIO(app, cors_allowed_origins="*", logger=True, engineio_logger=True)
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
@@ -1999,5 +1999,4 @@ def add_task_form():
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    app.run(debug=True)
-    socketio.run(app, debug=True)
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
