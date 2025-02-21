@@ -1,11 +1,8 @@
-// Obter o caminho atual para montar a URL corretamente
-var currentPath = window.location.pathname;
-
 // Definir a URL base do Socket.IO
 var baseSocketUrl = 'https://removedorrp.onrender.com';
 
-// Conectar ao Socket.IO com o caminho da página atual (se necessário)
-var socket = io.connect(baseSocketUrl + currentPath, {
+// Conectar ao Socket.IO diretamente à URL base
+var socket = io.connect(baseSocketUrl, {
     transports: ['websocket', 'polling']
 });
 
@@ -75,7 +72,7 @@ window.onload = function() {
 
 // Verificar se a conexão foi bem-sucedida
 socket.on('connect', function() {
-    console.log('Conectado ao Socket.IO na rota: ' + currentPath);
+    console.log('Conectado ao Socket.IO');
 });
 
 // Caso ocorra um erro na conexão
