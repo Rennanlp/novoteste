@@ -1824,7 +1824,8 @@ import logging
 from sqlalchemy.exc import OperationalError
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-socketio = SocketIO(app, async_mode='eventlet', logger=True, engineio_logger=True)
+socketio = SocketIO(app, async_mode='eventlet', logger=True, engineio_logger=True, transports=['websocket', 'polling'],
+                    ping_timeout=10, ping_interval=25)
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
