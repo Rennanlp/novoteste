@@ -1,5 +1,7 @@
 // Conectar ao Socket.IO quando a página for carregada
-var socket = io.connect('http://' + document.domain + ':' + location.port);
+var socket = io.connect('https://removedorrp.onrender.com', {
+    transports: ['websocket', 'polling']
+});
 
 // Função para criar uma notificação visual
 function showNotification(message) {
