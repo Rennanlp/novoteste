@@ -1,10 +1,9 @@
-/* Estilo padrão (modo claro) */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
     margin: 0;
     padding: 0;
-    color: #333; /* Cor padrão do texto */
+    color: #333;
 }
 
 .button-container {
@@ -13,14 +12,17 @@ body {
     justify-content: center;
     gap: 10px;
 }
+
 .button-container + form {
-    margin-top: 20px; /* Espaço acima do botão "Nova Consulta" */
+    margin-top: 20px;
 }
+
 .btn-download,
 .btn-download1 {
     padding: 10px 20px;
     cursor: pointer;
 }
+
 .container {
     max-width: 800px;
     margin: 50px auto;
@@ -28,7 +30,7 @@ body {
     background-color: #fff;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
-    color: #333; /* Cor padrão do texto no container */
+    color: #333;
 }
 
 h1, h2 {
@@ -104,31 +106,30 @@ th {
     background-color: #0056b3;
 }
 
-/* Estilo dark-mode */
 body.dark-mode {
-    background-color: #121212; /* Fundo escuro */
-    color: #e0e0e0; /* Texto padrão claro */
+    background-color: #121212;
+    color: #e0e0e0;
 }
 
 .container.dark-mode {
-    background-color: #1e1e1e; /* Fundo do container escuro */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.8); /* Sombra mais suave */
-    color: #e0e0e0; /* Texto claro dentro do container */
+    background-color: #1e1e1e;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+    color: #e0e0e0;
 }
 
 body.dark-mode h1, 
 body.dark-mode h2 {
-    color: #1e1e1e; /* Títulos com branco brilhante */
+    color: #1e1e1e;
 }
 
 body.dark-mode label {
-    color: #1e1e1e; /* Labels com tom claro */
+    color: #1e1e1e;
 }
 
 body.dark-mode input[type="file"] {
-    background-color: #2e2e2e; /* Fundo do input no modo escuro */
-    border: 1px solid #555; /* Bordas escuras */
-    color: #e0e0e0; /* Texto claro no input */
+    background-color: #2e2e2e;
+    border: 1px solid #555;
+    color: #e0e0e0;
 }
 
 body.dark-mode button {
@@ -141,17 +142,17 @@ body.dark-mode button:hover {
 }
 
 body.dark-mode table {
-    border-color: #444; /* Bordas escuras da tabela */
+    border-color: #444;
 }
 
 body.dark-mode th {
-    background-color: #333; /* Fundo do cabeçalho da tabela */
-    color: #fff; /* Texto claro no cabeçalho */
+    background-color: #333;
+    color: #fff;
 }
 
 body.dark-mode td {
-    background-color: #1e1e1e; /* Fundo das células */
-    color: #fff; /* Texto claro nas células */
+    background-color: #1e1e1e;
+    color: #fff;
 }
 
 body.dark-mode .btn-download, 

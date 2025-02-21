@@ -1,4 +1,3 @@
-/* Estilos para dispositivos com largura máxima de 600px */
 @media only screen and (max-width: 600px) {
     body {
         font-size: 18px;
@@ -29,8 +28,8 @@
 
     .main-menu ul {
         text-align: center;
-        padding: 0; /* Remove o padding */
-        margin: 0; /* Remove a margem */
+        padding: 0;
+        margin: 0;
     }
 
     .main-menu ul li {
@@ -58,19 +57,18 @@
     }
 }
 
-/* Estilos para dispositivos com largura máxima de 768px */
 @media only screen and (max-width: 768px) {
     nav.main-menu {
-        width: 60px; /* Reduzir a largura do menu em telas pequenas */
+        width: 60px;
     }
 
     .container, .result-container {
-        width: calc(100% - 60px); /* Ajusta a largura para considerar o menu */
-        margin-left: 60px; /* Ajusta a margem para evitar sobreposição */
+        width: calc(100% - 60px);
+        margin-left: 60px;
     }
 
     nav.main-menu ul li .nav-text {
-        display: none; /* Oculta o texto do menu para dar mais espaço ao ícone */
+        display: none;
     }
 
     nav.main-menu ul li i {
@@ -78,19 +76,17 @@
     }
 }
 
-/* Estilos para dispositivos com largura máxima de 480px */
 @media only screen and (max-width: 480px) {
     nav.main-menu {
-        display: none; /* Oculta o menu completamente em telas muito pequenas */
+        display: none;
     }
 
     .container, .result-container {
-        width: 100%; /* Usa toda a largura disponível */
-        margin: 0 auto; /* Centraliza o container */
+        width: 100%;
+        margin: 0 auto;
     }
 }
 
-/* Estilos para o botão de menu em dispositivos móveis */
 .menu-toggle {
     display: none;
     font-size: 2em;
@@ -98,11 +94,10 @@
     position: absolute;
     top: 10px;
     left: 5px;
-    color: #0056b3; /* Ajuste a cor conforme necessário */
-    z-index: 1100; /* Maior que o z-index do menu */
+    color: #0056b3;
+    z-index: 1100;
 }
 
-/* Estilos para o menu lateral em telas pequenas */
 @media (max-width: 768px) {
     .main-menu {
         display: none;
@@ -113,7 +108,7 @@
         height: 100%;
         background-color: #333;
         z-index: 1000;
-        overflow-y: auto; /* Adiciona rolagem se necessário */
+        overflow-y: auto;
     }
 
     .main-menu.active {
@@ -125,7 +120,6 @@
     }
 }
 
-/* Estilo para imagens responsivas */
 img {
     max-width: 100%;
     height: auto;

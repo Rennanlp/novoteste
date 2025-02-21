@@ -1,7 +1,5 @@
-/* Importação de fontes */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap');
 
-/* Resetando o box-model */
 * {
     margin: 0;
     padding: 0;
@@ -16,7 +14,6 @@ body {
     text-align: center;
 }
 
-/* Container principal */
 .container {
     max-width: 900px;
     margin: 40px auto;
@@ -28,7 +25,6 @@ body {
     background: #fff;
 }
 
-/* Título */
 h1 {
     font-size: 2rem;
     color: #333;
@@ -36,14 +32,12 @@ h1 {
     font-weight: 500;
 }
 
-/* Estilo do campo de rastreamento */
 #rastreioo {
     color: #555;
     margin-bottom: 15px;
     font-size: 1.1rem;
 }
 
-/* Estilo dos resultados */
 #result {
     color: #333;
     font-size: 1.2rem;
@@ -58,12 +52,12 @@ input {
   padding: 12px;
   border: 1px solid #ddd;
   transition: all 0.3s ease;
-  width: 60%;  /* Definindo a largura do input */
-  margin-bottom: 20px;  /* Espaçamento entre o input e o botão */
+  width: 60%;
+  margin-bottom: 20px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  display: block;  /* Garante que o input será um bloco */
+  display: block;
   margin-left: auto;
-  margin-right: auto;  /* Centraliza o input */
+  margin-right: auto;
 }
 
 .btn-canc {
@@ -76,20 +70,20 @@ input {
   color: #fff;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.3s ease;
-  width: 20%;  /* Definindo a largura do botão */
+  width: 20%;
   margin-left: auto;
-  margin-right: auto;  /* Centraliza o botão */
+  margin-right: auto;
 }
 
 input, .btn-canc {
-  margin-bottom: 20px;  /* Adicionando espaçamento entre os elementos */
+  margin-bottom: 20px;
 }
 
 .btn-canc:hover {
   background-color: #330edb;
   transform: translateY(-2px);
 }
-/* Estilo para o label */
+
 label {
     display: block;
     margin-bottom: 8px;
@@ -97,7 +91,6 @@ label {
     font-size: 1rem;
 }
 
-/* Layout da busca */
 .search {
     display: flex;
     justify-content: center;
@@ -129,7 +122,6 @@ label {
     transform: scale(1.05);
 }
 
-/* Imagem de Conexão */
 .img-conexao {
     width: 100%;
     max-width: 500px;
@@ -138,12 +130,10 @@ label {
     display: block;
 }
 
-/* Adicionando animação nos botões */
 button, .search button[type="submit"] {
     animation: pulse 1.5s infinite;
 }
 
-/* Animação para os botões */
 @keyframes pulse {
     0% {
         transform: scale(1);
@@ -156,7 +146,6 @@ button, .search button[type="submit"] {
     }
 }
 
-/* Responsividade */
 @media (max-width: 768px) {
     .container {
         padding: 20px;
@@ -177,7 +166,6 @@ button, .search button[type="submit"] {
     }
 }
 
-/* Estilos adicionais para a barra de progresso */
 .pl {
     width: 6em;
     height: 6em;
@@ -206,7 +194,6 @@ button, .search button[type="submit"] {
     stroke: #388e3c;
 }
 
-/* Animações para o carregamento */
 @keyframes ringA {
     from, 4% {
         stroke-dasharray: 0 660;
@@ -367,11 +354,10 @@ button, .search button[type="submit"] {
     to {
         stroke-dasharray: 0 340;
         stroke-width: 20;
-        stroke-dashoffset: -410;
+        stroke-doffset: -410;
     }
 }
 
-/* Estilos para o modo escuro */
 body.dark-mode {
   background-color: #1e1e1e;
   color: #ddd;

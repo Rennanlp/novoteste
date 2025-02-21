@@ -1,4 +1,3 @@
-/* arch_task.css */
 body {
     font-family: 'Arial', sans-serif;
     background-color: #f4f4f4;
@@ -84,37 +83,32 @@ button:hover {
     text-decoration: underline;
 }
 
-/* Modo Escuro */
 .dark-mode {
     --bg-color: #181818;
     --text-color: #f4f4f4;
-    --card-bg: #ffffff; /* Mantém o card branco */
-    --label-color: #ffffff; /* Mantém o label branco */
+    --card-bg: #ffffff;
+    --label-color: #ffffff;
     --btn-bg: #ff5e5e;
     --btn-hover-bg: #e63946;
     --link-color: #71c9ce;
 }
 
-/* Aplicação das variáveis */
 body.dark-mode {
     background-color: var(--bg-color);
     color: var(--text-color);
 }
 
-/* Mantendo o card branco */
 .dark-mode .container,
 .dark-mode .task-card {
     background: var(--card-bg);
-    color: #000; /* Texto preto para melhor contraste */
+    color: #000;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Mantendo o label branco */
 .dark-mode label {
     color: var(--label-color);
 }
 
-/* Ajustando botões e links */
 .dark-mode button {
     background: var(--btn-bg);
     color: white;
@@ -131,4 +125,3 @@ body.dark-mode {
 .dark-mode .back-link:hover {
     text-decoration: underline;
 }
-
