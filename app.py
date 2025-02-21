@@ -85,63 +85,20 @@ dashboard_data = {}
 
 # banco de usuários
 user_database = {
-    'conexao.premium': {
-        'password': 'senha123',
-        'name': 'Conexão Premium'
-    },
-    'Renan10': {
-        'password': '162593',
-        'name': 'Renan'
-    },
-    'Thais10': {
-        'password': 'arthur08',
-        'name': 'Gerente'
-    },
-    'Diogo10': {
-        'password': '15222431',
-        'name': 'Duzac07'
-    },
-    'Keyse10': {
-        'password': 'keyse321',
-        'name': 'Keyse'
-    },
-    'Nicoli10': {
-        'password': 'ririserelepe',
-        'name': 'Nic'
-    },
-    'Ingrid10': {
-        'password': '135781',
-        'name': 'Ingrid'
-    },
-    'Eduarda': {
-        'password': 'eduarda10',
-        'name': 'Duda'
-    },
-    'Felipe': {
-    'password': 'felipe@10',
-    'name': 'Felipe'
-    },
-    'Gabriela': {
-    'password': 'gabriela@10',
-    'name': 'Gabriela'
-    },
-    'Kymberli': {
-    'password': 'kym@10',
-    'name': 'Kym'
-    },
-    'Ana Paula': {
-    'password': 'ana@10',
-    'name': 'Ana'
-    },
-    'Juliana': {
-    'password': 'juliana@10',
-    'name': 'Juliana'
-    },
-    'ConexaoCD': {
-    'password': 'conexaocd@10',
-    'name': 'Conexão CD'
-    }
-    
+    'conexao.premium': {'password': 'senha123', 'name': 'Conexão Premium', 'email': 'conexao.premium@example.com'},
+    'Renan10': {'password': '162593', 'name': 'Renan', 'email': 'rennanlpbass@gmail.com'},
+    'Thais10': {'password': 'arthur08', 'name': 'Thais', 'email': 'thais10@example.com'},
+    'Diogo10': {'password': '15222431', 'name': 'Diogo', 'email': 'diogo10@example.com'},
+    'Keyse10': {'password': 'keyse321', 'name': 'Keyse', 'email': 'keyse10@example.com'},
+    'Nicoli10': {'password': 'ririserelepe', 'name': 'Nic', 'email': 'nicoli10@example.com'},
+    'Ingrid10': {'password': '135781', 'name': 'Ingrid', 'email': 'ingrid10@example.com'},
+    'Eduarda': {'password': 'eduarda10', 'name': 'Duda', 'email': 'eduarda@example.com'},
+    'Felipe': {'password': 'felipe@10', 'name': 'Felipe', 'email': 'felipe@example.com'},
+    'Gabriela': {'password': 'gabriela@10', 'name': 'Gabriela', 'email': 'gabriela@example.com'},
+    'Kymberli': {'password': 'kym@10', 'name': 'Kym', 'email': 'kymberli@example.com'},
+    'Ana Paula': {'password': 'ana@10', 'name': 'Ana', 'email': 'ana.paula@example.com'},
+    'Juliana': {'password': 'juliana@10', 'name': 'Juliana', 'email': 'juliana@example.com'},
+    'ConexaoCD': {'password': 'conexaocd@10', 'name': 'Conexão CD', 'email': 'conexaocd@example.com'}
 }
 
 class Note(db.Model):
