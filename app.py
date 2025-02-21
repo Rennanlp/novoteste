@@ -1823,8 +1823,8 @@ def get_tracking_info(cod_rastreio):
     url = f"https://nqvjhj9wef.execute-api.us-east-1.amazonaws.com/api/ar/{cod_rastreio}"
     try:
         response = requests.get(url)
-        response.raise_for_status()  # Vai lançar uma exceção se o código de status não for 2xx
-        return response.json()  # Retorna os dados da API em formato JSON
+        response.raise_for_status()
+        return response.json()
     except requests.exceptions.RequestException as e:
         return {'error': str(e)}
 
@@ -1862,7 +1862,185 @@ def track_package():
         )
     return render_template("busca-img.html", tracking_info=None)
 
+from flask_socketio import SocketIO, emit, join_room
+import logging
+from sqlalchemy.exc import OperationalError
+
+socketio = SocketIO(app)
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+class NewTask(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    status = db.Column(db.String(50), default='To Do')
+    assigned_to = db.Column(db.String(200), nullable=True)
+    created_by = db.Column(db.String(100), nullable=False)
+
+def safe_commit():
+    try:
+        db.session.commit()
+    except OperationalError:
+        db.session.rollback()
+        logger.error("Erro de conexão com o banco, tentando novamente...")
+
+@socketio.on('connect')
+def handle_connect():
+    if 'username' in session:
+        username = session['username']
+        join_room(username)
+        logger.info(f"Usuário {username} conectado ao Socket.IO")
+        socketio.emit('debug', {'message': f'Usuário {username} conectado'}, room=username)
+
+@socketio.on('join')
+def handle_join(data):
+    username = data['username']
+    join_room(username)
+    logger.info(f"Usuário {username} entrou na sala")
+
+def send_notification(user, message):
+    if user in user_database:
+        logger.info(f'Notificação para {user}: {message}')
+        socketio.emit('notification', {'message': message}, room=user)
+
+@app.route('/trecco')
+@login_required
+def trecco():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    tasks = NewTask.query.filter(
+        (NewTask.assigned_to.like(f'%{session["username"]}%')) | 
+        (NewTask.created_by == session['username'])
+    ).all()
+
+    archived_count = NewTask.query.filter(
+        NewTask.status == 'Archived',
+        (NewTask.assigned_to.like(f'%{session["username"]}%')) | 
+        (NewTask.created_by == session['username'])
+    ).count()
+
+    return render_template('trecco.html', tasks=tasks, archived_count=archived_count)
+
+@app.route('/add', methods=['POST'])
+@login_required
+def add_task1():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    title = request.form['title']
+    description = request.form.get('description', '')
+    assigned_to = request.form.getlist('assigned_to')
+
+    if not assigned_to:
+        return redirect(url_for('trecco'))
+
+    for user in assigned_to:
+        new_task = NewTask(
+            title=title,
+            description=description,
+            assigned_to=user,
+            created_by=session['username']
+        )
+
+        try:
+            db.session.add(new_task)
+            safe_commit()  # Chama a função que tenta o commit com reconexão
+            logger.info(f'Tarefa adicionada com sucesso para {user}: {title}')
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f'Erro ao adicionar tarefa para {user}: {e}')
+            return "Erro ao salvar a tarefa", 500
+
+        if user in user_database:
+            send_notification(user, f'Nova Tarefa: {title}')
+
+    send_notification(session['username'], f'Você criou uma nova tarefa: {title}')
+
+    socketio.emit('update', {'message': 'Nova tarefa adicionada'})
+
+    return redirect(url_for('trecco'))
+
+
+@app.route('/update/<int:task_id>', methods=['POST'])
+@login_required
+def update_task(task_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    task = NewTask.query.get(task_id)
+    if task and task.assigned_to == session['username']:
+        task.status = request.form['status']
+        safe_commit()
+        socketio.emit('update', {'message': 'Tarefa atualizada'})
+    return redirect(url_for('trecco'))
+
+@app.route('/delete/<int:task_id>', methods=['POST'])
+@login_required
+def delete_task(task_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    task = NewTask.query.get(task_id)
+    if not task:
+        flash("Tarefa não encontrada", "error")
+        return redirect(url_for('trecco'))
+    
+    logger.info(f"Tarefa encontrada: {task.title}, Criada por: {task.created_by}")
+
+    if task.created_by == session['username']:
+        try:
+            db.session.delete(task)
+            db.session.commit()
+            socketio.emit('update', {'message': 'Tarefa removida'})
+            flash("Tarefa excluída com sucesso", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash("Erro ao excluir tarefa", "error")
+            logger.error(f"Erro ao excluir tarefa: {e}")
+    else:
+        flash("Você não tem permissão para excluir essa tarefa", "error")
+
+    return redirect(url_for('trecco'))
+
+@app.route('/archive/<int:task_id>', methods=['POST'])
+@login_required
+def archive_task(task_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    task = NewTask.query.get(task_id)
+    if task and task.assigned_to == session['username']:
+        task.status = 'Archived'
+        safe_commit()
+        socketio.emit('update', {'message': 'Tarefa arquivada'})
+    return redirect(url_for('trecco'))
+
+@app.route('/archived_tasks')
+@login_required
+def archived_tasks():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    archived_tasks = NewTask.query.filter(
+        (NewTask.assigned_to == session['username']) | 
+        (NewTask.created_by == session['username']),
+        NewTask.status == 'Archived'
+    ).all()
+    
+    return render_template('archived_tasks.html', tasks=archived_tasks)
+
+@app.route('/add_task_form')
+@login_required
+def add_task_form():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    return render_template('add_task.html', users=user_database.keys(), user_database=user_database)
+
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     app.run(debug=True)
+    socketio.run(app, debug=True)
