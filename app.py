@@ -1844,11 +1844,14 @@ def safe_commit():
 
 @socketio.on('connect')
 def handle_connect():
-    if 'username' in session:
-        username = session['username']
+    username = session.get('username')
+    if username:
         join_room(username)
         logger.info(f"Usuário {username} conectado ao Socket.IO")
         socketio.emit('debug', {'message': f'Usuário {username} conectado'}, room=username)
+    else:
+        logger.warning("Conexão recusada: Usuário não autenticado")
+        return False
 
 @socketio.on('join')
 def handle_join(data):
