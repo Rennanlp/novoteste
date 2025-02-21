@@ -1,0 +1,27 @@
+<!-- templates/my_tasks.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minhas Tarefas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Minhas Tarefas</h1>
+        <a href="{{ url_for('index') }}" class="btn">Voltar</a>
+    </header>
+    <main>
+        <ul class="task-list">
+            {% for task in tasks %}
+                <li class="task-item">
+                    <h3>{{ task.title }}</h3>
+                    <p>{{ task.description }}</p>
+                    <span>Status: {{ task.status }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+    </main>
+</body>
+</html>

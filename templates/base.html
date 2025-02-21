@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt_br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Trello Clone</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body>
+    <nav>
+        <a href="{{ url_for('index') }}">Minhas Tarefas</a>
+        <a href="{{ url_for('add_task_form') }}">Adicionar Tarefa</a>
+        <a href="{{ url_for('logout') }}">Sair</a>
+    </nav>
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        // Enviar o username para a sala
+        socket.on('connect', function() {
+            var username = "{{ session['username'] }}";  // Pega o nome do usuário da sessão
+            socket.emit('join', {username: username});  // Envia o username para a sala
+        });
+
+        // Ouvir notificações do backend
+        socket.on('notification', function(data) {
+            alert(data.message);  // Exibe a mensagem, pode ser customizado para um toast ou outro alerta
+        });
+
+        socket.on('update', function(data) {
+            alert(data.message);
+            location.reload();  // Recarrega a página para refletir as mudanças
+        });
+    </script>
+</body>
+</html>

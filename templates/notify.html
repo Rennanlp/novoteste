@@ -1,0 +1,20 @@
+<!-- notify.html -->
+<div id="notification" style="display:none; position: fixed; bottom: 20px; right: 20px; background-color: #28a745; color: white; padding: 10px; border-radius: 5px;">
+    <p id="notification-message"></p>
+</div>
+
+<script>
+    var socket = io();
+
+    socket.on('notification', function(data) {
+        var notificationElement = document.getElementById('notification');
+        var messageElement = document.getElementById('notification-message');
+        
+        messageElement.textContent = data.message;
+        notificationElement.style.display = 'block';
+        
+        setTimeout(function() {
+            notificationElement.style.display = 'none';
+        }, 5000);
+    });
+</script>

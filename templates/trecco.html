@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarefas - {{ session['name'] }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='trecco.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='generic.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='switch.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='notify.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script>
+        function filterTasks(status) {
+            const filterValue = document.getElementById(`${status}-filter`).value.toLowerCase();
+            const taskItems = document.querySelectorAll(`.task-column[data-status="${status}"] .task-item`);
+
+            taskItems.forEach(item => {
+                const taskName = item.querySelector('h4') ? item.querySelector('h4').innerText.toLowerCase() : '';
+                const assignedToElement = item.querySelector('.assigned-to');
+                const assignedTo = assignedToElement ? assignedToElement.innerText.toLowerCase() : '';
+
+                if (taskName.includes(filterValue) || assignedTo.includes(filterValue)) {
+                    item.style.display = '';  // Exibe a tarefa
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</head>
+<div class="ui-switch-wrapper">
+    <label class="ui-switch">
+        <input type="checkbox" id="dark-mode-toggle">
+        <div class="slider">
+            <div class="circle"></div>
+        </div>
+    </label>
+</div>
+{% include 'gif.html' %}
+{% include 'menu.html' %}
+<body>
+    {% include 'notify.html' %}
+    <header>
+        <h1>Tarefas de {{ session['name'] }}</h1>
+        <div>
+            <a href="{{ url_for('add_task_form') }}" class="btn">
+                <i class="fas fa-plus-circle"></i> Adicionar Tarefa
+            </a>
+            <a href="{{ url_for('archived_tasks') }}" class="btn">
+                <i class="fa-solid fa-box-archive"></i> Arquivadas
+                {% if archived_count > 0 %}
+                    <span class="badge">{{ archived_count }}</span>
+                {% endif %}
+            </a>
+        </div>
+    </header>
+    
+    <main>
+        <h2>Tarefas Atribuídas</h2>
+
+        <div class="task-columns">
+            {% set task_statuses = {'To Do': 'A Fazer', 'In Progress': 'Em Andamento', 'Completed': 'Concluídas'} %}
+            
+            {% for status, title in task_statuses.items() %}
+            <div class="task-column" data-status="{{ status }}">
+                <h3>{{ title }}</h3>
+                <div>
+                    <input type="text" id="{{ status }}-filter" placeholder="Buscar" onkeyup="filterTasks('{{ status }}')">
+                </div>
+
+                <ul class="task-list">
+                    {% for task in tasks if task.status == status %}
+                    <li class="task-item" data-status="{{ task.status }}">
+                        <h4 class="titulo-card">{{ task.title }}</h4>
+                        <p>{{ task.description }}</p>
+
+                        <p><strong>Atribuído a:</strong> <span class="assigned-to">{{ task.assigned_to }}</span></p>
+
+                        <form action="{{ url_for('update_task', task_id=task.id) }}" method="post">
+                            <select name="status" required>
+                                {% for key, label in task_statuses.items() %}
+                                    <option value="{{ key }}" {% if task.status == key %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit">
+                                <i class="fas fa-sync-alt"></i> Atualizar Status
+                            </button>
+                        </form>
+
+                        <form action="{{ url_for('archive_task', task_id=task.id) }}" method="post">
+                            <button type="submit">
+                                <i class="fa-solid fa-box-archive"></i> Arquivar
+                            </button>
+                        </form>
+
+                        <form action="{{ url_for('delete_task', task_id=task.id) }}" method="post">
+                            <button type="submit">
+                                <i class="fas fa-trash-alt"></i> Excluir
+                            </button>
+                        </form>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+    <script>
+        const themeToggle = document.getElementById('dark-mode-toggle');
+        const body = document.body;
+      
+        if (localStorage.getItem('dark-mode') === 'enabled') {
+          body.classList.add('dark-mode');
+          themeToggle.checked = true;
+        }
+      
+        themeToggle.addEventListener('change', () => {
+          if (themeToggle.checked) {
+            body.classList.add('dark-mode');
+            localStorage.setItem('dark-mode', 'enabled');
+          } else {
+            body.classList.remove('dark-mode');
+            localStorage.setItem('dark-mode', 'disabled');
+          }
+        });
+      </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="{{ url_for('static', filename='socket.js') }}"></script>
+</body>
+</html>

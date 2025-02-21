@@ -1,0 +1,73 @@
+<!-- templates/add_task.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adicionar Tarefa</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='addtask.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='generic.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='switch.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="ui-switch-wrapper">
+        <label class="ui-switch">
+            <input type="checkbox" id="dark-mode-toggle">
+            <div class="slider">
+                <div class="circle"></div>
+            </div>
+        </label>
+    </div>
+    {% include 'gif.html' %}
+    {% include 'menu.html' %}
+    <header>
+        <h1>Adicionar Nova Tarefa</h1>
+        <a href="{{ url_for('trecco') }}" class="btn">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </a>
+    </header>
+    <main>
+        <form action="{{ url_for('add_task1') }}" method="post">
+            <label for="title">Título:</label>
+            <input type="text" id="title" name="title" required>
+
+            <label for="description">Descrição:</label>
+            <textarea id="description" name="description"></textarea>
+
+            <label for="assigned_to">Atribuir a:</label>
+            <select id="assigned_to" name="assigned_to" required multiple>
+                {% for user in users %}
+                    <option value="{{ user }}">{{ user_database[user]['name'] }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="btn">
+                <i class="fas fa-plus-circle"></i> Adicionar Tarefa
+            </button>
+        </form>
+    </main>
+    <script>
+        const themeToggle = document.getElementById('dark-mode-toggle');
+        const body = document.body;
+      
+        if (localStorage.getItem('dark-mode') === 'enabled') {
+          body.classList.add('dark-mode');
+          themeToggle.checked = true;
+        }
+      
+        themeToggle.addEventListener('change', () => {
+          if (themeToggle.checked) {
+            body.classList.add('dark-mode');
+            localStorage.setItem('dark-mode', 'enabled');
+          } else {
+            body.classList.remove('dark-mode');
+            localStorage.setItem('dark-mode', 'disabled');
+          }
+        });
+      </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="{{ url_for('static', filename='socket.js') }}"></script>
+</body>
+</html>
