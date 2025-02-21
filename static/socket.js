@@ -1,9 +1,10 @@
 // Definir a URL base do Socket.IO
 var baseSocketUrl = 'https://removedorrp.onrender.com';
 
-// Conectar ao Socket.IO diretamente à URL base
+// Conectar ao Socket.IO diretamente à URL base com timeout e reconexão
 var socket = io.connect(baseSocketUrl, {
-    transports: ['websocket', 'polling']
+    transports: ['websocket', 'polling'],
+    timeout: 10000  // Timeout de 10 segundos
 });
 
 // Função para criar uma notificação visual
@@ -43,9 +44,10 @@ function hideNotificationDot() {
 
 // Escutar as notificações para o usuário
 socket.on('notification', function(data) {
-    showNotification(data.message);
-    playNotificationSound();
-    showNotificationDot();
+    console.log('Notificação recebida:', data);  // Debug
+    showNotification(data.message);  // Exibe a notificação visual
+    playNotificationSound();         // Reproduz o som de notificação
+    showNotificationDot();           // Exibe o ponto de notificação no ícone
 
     // Armazenar no localStorage que há notificações pendentes
     localStorage.setItem('task_assigned', 'true');
@@ -78,4 +80,21 @@ socket.on('connect', function() {
 // Caso ocorra um erro na conexão
 socket.on('connect_error', function(error) {
     console.log('Erro na conexão do Socket.IO: ', error);
+    alert('Erro ao tentar conectar ao servidor. Tente novamente mais tarde.');
+});
+
+// Detectar reconexão
+socket.on('reconnect', function(attempt) {
+    console.log(`Reconectado ao Socket.IO após ${attempt} tentativas.`);
+});
+
+// Caso haja um erro ao tentar reconectar
+socket.on('reconnect_error', function(error) {
+    console.log('Erro ao tentar reconectar: ', error);
+});
+
+// Caso a reconexão falhe
+socket.on('reconnect_failed', function() {
+    console.log('Falha ao reconectar ao Socket.IO.');
+    alert('Falha ao reconectar ao servidor. Por favor, tente mais tarde.');
 });
