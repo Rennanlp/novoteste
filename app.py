@@ -1820,10 +1820,16 @@ def track_package():
     return render_template("busca-img.html", tracking_info=None)
 
 from flask_socketio import SocketIO, emit, join_room
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 import logging
+import os
 from sqlalchemy.exc import OperationalError
 
-socketio = SocketIO(app, cors_allowed_origins="*", logger=True, engineio_logger=True)
+socketio = SocketIO(app, 
+                   cors_allowed_origins=["https://removedorrp.onrender.com"], 
+                   logger=True, 
+                   engineio_logger=True)
+
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
@@ -1852,12 +1858,6 @@ def handle_connect():
     else:
         logger.warning("Conexão recusada: Usuário não autenticado")
         return False
-
-@socketio.on('join')
-def handle_join(data):
-    username = data['username']
-    join_room(username)
-    logger.info(f"Usuário {username} entrou na sala")
 
 def send_notification(user, message):
     if user in user_database:
@@ -1917,11 +1917,9 @@ def add_task1():
             send_notification(user, f'Nova Tarefa: {title}')
 
     send_notification(session['username'], f'Você criou uma nova tarefa: {title}')
-
     socketio.emit('update', {'message': 'Nova tarefa adicionada'})
 
     return redirect(url_for('trecco'))
-
 
 @app.route('/update/<int:task_id>', methods=['POST'])
 @login_required
@@ -1947,8 +1945,6 @@ def delete_task(task_id):
         flash("Tarefa não encontrada", "error")
         return redirect(url_for('trecco'))
     
-    logger.info(f"Tarefa encontrada: {task.title}, Criada por: {task.created_by}")
-
     if task.created_by == session['username']:
         try:
             db.session.delete(task)
@@ -1998,7 +1994,6 @@ def add_task_form():
         return redirect(url_for('login'))
     
     return render_template('add_task.html', users=user_database.keys(), user_database=user_database)
-
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
