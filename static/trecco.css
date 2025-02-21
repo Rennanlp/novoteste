@@ -1,0 +1,360 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f7f6;
+    color: #333;
+    line-height: 1.6;
+    padding: 20px;
+}
+
+header {
+    background-color: #333;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+header h1 {
+    font-size: 1.8em;
+    margin-bottom: 10px;
+}
+
+header .btn {
+    background-color: #007bff;
+    color: white;
+    padding: 8px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    margin: 0 10px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+header .btn:hover {
+    background-color: #0056b3;
+}
+
+/* Estilo do conteúdo principal */
+main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    font-size: 1.6em;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+input[type="text"] {
+    width: 100%;
+    max-width: 300px; /* Limite de largura para evitar que o campo fique muito largo */
+    padding: 8px 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    color: #333;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+/* Estilo para o campo quando estiver focado */
+input[type="text"]:focus {
+    border-color: #007bff;
+    background-color: #e9f3ff;
+    outline: none;
+}
+
+/* Adicionando um ícone de pesquisa dentro do campo de filtro */
+input[type="text"]::before {
+    content: '\f002'; /* Ícone de pesquisa */
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    color: #888;
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Estilo para a área do filtro */
+.task-column div {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+/* Ajuste para o campo de filtro quando utilizado */
+.task-column input[type="text"] {
+    position: relative;
+    padding-left: 30px; /* Espaço para o ícone de pesquisa */
+}
+
+/* Estilo para o campo de filtro ao passar o mouse */
+input[type="text"]:hover {
+    border-color: #0056b3;
+    background-color: #f1f9ff;
+}
+
+/* Layout das colunas de tarefas */
+.task-columns {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+/* Coluna de tarefas */
+.task-column {
+    width: 32%;
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    overflow-y: auto;
+}
+
+/* Títulos da coluna */
+.task-column h3 {
+    font-size: 1.4em;
+    margin-bottom: 15px;
+    text-align: center;
+    color: #333;
+}
+
+/* Lista de tarefas */
+.task-list {
+    list-style: none;
+    padding: 0;
+}
+
+.task-item {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+/* Títulos e descrição da tarefa */
+.task-item h4 {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.task-item p {
+    color: #0c0c0c;
+    font-size: 1em;
+}
+
+.task-item span {
+    display: block;
+    font-weight: bold;
+    margin-top: 10px;
+    color: #555;
+}
+
+/* Estilo dos formulários */
+form {
+    margin-top: 10px;
+}
+
+select {
+    padding: 8px;
+    margin-right: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+    width: 150px;
+}
+
+button {
+    padding: 8px 15px;
+    background-color: #007bff;  /* Verde */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3; /* Verde mais escuro */
+}
+
+button:disabled {
+    background-color: #ddd;
+    cursor: not-allowed;
+}
+
+/* Adicionando cores específicas para os status das tarefas */
+.task-column h3 {
+    color: #4CAF50;  /* Verde */
+}
+
+.task-item[data-status='To Do'] {
+    border-left: 5px solid #f67905;  /* Verde */
+}
+
+.task-item[data-status='In Progress'] {
+    border-left: 5px solid #FFDD00;  /* Amarelo */
+}
+
+.task-item[data-status='Completed'] {
+    border-left: 5px solid #2CF425;  /* Verde claro */
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 768px) {
+    .task-columns {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .task-column {
+        width: 100%;
+    }
+}
+
+.badge {
+    background-color: red;
+    color: white;
+    font-size: 0.75em;
+    font-weight: bold;
+    width: 20px;  /* Definir largura fixa */
+    height: 20px; /* Definir altura fixa */
+    line-height: 20px; /* Centralizar verticalmente */
+    text-align: center; /* Centralizar horizontalmente */
+    border-radius: 50%; /* Garante um círculo perfeito */
+    position: absolute;
+    top: -5px;
+    right: -5px;
+}
+.btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+
+body.dark-mode {
+    background-color: #2b2b2b;
+    color: #e4e4e4;
+}
+
+.dark-mode .titulo-card {
+    color: rgb(37, 4, 99) !important;
+}
+
+.titulo-card {
+    color: rgb(37, 4, 99) !important;
+}
+
+header.dark-mode{
+    background-color: #444;
+    color: #e4e4e4;
+}
+
+header.dark-mode .btn {
+    background-color: #0056b3;
+}
+
+header.dark-mode .btn:hover {
+    background-color: #00408d;
+}
+
+main.dark-mode {
+    background-color: #3c3c3c;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+h2.dark-mode {
+    color: #e4e4e4;
+}
+
+input[type="text"].dark-mode {
+    background-color: #444;
+    border-color: #888;
+    color: #e4e4e4;
+}
+
+input[type="text"].dark-mode:focus {
+    border-color: #0056b3;
+    background-color: #555;
+}
+
+input[type="text"].dark-mode:hover {
+    border-color: #00408d;
+    background-color: #555;
+}
+
+.task-column.dark-mode {
+    background-color: #444;
+    color: #e4e4e4;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.task-column.dark-mode h3 {
+    color: #4CAF50;
+}
+
+.task-item.dark-mode {
+    background-color: #333;  /* Tom mais escuro */
+    border: 1px solid #444;  /* Borda mais escura */
+    color: #ddd;  /* Texto um pouco mais suave */
+}
+
+
+.task-item.dark-mode:hover {
+    background-color: #3d3d3d; /* Um leve destaque no hover */
+}
+
+.task-item.dark-mode[data-status='To Do'] {
+    border-left: 5px solid #f67905;
+}
+
+.task-item.dark-mode[data-status='In Progress'] {
+    border-left: 5px solid #FFDD00;
+}
+
+.task-item.dark-mode[data-status='Completed'] {
+    border-left: 5px solid #2CF425;
+}
+
+button.dark-mode {
+    background-color: #0056b3;
+}
+
+button.dark-mode:hover {
+    background-color: #00408d;
+}
+
+button:disabled.dark-mode {
+    background-color: #666;
+}
+
+@media (max-width: 768px) {
+    .task-columns.dark-mode {
+        background-color: #3c3c3c;
+    }
+
+    .task-column.dark-mode {
+        background-color: #444;
+        color: #e4e4e4;
+    }
+}

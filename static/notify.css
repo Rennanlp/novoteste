@@ -1,0 +1,43 @@
+/* Estilo básico para a notificação */
+.notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    animation: slideIn 0.5s ease-in-out;
+}
+
+/* Estilo para o ponto de notificação sobre o ícone do Trecco */
+li a {
+    position: relative; /* Garantir que o ponto seja posicionado em relação ao link */
+}
+
+/* Estilo para o ponto de notificação no ícone */
+.notification-dot {
+    width: 10px;
+    height: 10px;
+    background-color: red;
+    border-radius: 50%;
+    position: absolute;
+    top: 0;  /* Ajuste para posicionar no topo do ícone */
+    right: 0;  /* Ajuste para posicionar na direita do ícone */
+    display: none;  /* Inicialmente escondido */
+    z-index: 9999;  /* Garante que o ponto esteja sobre outros elementos */
+}
+
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}

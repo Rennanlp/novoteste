@@ -1,0 +1,134 @@
+/* arch_task.css */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    width: 90%;
+    text-align: center;
+}
+
+h1 {
+    color: #222;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.task-list {
+    list-style: none;
+    padding: 0;
+}
+
+.task-card {
+    background: #eaeaea;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    text-align: left;
+    position: relative;
+}
+
+.task-card h2 {
+    margin: 0 0 10px;
+    font-size: 18px;
+}
+
+.task-card p {
+    margin: 0 0 15px;
+    font-size: 14px;
+    color: #555;
+}
+
+form {
+    display: inline;
+}
+
+button {
+    background: #d9534f;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #c9302c;
+}
+
+.back-link {
+    display: inline-block;
+    margin-top: 15px;
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+/* Modo Escuro */
+.dark-mode {
+    --bg-color: #181818;
+    --text-color: #f4f4f4;
+    --card-bg: #ffffff; /* Mantém o card branco */
+    --label-color: #ffffff; /* Mantém o label branco */
+    --btn-bg: #ff5e5e;
+    --btn-hover-bg: #e63946;
+    --link-color: #71c9ce;
+}
+
+/* Aplicação das variáveis */
+body.dark-mode {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+/* Mantendo o card branco */
+.dark-mode .container,
+.dark-mode .task-card {
+    background: var(--card-bg);
+    color: #000; /* Texto preto para melhor contraste */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Mantendo o label branco */
+.dark-mode label {
+    color: var(--label-color);
+}
+
+/* Ajustando botões e links */
+.dark-mode button {
+    background: var(--btn-bg);
+    color: white;
+}
+
+.dark-mode button:hover {
+    background: var(--btn-hover-bg);
+}
+
+.dark-mode .back-link {
+    color: var(--link-color);
+}
+
+.dark-mode .back-link:hover {
+    text-decoration: underline;
+}
+
