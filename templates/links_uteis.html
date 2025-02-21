@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='links2.css') }}"> 
     <link rel="stylesheet" href="{{ url_for('static', filename='generic.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='switch.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='notify.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.0/xlsx.full.min.js" integrity="sha512-... (hash)" crossorigin="anonymous"></script>
 </head>
@@ -238,13 +239,11 @@
         const themeToggle = document.getElementById('dark-mode-toggle');
         const body = document.body;
       
-        // Verifica se o tema escuro foi armazenado no localStorage
         if (localStorage.getItem('dark-mode') === 'enabled') {
           body.classList.add('dark-mode');
           themeToggle.checked = true;
         }
       
-        // Alterna o tema quando o checkbox é marcado/desmarcado
         themeToggle.addEventListener('change', () => {
           if (themeToggle.checked) {
             body.classList.add('dark-mode');
@@ -255,5 +254,7 @@
           }
         });
       </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="{{ url_for('static', filename='socket.js') }}"></script>
 </body>
 </html>

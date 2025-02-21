@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='generic2.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='sro.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='switch.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='notify.css') }}">
 
     <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
     <title>Rastreamento Correios</title>
@@ -59,6 +60,8 @@
         
         darkModeToggle.addEventListener('change', toggleDarkMode);
         </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="{{ url_for('static', filename='socket.js') }}"></script>
 </body>
 
 </html>

@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='generic.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='switch.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='notify.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
     <title>Removedor de Acentos</title>
 </head>
@@ -92,14 +93,11 @@
         });
     </script>
     <script>
-        // Seleciona o checkbox do modo escuro
         const darkModeToggle = document.getElementById('dark-mode-toggle');
         
-        // Função para alternar o modo escuro
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
         
-            // Salva a preferência de modo no localStorage para persistência
             if (document.body.classList.contains('dark-mode')) {
                 localStorage.setItem('darkMode', 'enabled');
             } else {
@@ -107,14 +105,14 @@
             }
         }
         
-        // Verifica a preferência de modo salva ao carregar a página
         if (localStorage.getItem('darkMode') === 'enabled') {
             document.body.classList.add('dark-mode');
-            darkModeToggle.checked = true; // Marca o checkbox se o modo escuro estava ativado
+            darkModeToggle.checked = true;
         }
         
-        // Adiciona o evento de clique ao toggle
         darkModeToggle.addEventListener('change', toggleDarkMode);
         </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="{{ url_for('static', filename='socket.js') }}"></script>
 </body>
 </html>

@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='addreverso.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='generic.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='switch.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='notify.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
 </head>
 <body>
@@ -42,8 +43,8 @@
                 <label for="cliente" class="form-label">Cliente</label>
                 <select class="form-control" id="cliente" name="cliente" required>
                     <option value="" disabled selected>Selecione um cliente</option>
-                    {% for cliente in clientes %}
-                        <option value="{{ cliente.id }}">{{ cliente.nome }}</option>
+                    {% for cliente in clientes | sort(attribute='nome') %}
+                    <option value="{{ cliente.id }}">{{ cliente.nome }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -123,5 +124,7 @@
             });
         });
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="{{ url_for('static', filename='socket.js') }}"></script>
 </body>
 </html>
