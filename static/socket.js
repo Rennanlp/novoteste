@@ -1,5 +1,11 @@
-// Conectar ao Socket.IO quando a página for carregada
-var socket = io.connect('https://removedorrp.onrender.com', {
+// Obter o caminho atual para montar a URL corretamente
+var currentPath = window.location.pathname;
+
+// Definir a URL base do Socket.IO
+var baseSocketUrl = 'https://removedorrp.onrender.com';
+
+// Conectar ao Socket.IO com o caminho da página atual (se necessário)
+var socket = io.connect(baseSocketUrl + currentPath, {
     transports: ['websocket', 'polling']
 });
 
@@ -66,3 +72,13 @@ window.onload = function() {
         localStorage.removeItem('task_assigned');  // Limpa o status de notificação
     }
 };
+
+// Verificar se a conexão foi bem-sucedida
+socket.on('connect', function() {
+    console.log('Conectado ao Socket.IO na rota: ' + currentPath);
+});
+
+// Caso ocorra um erro na conexão
+socket.on('connect_error', function(error) {
+    console.log('Erro na conexão do Socket.IO: ', error);
+});
