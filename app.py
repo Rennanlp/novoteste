@@ -1820,18 +1820,15 @@ def track_package():
     return render_template("busca-img.html", tracking_info=None)
 
 from flask_socketio import SocketIO, emit, join_room
-from flask import Flask, render_template, request, redirect, url_for, session, flash
 import logging
-import os
 from sqlalchemy.exc import OperationalError
+from werkzeug.middleware.proxy_fix import ProxyFix
 
-socketio = SocketIO(app, 
-                   cors_allowed_origins=["https://removedorrp.onrender.com"], 
-                   logger=True, 
-                   engineio_logger=True)
-
+socketio = SocketIO(app, async_mode='eventlet', logger=True, engineio_logger=True)
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+app.wsgi_app = ProxyFix(app.wsgi_app)
 
 class NewTask(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -1850,14 +1847,17 @@ def safe_commit():
 
 @socketio.on('connect')
 def handle_connect():
-    username = session.get('username')
-    if username:
+    if 'username' in session:
+        username = session['username']
         join_room(username)
         logger.info(f"Usuário {username} conectado ao Socket.IO")
         socketio.emit('debug', {'message': f'Usuário {username} conectado'}, room=username)
-    else:
-        logger.warning("Conexão recusada: Usuário não autenticado")
-        return False
+
+@socketio.on('join')
+def handle_join(data):
+    username = data['username']
+    join_room(username)
+    logger.info(f"Usuário {username} entrou na sala")
 
 def send_notification(user, message):
     if user in user_database:
@@ -1906,7 +1906,7 @@ def add_task1():
 
         try:
             db.session.add(new_task)
-            safe_commit()  # Chama a função que tenta o commit com reconexão
+            safe_commit()
             logger.info(f'Tarefa adicionada com sucesso para {user}: {title}')
         except Exception as e:
             db.session.rollback()
@@ -1917,6 +1917,7 @@ def add_task1():
             send_notification(user, f'Nova Tarefa: {title}')
 
     send_notification(session['username'], f'Você criou uma nova tarefa: {title}')
+
     socketio.emit('update', {'message': 'Nova tarefa adicionada'})
 
     return redirect(url_for('trecco'))
@@ -1945,6 +1946,8 @@ def delete_task(task_id):
         flash("Tarefa não encontrada", "error")
         return redirect(url_for('trecco'))
     
+    logger.info(f"Tarefa encontrada: {task.title}, Criada por: {task.created_by}")
+
     if task.created_by == session['username']:
         try:
             db.session.delete(task)
@@ -1997,4 +2000,5 @@ def add_task_form():
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)
+    socketio.run(app, debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+
