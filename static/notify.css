@@ -41,3 +41,18 @@ li a {
         transform: translateX(0);
     }
 }
+
+.badge {
+    background-color: red;
+    color: white;
+    font-size: 0.75em;
+    font-weight: bold;
+    width: 20px;  /* Definir largura fixa */
+    height: 20px; /* Definir altura fixa */
+    line-height: 20px; /* Centralizar verticalmente */
+    text-align: center; /* Centralizar horizontalmente */
+    border-radius: 50%; /* Garante um círculo perfeito */
+    position: absolute;
+    top: -5px;
+    right: -5px;
+}

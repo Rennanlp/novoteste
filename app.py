@@ -34,9 +34,12 @@ import pymysql
 import boto3
 from botocore.exceptions import NoCredentialsError, ClientError
 import re
+from dotenv import load_dotenv
 
 # CONFUGURAÇÕES FLASK #
+
 app = Flask(__name__)
+load_dotenv()
 app.secret_key = os.environ.get('FLASK_SECRET_KEY') or b'_5#y2L"F4Q8z\n\xec]/'
 app.config['UPLOAD_FOLDER'] = 'static/images'
 app.config['UPLOAD_FOLDER1'] = 'uploads'
@@ -219,16 +222,19 @@ def login1():
     return render_template('login.html')
 
 # autenticar o login
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    username = request.form.get('username')
-    password = request.form.get('senha')
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['senha']
 
-    if username in user_database and user_database[username]['password'] == password:
-        session['username'] = username 
-        return redirect(url_for('dashboard'))
-    else:
-        return render_template('login.html', error='Usuário ou senha incorretos, tente novamente.')
+        if username in user_database and user_database[username]['password'] == password:
+            session['username'] = username
+            session['name'] = user_database[username]['name']
+            return redirect(url_for('dashboard'))
+        else:
+            return "Credenciais inválidas", 401
+    return render_template('login.html')
 
 @app.route('/remove_accent', methods=['POST'])
 @login_required
@@ -1323,29 +1329,33 @@ from flask_paginate import Pagination, get_page_parameter
 @app.route('/reversos', methods=['GET'])
 @login_required
 def reversos():
-    query = request.args.get('q', '')
-    start_date = request.args.get('start_date', '')
-    end_date = request.args.get('end_date', '')
-    page = request.args.get('page', 1, type=int)
-    per_page = 10
+    query = request.args.get('q', '')  # Captura o termo de pesquisa
+    start_date = request.args.get('start_date', '')  # Captura a data inicial
+    end_date = request.args.get('end_date', '')  # Captura a data final
+    page = request.args.get(get_page_parameter(), type=int, default=1)  # Pega a página atual
+    per_page = 10  # Número de itens por página
 
-    filters = []
+    filters = []  # Lista para armazenar os filtros aplicados
 
+    # Adiciona o filtro de pesquisa por nome do cliente, remetente ou código de rastreio
     if query:
         filters.append(
             or_(
-                Cliente.nome.ilike(f'%{query}%'),
-                Reverso.remetente.ilike(f'%{query}%'),
-                Reverso.cod_rastreio.ilike(f'%{query}%')
+                Cliente.nome.ilike(f'%{query}%'),  # Filtra pelo nome do cliente
+                Reverso.remetente.ilike(f'%{query}%'),  # Filtra pelo remetente
+                Reverso.cod_rastreio.ilike(f'%{query}%')  # Filtra pelo código de rastreio
             )
         )
 
+    # Filtro de data de criação inicial
     if start_date:
         filters.append(Reverso.criado_em >= datetime.strptime(start_date, '%Y-%m-%d'))
 
+    # Filtro de data de criação final
     if end_date:
-        filters.append(Reverso.criado_em <= datetime.strptime(end_date, '%Y-%m-%d'))
+        filters.append(Reverso.criado_em <= datetime.strptime(end_date, '%Y-%m-%d') + timedelta(days=1) - timedelta(seconds=1))
 
+    # Consulta os reversos aplicando os filtros
     reversos_query = Reverso.query.join(Cliente).filter(*filters).order_by(Reverso.criado_em.desc()).add_columns(
         Reverso.id,
         Cliente.nome.label('cliente'),
@@ -1357,12 +1367,36 @@ def reversos():
         Reverso.imagem.label('imagem')
     )
 
+    # Paginação dos resultados
     reversos = reversos_query.paginate(page=page, per_page=per_page, error_out=False)
+
+    # Criação da navegação de páginas
     pagination = Pagination(page=page, total=reversos.total, per_page=per_page, record_name='reversos')
 
+    # Retorna a resposta no formato JSON para requisições AJAX
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render_template('partials/reversos_list.html', reversos=reversos.items, pagination=pagination)
+        return jsonify({
+            'reversos': [{
+                'id': r.id,
+                'cliente': r.cliente,
+                'codigo': r.codigo,
+                'email': r.email,
+                'data': r.data.strftime('%d/%m/%Y'),  # Formato da data
+                'remetente': r.remetente,
+                'descricao': r.descricao,
+                'imagem': r.imagem
+            } for r in reversos.items],
+            'pagination': {
+                'page': page,
+                'total': reversos.total,
+                'per_page': per_page,
+                'total_pages': reversos.pages,
+                'has_next': reversos.has_next,
+                'has_prev': reversos.has_prev
+            }
+        })
 
+    # Caso não seja uma requisição AJAX, renderiza a página normal
     return render_template('listar_reversos.html', 
                            reversos=reversos.items, 
                            pagination=pagination, 
@@ -1780,8 +1814,8 @@ def get_tracking_info(cod_rastreio):
     url = f"https://nqvjhj9wef.execute-api.us-east-1.amazonaws.com/api/ar/{cod_rastreio}"
     try:
         response = requests.get(url)
-        response.raise_for_status()
-        return response.json()
+        response.raise_for_status()  # Vai lançar uma exceção se o código de status não for 2xx
+        return response.json()  # Retorna os dados da API em formato JSON
     except requests.exceptions.RequestException as e:
         return {'error': str(e)}
 
@@ -1819,18 +1853,14 @@ def track_package():
         )
     return render_template("busca-img.html", tracking_info=None)
 
-from flask_socketio import SocketIO, emit, join_room
 import logging
 from sqlalchemy.exc import OperationalError
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-socketio = SocketIO(app, async_mode='eventlet', logger=True, engineio_logger=True, transports=['websocket', 'polling'],
-                    ping_timeout=10, ping_interval=25)
-logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
 app.wsgi_app = ProxyFix(app.wsgi_app)
 
+# Modelo de Tarefa
 class NewTask(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
@@ -1839,32 +1869,15 @@ class NewTask(db.Model):
     assigned_to = db.Column(db.String(200), nullable=True)
     created_by = db.Column(db.String(100), nullable=False)
 
+# Função para tentar commits com reconexão automática
 def safe_commit():
     try:
         db.session.commit()
     except OperationalError:
         db.session.rollback()
-        logger.error("Erro de conexão com o banco, tentando novamente...")
+        # logger.error("Erro de conexão com o banco, tentando novamente...")
 
-@socketio.on('connect')
-def handle_connect():
-    if 'username' in session:
-        username = session['username']
-        join_room(username)
-        logger.info(f"Usuário {username} conectado ao Socket.IO")
-        socketio.emit('debug', {'message': f'Usuário {username} conectado'}, room=username)
-
-@socketio.on('join')
-def handle_join(data):
-    username = data['username']
-    join_room(username)
-    logger.info(f"Usuário {username} entrou na sala")
-
-def send_notification(user, message):
-    if user in user_database:
-        logger.info(f'Notificação para {user}: {message}')
-        socketio.emit('notification', {'message': message}, room=user)
-
+# Rotas do Flask
 @app.route('/trecco')
 @login_required
 def trecco():
@@ -1883,6 +1896,16 @@ def trecco():
     ).count()
 
     return render_template('trecco.html', tasks=tasks, archived_count=archived_count)
+
+@app.context_processor
+def inject_todo_count():
+    todo_count = 0
+    if "username" in session:
+        todo_count = NewTask.query.filter(
+            NewTask.status == 'To Do',
+            NewTask.assigned_to.like(f'%{session["username"]}%')
+        ).count()
+    return dict(todo_count=todo_count)
 
 @app.route('/add', methods=['POST'])
 @login_required
@@ -1907,19 +1930,12 @@ def add_task1():
 
         try:
             db.session.add(new_task)
-            safe_commit()
+            safe_commit()  # Chama a função que tenta o commit com reconexão
             logger.info(f'Tarefa adicionada com sucesso para {user}: {title}')
         except Exception as e:
             db.session.rollback()
             logger.error(f'Erro ao adicionar tarefa para {user}: {e}')
             return "Erro ao salvar a tarefa", 500
-
-        if user in user_database:
-            send_notification(user, f'Nova Tarefa: {title}')
-
-    send_notification(session['username'], f'Você criou uma nova tarefa: {title}')
-
-    socketio.emit('update', {'message': 'Nova tarefa adicionada'})
 
     return redirect(url_for('trecco'))
 
@@ -1933,7 +1949,6 @@ def update_task(task_id):
     if task and task.assigned_to == session['username']:
         task.status = request.form['status']
         safe_commit()
-        socketio.emit('update', {'message': 'Tarefa atualizada'})
     return redirect(url_for('trecco'))
 
 @app.route('/delete/<int:task_id>', methods=['POST'])
@@ -1953,7 +1968,6 @@ def delete_task(task_id):
         try:
             db.session.delete(task)
             db.session.commit()
-            socketio.emit('update', {'message': 'Tarefa removida'})
             flash("Tarefa excluída com sucesso", "success")
         except Exception as e:
             db.session.rollback()
@@ -1974,7 +1988,6 @@ def archive_task(task_id):
     if task and task.assigned_to == session['username']:
         task.status = 'Archived'
         safe_commit()
-        socketio.emit('update', {'message': 'Tarefa arquivada'})
     return redirect(url_for('trecco'))
 
 @app.route('/archived_tasks')
@@ -2001,5 +2014,4 @@ def add_task_form():
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    socketio.run(app, debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
-
+    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
