@@ -1239,7 +1239,7 @@ CABECALHO_PERSONALIZADO = [
     "Quando inicar os envios",
     "Pedidos em atraso",
     "Kits",
-    "Envie Fotos",
+    "Modelo de Envio",
     "Acessos Plat. Vendas",
     "Acessos Plat. NFs",  # Mantido no cabeçalho
     "CNPJ",
