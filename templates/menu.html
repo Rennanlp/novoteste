@@ -62,7 +62,9 @@
             <a href="/trecco">
                 <i class="fa fa-solid fa-pen-to-square fa-2x"></i>
                 <span class="nav-text">Trecco</span>
-                <span id="notification-dot" style="display:none;" class="notification-dot"></span>
+                {% if todo_count > 0 %}
+                    <span class="badge">{{ todo_count }}</span>
+                {% endif %}
             </a>
         </li>
     </ul>

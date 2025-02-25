@@ -17,24 +17,5 @@
         {% block content %}{% endblock %}
     </div>
 
-    <script>
-        var socket = io.connect('http://' + document.domain + ':' + location.port);
-
-        // Enviar o username para a sala
-        socket.on('connect', function() {
-            var username = "{{ session['username'] }}";  // Pega o nome do usuário da sessão
-            socket.emit('join', {username: username});  // Envia o username para a sala
-        });
-
-        // Ouvir notificações do backend
-        socket.on('notification', function(data) {
-            alert(data.message);  // Exibe a mensagem, pode ser customizado para um toast ou outro alerta
-        });
-
-        socket.on('update', function(data) {
-            alert(data.message);
-            location.reload();  // Recarrega a página para refletir as mudanças
-        });
-    </script>
 </body>
 </html>
