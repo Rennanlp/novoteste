@@ -1241,9 +1241,11 @@ CABECALHO_PERSONALIZADO = [
     "Kits",
     "Modelo de Envio",
     "Acessos Plat. Vendas",
-    "Acessos Plat. NFs",  # Mantido no cabeçalho
+    "Acessos Plat. NFs",
     "CNPJ",
-    "Fornecedor"
+    "Fornecedor",
+    "Data de Nascimento",
+    "Info. ANVISA"
 ]
 
 
