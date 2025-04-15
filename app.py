@@ -1377,26 +1377,7 @@ def reversos():
 
     # Retorna a resposta no formato JSON para requisições AJAX
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return jsonify({
-            'reversos': [{
-                'id': r.id,
-                'cliente': r.cliente,
-                'codigo': r.codigo,
-                'email': r.email,
-                'data': r.data.strftime('%d/%m/%Y'),  # Formato da data
-                'remetente': r.remetente,
-                'descricao': r.descricao,
-                'imagem': r.imagem
-            } for r in reversos.items],
-            'pagination': {
-                'page': page,
-                'total': reversos.total,
-                'per_page': per_page,
-                'total_pages': reversos.pages,
-                'has_next': reversos.has_next,
-                'has_prev': reversos.has_prev
-            }
-        })
+        return render_template('partials/_reversos_list.html', reversos=reversos.items)
 
     # Caso não seja uma requisição AJAX, renderiza a página normal
     return render_template('listar_reversos.html', 
