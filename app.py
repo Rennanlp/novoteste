@@ -1329,7 +1329,6 @@ class Cliente(db.Model):
 from flask_paginate import Pagination, get_page_parameter
 
 @app.route('/reversos', methods=['GET'])
-@login_required
 def reversos():
     query = request.args.get('q', '')  # Captura o termo de pesquisa
     start_date = request.args.get('start_date', '')  # Captura a data inicial
