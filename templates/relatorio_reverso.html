@@ -232,7 +232,7 @@
                         <i class="fas fa-chart-line me-3"></i>
                         Relatório de Reversos
                     </h1>
-                    <img src="{{ url_for('static', filename='logo_conex.png') }}" alt="Logo" class="logo-img" style="max-height: 40px; width: auto;">
+                    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo-img" style="max-height: 40px; width: auto;">
                 </div>
                 <div class="col-md-4 text-md-end">
                     <div class="stats-card">
@@ -546,7 +546,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="row mt-3">
                     <div class="col-md-6">
                         <div class="card border-0 bg-light">
@@ -555,8 +555,30 @@
                             </div>
                             <div class="card-body">
                                 <table class="table table-sm table-borderless mb-0">
-                                    <tr><td><strong>Data do Pedido:</strong></td><td>${formatDate(rawData.Data_Pedido)}</td></tr>
-                                    <tr><td><strong>Data do Reverso:</strong></td><td>${formatDate(rawData.Data_Reverso)}</td></tr>
+                                    <tr>
+                                        <td><strong>Data do Pedido:</strong></td>
+                                        <td>${
+                                            rawData.Data_Pedido
+                                            ? (() => {
+                                                let [m,d,y] = rawData.Data_Pedido.split(' ')[0].split('/');
+                                                if (Number(m) > 12) [d,m] = [m,d]; // corrige formato americano
+                                                return `${d.padStart(2,'0')}/${m.padStart(2,'0')}/${y}`;
+                                            })()
+                                            : ''
+                                        }</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Data do Reverso:</strong></td>
+                                        <td>${
+                                            rawData.Data_Reverso
+                                            ? (() => {
+                                                let [m,d,y] = rawData.Data_Reverso.split(' ')[0].split('/');
+                                                if (Number(m) > 12) [d,m] = [m,d]; // corrige formato americano
+                                                return `${d.padStart(2,'0')}/${m.padStart(2,'0')}/${y}`;
+                                            })()
+                                            : ''
+                                        }</td>
+                                    </tr>
                                     <tr><td><strong>Código Reverso:</strong></td><td><span class="badge bg-primary">${formatValue(rawData.CodigoReverso)}</span></td></tr>
                                     <tr><td><strong>Código Rastreamento:</strong></td><td><span class="badge bg-secondary">${formatValue(rawData.Codrastreamento)}</span></td></tr>
                                     <tr><td><strong>Conteúdo:</strong></td><td>${formatValue(rawData.Conteudo)}</td></tr>
@@ -585,7 +607,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="row mt-3" id="rawDataRow">
                     <div class="col-12">
                         <div class="card border-0 bg-light">
@@ -601,7 +623,7 @@
                         </div>
                     </div>
                 </div>
-            `;
+                `;
             
             document.getElementById('detailsContent').innerHTML = content;
             
@@ -867,4 +889,3 @@
         
 </body>
 </html>
-
