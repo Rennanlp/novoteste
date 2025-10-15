@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Reversos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='switch.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dark-mode.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='generic.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .filters-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border: none;
+        }
+        
+        .results-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border: none;
+        }
+        
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .table thead th {
+            background-color: #f8f9fa;
+            border: none;
+            font-weight: 600;
+            color: #495057;
+            padding: 15px 12px;
+        }
+        
+        .table thead th:hover {
+            background-color: #e9ecef;
+            transition: background-color 0.2s ease;
+        }
+        
+        .table thead th.sorted-asc,
+        .table thead th.sorted-desc {
+            background-color: #667eea;
+            color: white;
+        }
+        
+        .table tbody td {
+            border: none;
+            padding: 15px 12px;
+            vertical-align: middle;
+        }
+        
+        .table tbody tr {
+            border-bottom: 1px solid #f1f3f4;
+            transition: all 0.3s ease;
+        }
+        
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-1px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 10px 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-outline-secondary {
+            border-radius: 25px;
+            padding: 10px 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .badge {
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .stats-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .client-name {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .date-badge {
+            background-color: #e3f2fd;
+            color: #1976d2;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .btn-outline-secondary i.fa-times {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+        #rawDataRow {
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner-border {
+            color: #667eea;
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 15px;
+            }
+            
+            .header-card {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .filters-card, .results-card {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .table-responsive {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include 'menu.html' %}
+    <div class="ui-switch-wrapper">
+        <label class="ui-switch">
+            <input type="checkbox" id="dark-mode-toggle">
+            <div class="slider">
+                <div class="circle"></div>
+            </div>
+        </label>
+    </div>
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header-card">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-2">
+                        <i class="fas fa-chart-line me-3"></i>
+                        Relatório de Reversos
+                    </h1>
+                    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo-img" style="max-height: 40px; width: auto;">
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="stats-card">
+                        <div class="stats-number">{{ total_registros or 0 }}</div>
+                        <div class="stats-label">Reversos Encontrados</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filters-card">
+            <h5 class="mb-4">
+                <i class="fas fa-filter me-2"></i>
+                Filtros
+            </h5>
+            
+            <form method="GET" action="/relatorio_reverso" id="filterForm">
+                <input type="hidden" name="buscar" value="true">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="cliente" class="form-label">
+                            Cliente 
+                            <span id="filtroStatus" class="badge bg-secondary ms-2" style="display: none;">
+                                <i class="fas fa-filter me-1"></i>Filtro Ativo
+                            </span>
+                        </label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="cliente" name="cliente" 
+                                   placeholder="Digite o nome do cliente..." 
+                                   value="{{ filtro_cliente }}"
+                                   onkeyup="filtrarClientes()">
+                            <button type="button" class="btn btn-outline-secondary" onclick="limparFiltroCliente()" title="Limpar filtro">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label for="data_inicial" class="form-label">Data Inicial</label>
+                        <input type="date" class="form-control" id="data_inicial" name="data_inicial" 
+                               value="{{ data_inicial }}">
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label for="data_final" class="form-label">Data Final</label>
+                        <input type="date" class="form-control" id="data_final" name="data_final" 
+                               value="{{ data_final }}">
+                    </div>
+                    
+                    <div class="col-md-2 d-flex align-items-end">
+                        <div class="btn-group w-100" role="group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-1"></i>
+                                Buscar
+                            </button>
+                            <a href="/relatorio_reverso" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Resultados -->
+        <div class="results-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="mb-0">
+                    <i class="fas fa-list me-2"></i>
+                    Resultados
+                </h5>
+        
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="exportToCSV()">
+                        <i class="fas fa-file-csv me-1"></i>
+                        CSV
+                    </button>
+                    <button type="button" class="btn btn-outline-success btn-sm" onclick="exportToXLSX()" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                        <i class="fas fa-file-excel me-1"></i>
+                        EXCEL
+                    </button>
+                </div>
+            </div>
+        
+            <div id="loader" class="loader">
+                <div class="mb-3 text-center">
+                    <svg viewBox="0 0 240 240" height="80" width="80" class="pl">
+                        <circle
+                            stroke-linecap="round"
+                            stroke-dashoffset="-330"
+                            stroke-dasharray="0 660"
+                            stroke-width="20"
+                            stroke="#667eea"
+                            fill="none"
+                            r="105"
+                            cy="120"
+                            cx="120"
+                            class="pl__ring pl__ring--a"
+                        ></circle>
+                        <circle
+                            stroke-linecap="round"
+                            stroke-dashoffset="-110"
+                            stroke-dasharray="0 220"
+                            stroke-width="20"
+                            stroke="#764ba2"
+                            fill="none"
+                            r="35"
+                            cy="120"
+                            cx="120"
+                            class="pl__ring pl__ring--b"
+                        ></circle>
+                        <circle
+                            stroke-linecap="round"
+                            stroke-dasharray="0 440"
+                            stroke-width="20"
+                            stroke="#f093fb"
+                            fill="none"
+                            r="70"
+                            cy="120"
+                            cx="85"
+                            class="pl__ring pl__ring--c"
+                        ></circle>
+                        <circle
+                            stroke-linecap="round"
+                            stroke-dasharray="0 440"
+                            stroke-width="20"
+                            stroke="#4facfe"
+                            fill="none"
+                            r="70"
+                            cy="120"
+                            cx="155"
+                            class="pl__ring pl__ring--d"
+                        ></circle>
+                    </svg>
+                    <h5 class="text-muted mt-3">
+                        <i class="fas fa-spinner fa-spin me-2"></i>
+                        Buscando Reversos...
+                    </h5>
+                    <p class="text-muted mb-0">Deguste um cafézinho enquanto espera</p>
+                </div>
+            </div>
+
+
+            {% if erro %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Erro:</strong> {{ erro }}
+                </div>
+            {% elif relatorios %}
+                <div class="table-responsive">
+                    <table class="table" id="relatoriosTable">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable(0)" style="cursor: pointer; user-select: none;">
+                                    Cliente <i class="fas fa-sort ms-1"></i>
+                                </th>
+                                <th>Data Reverso</th>
+                                <th>Código Reverso</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for relatorio in relatorios %}
+                            <tr>
+                                <td>
+                                    <span class="client-name">{{ relatorio.cliente }}</span>
+                                </td>
+                                <td>
+                                    <span class="date-badge">{{ relatorio.data_reverso }}</span>
+                                </td>
+                                <td>
+                                    {% if relatorio.codigo_reverso %}
+                                        <span class="badge bg-primary">{{ relatorio.codigo_reverso }}</span>
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" 
+                                            onclick="showDetails({{ loop.index0 }})" title="Ver Detalhes">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+            {% else %}
+                <div class="empty-state">
+                    {% if total_registros == 0 and not erro %}
+                        <i class="fas fa-search"></i>
+                        <h5>Digite as datas e clique em "Buscar"</h5>
+                        <p class="text-muted">Insira as datas e clique em "Buscar" para consultar os reversos.</p>
+                    {% else %}
+                        <i class="fas fa-inbox"></i>
+                        <h5>Nenhum relatório encontrado</h5>
+                        <p class="text-muted">Tente ajustar os filtros ou verifique a conexão com a API.</p>
+                        <a href="/" class="btn btn-primary">
+                            <i class="fas fa-refresh me-1"></i>
+                            Recarregar
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Modal para detalhes -->
+    <div class="modal fade" id="detailsModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <span id="modalTitle">Detalhes do Relatório</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="detailsContent">
+                    <!-- Conteúdo será preenchido via JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        // Dados para JavaScript
+        const relatoriosData = {{ relatorios|tojson }};
+
+        // Função para mostrar detalhes
+        function showDetails(index) {
+            const relatorio = relatoriosData[index];
+            const rawData = relatorio.raw_data || {};
+            
+            // Função para formatar valores
+            const formatValue = (value) => {
+                if (value === null || value === undefined || value === '') return 'N/A';
+                return value;
+            };
+            
+            // Função para formatar data
+            const formatDate = (dateStr) => {
+                if (!dateStr) return 'N/A';
+                try {
+                    return new Date(dateStr).toLocaleDateString('pt-BR');
+                } catch {
+                    return dateStr;
+                }
+            };
+            
+            // Função para formatar telefone
+            const formatPhone = (phone) => {
+                if (!phone) return 'N/A';
+                return phone.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+            };
+            
+            // Função para formatar CEP
+            const formatCEP = (cep) => {
+                if (!cep) return 'N/A';
+                return cep.replace(/(\d{5})(\d{3})/, '$1-$2');
+            };
+            
+            // Função para formatar CPF
+            const formatCPF = (cpf) => {
+                if (!cpf) return 'N/A';
+                return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+            };
+            
+            const content = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card border-0 bg-light">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Dados do Cliente</h6>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-sm table-borderless mb-0">
+                                    <tr><td><strong>Cliente:</strong></td><td>${formatValue(rawData.Cliente)}</td></tr>
+                                    <tr><td><strong>Nome:</strong></td><td>${formatValue(rawData.Nome)}</td></tr>
+                                    <tr><td><strong>CPF:</strong></td><td>${formatCPF(rawData.Cpf)}</td></tr>
+                                    <tr><td><strong>Email:</strong></td><td>${formatValue(rawData.Email)}</td></tr>
+                                    <tr><td><strong>Celular:</strong></td><td>${formatPhone(rawData.Celular)}</td></tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card border-0 bg-light">
+                            <div class="card-header bg-success text-white">
+                                <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Endereço</h6>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-sm table-borderless mb-0">
+                                    <tr><td><strong>Endereço:</strong></td><td>${formatValue(rawData.Endereco)}</td></tr>
+                                    <tr><td><strong>Número:</strong></td><td>${formatValue(rawData.Numero)}</td></tr>
+                                    <tr><td><strong>Complemento:</strong></td><td>${formatValue(rawData.Complemento)}</td></tr>
+                                    <tr><td><strong>Bairro:</strong></td><td>${formatValue(rawData.Bairro)}</td></tr>
+                                    <tr><td><strong>Cidade:</strong></td><td>${formatValue(rawData.Cidade)}</td></tr>
+                                    <tr><td><strong>UF:</strong></td><td>${formatValue(rawData.Uf)}</td></tr>
+                                    <tr><td><strong>CEP:</strong></td><td>${formatCEP(rawData.Cep)}</td></tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="card border-0 bg-light">
+                            <div class="card-header bg-warning text-dark">
+                                <h6 class="mb-0"><i class="fas fa-shipping-fast me-2"></i>Informações do Pedido</h6>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-sm table-borderless mb-0">
+                                    <tr><td><strong>Data do Pedido:</strong></td><td>${formatDate(rawData.Data_Pedido)}</td></tr>
+                                    <tr><td><strong>Data do Reverso:</strong></td><td>${formatDate(rawData.Data_Reverso)}</td></tr>
+                                    <tr><td><strong>Código Reverso:</strong></td><td><span class="badge bg-primary">${formatValue(rawData.CodigoReverso)}</span></td></tr>
+                                    <tr><td><strong>Código Rastreamento:</strong></td><td><span class="badge bg-secondary">${formatValue(rawData.Codrastreamento)}</span></td></tr>
+                                    <tr><td><strong>Conteúdo:</strong></td><td>${formatValue(rawData.Conteudo)}</td></tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card border-0 bg-light">
+                            <div class="card-header bg-info text-white">
+                                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Observações e Links</h6>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-sm table-borderless mb-0">
+                                    <tr><td><strong>Observações:</strong></td><td>${formatValue(rawData.Observacoes)}</td></tr>
+                                    <tr><td><strong>Link Rastreio:</strong></td><td>
+                                        ${rawData.LinkRastreio ? 
+                                            `<a href="${rawData.LinkRastreio}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-external-link-alt me-1"></i>Abrir Rastreio
+                                            </a>` : 'N/A'
+                                        }
+                                    </td></tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-3" id="rawDataRow">
+                    <div class="col-12">
+                        <div class="card border-0 bg-light">
+                            <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0"><i class="fas fa-code me-2"></i>Dados Brutos (JSON)</h6>
+                                <button type="button" class="btn btn-sm btn-outline-light" onclick="toggleRawData()">
+                                    <i class="fas fa-eye me-1"></i>Mostrar/Ocultar
+                                </button>
+                            </div>
+                            <div class="card-body" id="rawDataContainer" style="display: none;">
+                                <pre class="bg-dark text-light p-3 rounded small mb-0" style="max-height: 300px; overflow-y: auto;">${JSON.stringify(rawData, null, 2)}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('detailsContent').innerHTML = content;
+            
+            // Define o título do modal
+            const modalTitle = document.getElementById('modalTitle');
+            modalTitle.textContent = `Detalhes - ${formatValue(rawData.Cliente)} - ${formatValue(rawData.CodigoReverso)}`;
+            
+            const modal = new bootstrap.Modal(document.getElementById('detailsModal'));
+            modal.show();
+        }
+        
+        // Função para mostrar/ocultar dados brutos
+        function toggleRawData() {
+            const container = document.getElementById('rawDataContainer');
+            const button = event.target.closest('button');
+            const icon = button.querySelector('i');
+            
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                icon.className = 'fas fa-eye-slash me-1';
+            } else {
+                container.style.display = 'none';
+                icon.className = 'fas fa-eye me-1';
+            }
+        }
+
+        // Função para exportar CSV
+        function exportToCSV() {
+            if (relatoriosData.length === 0) {
+                alert('Nenhum dado para exportar.');
+                return;
+            }
+
+            const headers = ['Cliente', 'Data Reverso', 'Código Reverso', 'ID'];
+            const csvContent = [
+                headers.join(','),
+                ...relatoriosData.map(rel => [
+                    `"${rel.cliente.replace(/"/g, '""')}"`,
+                    rel.data_reverso,
+                    rel.codigo_reverso || '',
+                    rel.id || ''
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `relatorios_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+        }
+
+        // Função para exportar XLSX
+        function exportToXLSX() {
+            if (relatoriosData.length === 0) {
+                alert('Nenhum dado para exportar.');
+                return;
+            }
+
+            // Prepara os dados para o Excel
+            const headers = ['Cliente', 'Data Reverso', 'Código Reverso', 'ID'];
+            const data = relatoriosData.map(rel => [
+                rel.cliente,
+                rel.data_reverso,
+                rel.codigo_reverso || '',
+                rel.id || ''
+            ]);
+
+            // Cria a planilha
+            const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
+            
+            // Ajusta a largura das colunas
+            ws['!cols'] = [
+                { wch: 30 }, // Cliente
+                { wch: 15 }, // Data Reverso
+                { wch: 20 }, // Código Reverso
+                { wch: 10 }  // ID
+            ];
+
+            // Cria o workbook
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Relatórios');
+
+            // Gera o arquivo
+            const fileName = `relatorios_${new Date().toISOString().split('T')[0]}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+        }
+
+
+        // Função para filtrar clientes em tempo real
+        function filtrarClientes() {
+            const filtro = document.getElementById('cliente').value.toLowerCase();
+            const tabela = document.getElementById('relatoriosTable');
+            const linhas = tabela.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            let visiveis = 0;
+            
+            for (let i = 0; i < linhas.length; i++) {
+                const linha = linhas[i];
+                const celulaCliente = linha.getElementsByTagName('td')[0];
+                
+                if (celulaCliente) {
+                    const nomeCliente = celulaCliente.textContent || celulaCliente.innerText;
+                    
+                    if (nomeCliente.toLowerCase().indexOf(filtro) > -1) {
+                        linha.style.display = '';
+                        visiveis++;
+                    } else {
+                        linha.style.display = 'none';
+                    }
+                }
+            }
+            
+            // Atualiza contador de resultados
+            atualizarContador(visiveis);
+            
+            // Mostra/oculta indicador de filtro ativo
+            const filtroStatus = document.getElementById('filtroStatus');
+            if (filtro.trim() !== '') {
+                filtroStatus.style.display = 'inline';
+                filtroStatus.textContent = `Filtro: "${filtro}"`;
+                filtroStatus.className = 'badge bg-warning text-dark ms-2';
+            } else {
+                filtroStatus.style.display = 'none';
+            }
+        }
+        
+        // Função para atualizar contador de resultados
+        function atualizarContador(visiveis) {
+            const contador = document.querySelector('.stats-number');
+            if (contador) {
+                contador.textContent = visiveis;
+            }
+        }
+        
+        // Função para limpar filtro de cliente
+        function limparFiltroCliente() {
+            document.getElementById('cliente').value = '';
+            filtrarClientes();
+            document.getElementById('cliente').focus();
+        }
+
+        // Validação de datas
+        document.getElementById('filterForm').addEventListener('submit', function(e) {
+            const dataInicial = document.getElementById('data_inicial').value;
+            const dataFinal = document.getElementById('data_final').value;
+            
+            if (dataInicial && dataFinal && new Date(dataInicial) > new Date(dataFinal)) {
+                e.preventDefault();
+                alert('A data inicial deve ser anterior à data final.');
+                return false;
+            }
+        });
+
+        // Função para ordenar tabela
+        function sortTable(columnIndex) {
+            const table = document.getElementById('relatoriosTable');
+            const tbody = table.getElementsByTagName('tbody')[0];
+            const rows = Array.from(tbody.getElementsByTagName('tr'));
+            const header = table.getElementsByTagName('th')[columnIndex];
+            const sortIcon = header.querySelector('i');
+            
+            // Verifica se já está ordenado (alterna entre ascendente/descendente)
+            const isAscending = !header.classList.contains('sorted-asc');
+            
+            // Remove classes de ordenação de todos os cabeçalhos
+            Array.from(table.getElementsByTagName('th')).forEach(th => {
+                th.classList.remove('sorted-asc', 'sorted-desc');
+                const icon = th.querySelector('i');
+                if (icon) {
+                    icon.className = 'fas fa-sort ms-1';
+                }
+            });
+            
+            // Ordena as linhas
+            rows.sort((a, b) => {
+                const aText = a.getElementsByTagName('td')[columnIndex].textContent.trim();
+                const bText = b.getElementsByTagName('td')[columnIndex].textContent.trim();
+                
+                if (isAscending) {
+                    return aText.localeCompare(bText, 'pt-BR', { sensitivity: 'base' });
+                } else {
+                    return bText.localeCompare(aText, 'pt-BR', { sensitivity: 'base' });
+                }
+            });
+            
+            // Reordena as linhas na tabela
+            rows.forEach(row => tbody.appendChild(row));
+            
+            // Atualiza o ícone e classe do cabeçalho
+            if (isAscending) {
+                header.classList.add('sorted-asc');
+                sortIcon.className = 'fas fa-sort-up ms-1';
+            } else {
+                header.classList.add('sorted-desc');
+                sortIcon.className = 'fas fa-sort-down ms-1';
+            }
+            
+            // Atualiza contador de resultados visíveis
+            const visiveis = Array.from(tbody.getElementsByTagName('tr')).filter(row => 
+                row.style.display !== 'none'
+            ).length;
+            atualizarContador(visiveis);
+        }
+    </script>
+    <script>
+        const themeToggle = document.getElementById('dark-mode-toggle');
+        const body = document.body;
+      
+        if (localStorage.getItem('dark-mode') === 'enabled') {
+          body.classList.add('dark-mode');
+          themeToggle.checked = true;
+        }
+      
+        themeToggle.addEventListener('change', () => {
+          if (themeToggle.checked) {
+            body.classList.add('dark-mode');
+            localStorage.setItem('dark-mode', 'enabled');
+          } else {
+            body.classList.remove('dark-mode');
+            localStorage.setItem('dark-mode', 'disabled');
+          }
+        });
+    </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            const loader = $('#loader');
+            const table = $('#relatoriosTable');
+            const emptyState = $('.empty-state');
+        
+            function showLoader() {
+                loader.show();
+                table.hide();
+                emptyState.hide(); // esconde o empty-state enquanto carrega
+            }
+        
+            function hideLoader() {
+                loader.hide();
+                table.show();
+        
+                // Mostra empty-state apenas se não houver linhas na tabela
+                if ($('#relatoriosTable tbody tr').length === 0) {
+                    emptyState.show();
+                }
+            }
+        
+            // Mostra o loader ao enviar o formulário
+            $('#filterForm').on('submit', function() {
+                showLoader();
+            });
+        
+            // Decide o que mostrar assim que a página termina de carregar
+            $(window).on('load', function() {
+                if ($('#relatoriosTable tbody tr').length > 0) {
+                    hideLoader(); // se já existem dados, mostra tabela
+                } else {
+                    loader.hide(); // sem dados inicialmente, loader escondido
+                    emptyState.show(); // mostra empty-state
+                }
+            });
+        });
+        </script>
+        
+</body>
+</html>
