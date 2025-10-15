@@ -59,6 +59,7 @@ db = SQLAlchemy(app)
 CORS(app)
 migrate = Migrate(app, db)
 
+
 # CONFIGURAÇÕES MAIL #
 app.config['MAIL_SERVER'] = 'smtp.sendgrid.net'
 app.config['MAIL_PORT'] = 587
@@ -1993,6 +1994,233 @@ def add_task_form():
         return redirect(url_for('login'))
     
     return render_template('add_task.html', users=user_database.keys(), user_database=user_database)
+
+from flask import Flask, render_template, request, jsonify
+from flask_cors import CORS
+from datetime import datetime, date
+import logging
+from api_client import APIRelatorioReversoClient
+
+# Configuração do Flask
+app = Flask(__name__)
+CORS(app)
+
+# Configuração de logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Instância do cliente da API
+api_client = APIRelatorioReversoClient()
+
+
+@app.route('/relatorio_reverso')
+@login_required
+def relatorio_reverso():
+    """Página única com lista de relatórios e filtros"""
+    try:
+        # Parâmetros de filtro
+        filtro_cliente = request.args.get('cliente', '').strip()
+        data_inicial = request.args.get('data_inicial', '')
+        data_final = request.args.get('data_final', '')
+        buscar = request.args.get('buscar', '')
+        
+        # Inicializa variáveis
+        relatorios_data = []
+        relatorios = []
+        clientes_unicos = set()
+        erro = None
+        
+        # Só busca dados se o usuário clicou em buscar
+        if buscar == 'true':
+            # Busca relatórios da API
+            relatorios_data = api_client.get_relatorio_completo(data_inicial or None, data_final or None)
+        
+            # Debug: mostra estrutura dos dados
+            if relatorios_data:
+                logger.info(f"Total de relatórios recebidos: {len(relatorios_data)}")
+                if len(relatorios_data) > 0:
+                    primeiro_relatorio = relatorios_data[0]
+                    logger.info(f"Primeiro relatório - atributos: {dir(primeiro_relatorio)}")
+                    if hasattr(primeiro_relatorio, 'raw_data'):
+                        logger.info(f"Primeiro relatório - raw_data: {primeiro_relatorio.raw_data}")
+            else:
+                logger.warning("Nenhum relatório recebido da API")
+            
+            # Processa e filtra os dados
+            for relatorio_data in relatorios_data:
+                # Extrai dados do relatório - primeiro verifica raw_data
+                raw_data = getattr(relatorio_data, 'raw_data', None)
+                
+                # Se tem raw_data, usa ele para extrair informações
+                if raw_data and isinstance(raw_data, dict):
+                    # Mapeia os campos corretos baseado na estrutura real da API
+                    cliente = raw_data.get('Cliente', 'Cliente não informado')
+                    data_reverso = raw_data.get('Data_Reverso')
+                    codigo_reverso = raw_data.get('CodigoReverso')
+                else:
+                    # Fallback para atributos diretos
+                    cliente = getattr(relatorio_data, 'Cliente', 'Cliente não informado')
+                    data_reverso = getattr(relatorio_data, 'Data_Reverso', None)
+                    codigo_reverso = getattr(relatorio_data, 'CodigoReverso', None)
+                
+                # Adiciona à lista de clientes únicos
+                if cliente and cliente != 'Cliente não informado':
+                    clientes_unicos.add(cliente)
+                
+                # Aplica filtro por cliente se especificado
+                if filtro_cliente and filtro_cliente.lower() not in cliente.lower():
+                    continue
+                
+                # Converte data se necessário
+                if isinstance(data_reverso, str):
+                    try:
+                        from datetime import datetime
+                        # Tenta diferentes formatos de data
+                        for fmt in ['%d/%m/%Y %H:%M:%S', '%d/%m/%Y', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d']:
+                            try:
+                                data_reverso = datetime.strptime(data_reverso, fmt).date()
+                                break
+                            except ValueError:
+                                continue
+                        else:
+                            data_reverso = None
+                    except:
+                        data_reverso = None
+                
+                # Cria objeto simplificado
+                relatorio = {
+                    'id': getattr(relatorio_data, 'id', None),
+                    'cliente': cliente,
+                    'data_reverso': data_reverso.strftime('%d/%m/%Y') if data_reverso else 'Data não informada',
+                    'data_reverso_raw': data_reverso.isoformat() if data_reverso else None,
+                    'codigo_reverso': codigo_reverso,
+                    'raw_data': raw_data
+                }
+                
+                relatorios.append(relatorio)
+            
+            # Ordena por data (mais recente primeiro)
+            relatorios.sort(key=lambda x: x['data_reverso_raw'] or '', reverse=True)
+        
+        return render_template('relatorio_reverso.html', 
+                             relatorios=relatorios,
+                             clientes_unicos=sorted(clientes_unicos),
+                             filtro_cliente=filtro_cliente,
+                             data_inicial=data_inicial,
+                             data_final=data_final,
+                             total_registros=len(relatorios),
+                             erro=erro)
+    
+    except Exception as e:
+        logger.error(f"Erro ao buscar relatórios: {e}")
+        return render_template('relatorio_reverso.html', 
+                             relatorios=[],
+                             clientes_unicos=[],
+                             filtro_cliente='',
+                             data_inicial='',
+                             data_final='',
+                             total_registros=0,
+                             erro=str(e))
+
+
+@app.route('/api/relatorios')
+def api_relatorios():
+    """API endpoint para retornar dados em JSON"""
+    try:
+        filtro_cliente = request.args.get('cliente', '').strip()
+        data_inicial = request.args.get('data_inicial', '')
+        data_final = request.args.get('data_final', '')
+        
+        relatorios_data = api_client.get_relatorio_completo(data_inicial or None, data_final or None)
+        
+        # Processa os dados
+        relatorios = []
+        for relatorio_data in relatorios_data:
+            cliente = getattr(relatorio_data, 'nome_fundo', None) or getattr(relatorio_data, 'codigo_fundo', None) or 'Cliente não informado'
+            data_reverso = getattr(relatorio_data, 'data_relatorio', None) or getattr(relatorio_data, 'data_base', None)
+            
+            # Aplica filtro por cliente se especificado
+            if filtro_cliente and filtro_cliente.lower() not in cliente.lower():
+                continue
+            
+            relatorio = {
+                'id': getattr(relatorio_data, 'id', None),
+                'cliente': cliente,
+                'data_reverso': data_reverso.isoformat() if data_reverso else None,
+                'codigo_fundo': getattr(relatorio_data, 'codigo_fundo', None),
+                'cnpj': getattr(relatorio_data, 'cnpj', None),
+                'patrimonio_liquido': getattr(relatorio_data, 'patrimonio_liquido', None),
+                'ativo_total': getattr(relatorio_data, 'ativo_total', None),
+                'passivo_total': getattr(relatorio_data, 'passivo_total', None),
+                'resultado_liquido': getattr(relatorio_data, 'resultado_liquido', None)
+            }
+            
+            relatorios.append(relatorio)
+        
+        return jsonify({
+            'sucesso': True,
+            'total_registros': len(relatorios),
+            'dados': relatorios,
+            'timestamp': datetime.now().isoformat()
+        })
+    
+    except Exception as e:
+        logger.error(f"Erro na API: {e}")
+        return jsonify({
+            'sucesso': False,
+            'erro': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+
+@app.route('/debug')
+def debug():
+    """Página de debug para mostrar dados brutos da API"""
+    try:
+        relatorios_data = api_client.get_relatorio_completo()
+        
+        debug_info = {
+            'total_relatorios': len(relatorios_data),
+            'estrutura_primeiro': None,
+            'dados_brutos': []
+        }
+        
+        if relatorios_data:
+            primeiro = relatorios_data[0]
+            debug_info['estrutura_primeiro'] = {
+                'atributos': [attr for attr in dir(primeiro) if not attr.startswith('_')],
+                'raw_data': getattr(primeiro, 'raw_data', None)
+            }
+            
+            # Mostra dados brutos dos primeiros 3 relatórios
+            for i, rel in enumerate(relatorios_data[:3]):
+                debug_info['dados_brutos'].append({
+                    'indice': i,
+                    'atributos': {attr: getattr(rel, attr, None) for attr in ['id', 'nome_fundo', 'codigo_fundo', 'data_relatorio', 'data_base']},
+                    'raw_data': getattr(rel, 'raw_data', None)
+                })
+        
+        return f"""
+        <html>
+        <head><title>Debug - Dados da API</title></head>
+        <body>
+            <h1>Debug - Dados da API</h1>
+            <h2>Resumo</h2>
+            <p>Total de relatórios: {debug_info['total_relatorios']}</p>
+            
+            <h2>Estrutura do Primeiro Relatório</h2>
+            <pre>{debug_info['estrutura_primeiro']}</pre>
+            
+            <h2>Dados Brutos (primeiros 3)</h2>
+            <pre>{debug_info['dados_brutos']}</pre>
+            
+            <p><a href="/">Voltar para página principal</a></p>
+        </body>
+        </html>
+        """
+    
+    except Exception as e:
+        return f"<h1>Erro no Debug</h1><p>{str(e)}</p><a href='/'>Voltar</a>"
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
