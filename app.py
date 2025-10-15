@@ -35,6 +35,8 @@ import boto3
 from botocore.exceptions import NoCredentialsError, ClientError
 import re
 from dotenv import load_dotenv
+import logging
+from api_client import APIRelatorioReversoClient
 
 # CONFUGURAÇÕES FLASK #
 
@@ -58,6 +60,13 @@ app.config['SQLALCHEMY_BINDS'] = {
 db = SQLAlchemy(app)
 CORS(app)
 migrate = Migrate(app, db)
+
+# Configuração de logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Instância do cliente da API
+api_client = APIRelatorioReversoClient()
 
 
 # CONFIGURAÇÕES MAIL #
@@ -1998,19 +2007,8 @@ def add_task_form():
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 from datetime import datetime, date
-import logging
-from api_client import APIRelatorioReversoClient
 
-# Configuração do Flask
-app = Flask(__name__)
-CORS(app)
 
-# Configuração de logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# Instância do cliente da API
-api_client = APIRelatorioReversoClient()
 
 
 @app.route('/relatorio_reverso')
