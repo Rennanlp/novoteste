@@ -37,6 +37,8 @@ import re
 from dotenv import load_dotenv
 import logging
 from api_client import APIRelatorioReversoClient
+from difflib import SequenceMatcher
+from learning import LearningSystem
 
 # CONFUGURAÇÕES FLASK #
 
@@ -2219,6 +2221,321 @@ def debug():
     
     except Exception as e:
         return f"<h1>Erro no Debug</h1><p>{str(e)}</p><a href='/'>Voltar</a>"
+    
+
+SIMILARITY_THRESHOLD = 0.90
+
+# Inicializa o sistema de aprendizado
+learning_system = LearningSystem()
+
+# ---------------- Similaridade ----------------
+def similarity(a: str, b: str) -> float:
+    return SequenceMatcher(None, a, b).ratio()
+
+def normalize_text(text: str) -> str:
+    text = text.lower().strip()
+    return re.sub(r"\s+", " ", text)
+
+# ---------------- Regras Manuais ----------------
+def parse_manual_rules(rules_text: str) -> dict:
+    """
+    Converte:
+    MAX VIGORAN PROMOCIONAL = Max Vigoran Black
+    em:
+    { 'max vigoran promocional': 'max vigoran black' }
+    """
+    rules = {}
+
+    if not rules_text:
+        return rules
+
+    for line in rules_text.splitlines():
+        if "=" not in line:
+            continue
+
+        left, right = line.split("=", 1)
+        rules[normalize_text(left)] = normalize_text(right)
+
+    return rules
+
+def parse_manual_rules_with_originals(rules_text: str) -> tuple:
+    """
+    Retorna tanto as regras normalizadas quanto os originais para aprendizado
+    Retorna: (rules_dict, originals_list)
+    onde originals_list é [(original_left, original_right), ...]
+    """
+    rules = {}
+    originals = []
+
+    if not rules_text:
+        return rules, originals
+
+    for line in rules_text.splitlines():
+        if "=" not in line:
+            continue
+
+        left, right = line.split("=", 1)
+        left_original = left.strip()
+        right_original = right.strip()
+        
+        # Armazena original e normalizado
+        originals.append((left_original, right_original))
+        rules[normalize_text(left_original)] = normalize_text(right_original)
+
+    return rules, originals
+
+def apply_manual_rules(product: str, rules: dict, learn: bool = False) -> str:
+    """
+    Aplica regra exata ou por contenção
+    Nota: O aprendizado agora é feito antes do processamento, então learn=False por padrão
+    """
+    original_product = product
+    for pattern, target in rules.items():
+        if pattern in product:
+            return target
+    return original_product
+
+# ---------------- Agrupamento ----------------
+def group_products(products: dict) -> dict:
+    grouped = {}
+
+    for product, qty in products.items():
+        target = None
+        for group in grouped:
+            if similarity(product, group) >= SIMILARITY_THRESHOLD:
+                target = group
+                break
+
+        if target:
+            grouped[target] += qty
+        else:
+            grouped[product] = qty
+
+    return {k.title(): v for k, v in grouped.items()}
+
+# ---------------- Parser ----------------
+def parse_text(text: str, manual_rules: dict, generate_suggestions: bool = True) -> tuple:
+    totals = defaultdict(int)
+    suggestions_map = {}
+
+    for line in text.splitlines():
+        blocks = re.split(r"\s*\|\s*", line)
+
+        for block in blocks:
+            block = block.strip()
+            if not block:
+                continue
+
+            # 🔹 NOVO: divide por "+"
+            plus_blocks = re.split(r"\s*\+\s*", block)
+
+            for part in plus_blocks:
+                part = part.strip()
+                if not part:
+                    continue
+
+                # Remove comentários/observações entre parênteses que vêm após o produto,
+                # como "(ENVIAR SEDEX)" ou "(FALTOU PRODUTO)", para não atrapalhar o parser.
+                # Ex.: "1 Necessarie (ENVIAR SEDEX) (FALTOU PRODUTO)" -> "1 Necessarie"
+                part = re.sub(r"\([^)]*\)", "", part).strip()
+                if not part:
+                    continue
+
+                # 🔹 Trata prefixo "n x ..." preservando contagens internas.
+                #    - "5 x Be Libid"                  -> prefix_qty = 5 (se não houver número interno)
+                #    - "1 x 3 Be Libid"                -> ignora o 1, usa o 3 interno
+                #    - "1 x 3 HIDRALISO 1 SHAMPOO"     -> ignora o 1, captura os dois itens (3 Hidraliso, 1 Shampoo)
+                prefix_qty = None
+                m_prefix = re.match(r"^\s*(\d+)\s*x\s*(.+)$", part, flags=re.IGNORECASE)
+                if m_prefix:
+                    prefix_qty, rest = m_prefix.groups()
+                    prefix_qty = int(prefix_qty)
+                    rest = rest.strip()
+                    # Se após o "x" já vem um número, mantemos esse número interno
+                    # e ignoramos o prefixo (caso típico: "1 x 3 ...").
+                    if re.match(r"^\d+\b", rest):
+                        prefix_qty = None
+                    part = rest
+
+                # Encontra todos os produtos: com número ou sem número (quantidade 1)
+                # Padrão: (número opcional) + nome do produto
+                # O produto termina quando encontra outro número ou fim da string
+                item_pattern = re.compile(
+                    r"(?:(\d+)\s+)?([a-zà-ú][a-zà-ú0-9\s\-]+?)(?=\s*\d+\s+|$)",
+                    flags=re.IGNORECASE
+                )
+                matches = item_pattern.findall(part)
+
+                for qty, product in matches:
+                    product = product.strip()
+                    if not product:
+                        continue
+                    quantidade = int(qty) if qty else 1
+                    if prefix_qty:
+                        quantidade *= prefix_qty
+                    original_product = product
+                    product = normalize_text(product)
+                    # Ignora "kit" e "kits"
+                    if product in ['kit', 'kits']:
+                        continue
+                    
+                    # Aplica regras manuais
+                    product_before_rules = product
+                    product = apply_manual_rules(product, manual_rules)
+                    
+                    # Se não houve transformação manual e queremos gerar sugestões
+                    if generate_suggestions and product == product_before_rules:
+                        if product not in suggestions_map:
+                            suggestions = learning_system.suggest_transformation(product)
+                            if suggestions:
+                                # Verifica se há sugestão com 100% de confiança para aplicar automaticamente
+                                high_confidence_suggestion = None
+                                for sug in suggestions:
+                                    if sug.get('confidence', 0) >= 1.0:  # 100% de confiança
+                                        high_confidence_suggestion = sug
+                                        break
+                                
+                                if high_confidence_suggestion:
+                                    # Aplica automaticamente a transformação com 100% de confiança
+                                    suggested_product = high_confidence_suggestion['suggested']
+                                    product = normalize_text(suggested_product)
+                                    
+                                    # Aprende automaticamente com essa transformação
+                                    learning_system.learn_rule(original_product, suggested_product)
+                                    learning_system.record_success(original_product, suggested_product)
+                                    
+                                    # Registra que foi aplicado automaticamente (para exibir na interface)
+                                    # Usa um dicionário para evitar duplicatas baseado em (original, suggested)
+                                    if 'auto_applied' not in suggestions_map:
+                                        suggestions_map['auto_applied'] = {}
+                                    
+                                    # Cria chave única baseada no original e sugerido (normalizados)
+                                    auto_key = f"{normalize_text(original_product)}|{normalize_text(suggested_product)}"
+                                    if auto_key not in suggestions_map['auto_applied']:
+                                        suggestions_map['auto_applied'][auto_key] = {
+                                            'original': original_product,
+                                            'suggested': suggested_product,
+                                            'confidence': 1.0
+                                        }
+                                else:
+                                    # Adiciona sugestões normais (< 100%)
+                                    suggestions_map[product] = suggestions
+
+                    # Reaplica regras manuais após qualquer transformação automática,
+                    # para permitir que regras manuais mais específicas sobrescrevam as automáticas.
+                    product = apply_manual_rules(product, manual_rules)
+                    
+                    totals[product] += quantidade
+
+    grouped = group_products(totals)
+    return grouped, suggestions_map
+
+def parse_csv(file, manual_rules: dict, generate_suggestions: bool = True) -> tuple:
+    content = file.read().decode("utf-8", errors="ignore")
+    return parse_text(content, manual_rules, generate_suggestions)
+
+# ---------------- Rotas ----------------
+@app.route("/saidas_diarias", methods=["GET"])
+def saidas_diarias():
+    return render_template("saidas_diarias.html")
+
+@app.route("/processar", methods=["POST"])
+def processar():
+    rules_text = request.form.get("rules", "")
+    manual_rules, originals = parse_manual_rules_with_originals(rules_text)
+    
+    # Aprende com todas as regras manuais fornecidas (usando textos originais)
+    for original_pattern, original_target in originals:
+        if original_pattern and original_target:
+            try:
+                rule_id = learning_system.learn_rule(original_pattern, original_target)
+                print(f"Regra aprendida: '{original_pattern}' -> '{original_target}' (ID: {rule_id})")
+            except Exception as e:
+                print(f"Erro ao aprender regra '{original_pattern}' -> '{original_target}': {e}")
+
+    if "file" in request.files and request.files["file"].filename:
+        result, suggestions = parse_csv(request.files["file"], manual_rules)
+    else:
+        text = request.form.get("text", "")
+        result, suggestions = parse_text(text, manual_rules)
+
+    # Converte auto_applied de dicionário para lista (se existir)
+    if suggestions and 'auto_applied' in suggestions:
+        if isinstance(suggestions['auto_applied'], dict):
+            suggestions['auto_applied'] = list(suggestions['auto_applied'].values())
+    
+    # Garante que suggestions seja sempre um objeto JSON válido
+    suggestions_json = json.dumps(suggestions if suggestions else {}, ensure_ascii=False)
+    
+    return render_template(
+        "resultado_saidas.html",
+        result=result,
+        result_json=json.dumps(result, ensure_ascii=False),
+        rules=rules_text,
+        suggestions=suggestions_json
+    )
+
+@app.route("/export", methods=["POST"])
+def export_csv():
+    result = json.loads(request.form["result"])
+
+    # Cria um arquivo Excel em memória
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Resultado"
+
+    # Cabeçalho
+    ws.append(["Produto", "Quantidade"])
+
+    # Dados
+    for product, qty in result.items():
+        ws.append([product, qty])
+
+    # Salva em um buffer de bytes
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
+
+    return send_file(
+        output,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        as_attachment=True,
+        download_name="resultado_produtos.xlsx"
+    )
+
+@app.route("/approve_suggestion", methods=["POST"])
+def approve_suggestion():
+    """Aprova uma sugestão e aprende com ela"""
+    data = request.get_json()
+    original = data.get("original", "").lower().strip()
+    suggested = data.get("suggested", "").lower().strip()
+    
+    if original and suggested:
+        learning_system.learn_rule(original, suggested)
+        learning_system.record_success(original, suggested)
+        return jsonify({"status": "success", "message": "Sugestão aprovada e aprendida!"})
+    
+    return jsonify({"status": "error", "message": "Dados inválidos"}), 400
+
+@app.route("/reject_suggestion", methods=["POST"])
+def reject_suggestion():
+    """Rejeita uma sugestão"""
+    data = request.get_json()
+    original = data.get("original", "").lower().strip()
+    suggested = data.get("suggested", "").lower().strip()
+    
+    if original and suggested:
+        learning_system.record_failure(original, suggested)
+        return jsonify({"status": "success", "message": "Sugestão rejeitada"})
+    
+    return jsonify({"status": "error", "message": "Dados inválidos"}), 400
+
+@app.route("/learned_patterns", methods=["GET"])
+def learned_patterns():
+    """Retorna os padrões aprendidos"""
+    limit = request.args.get("limit", 20, type=int)
+    patterns = learning_system.get_learned_patterns(limit)
+    return render_template("learned_patterns.html", patterns=patterns)
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
