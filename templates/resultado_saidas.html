@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='switch.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='generic.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='resultado_saidas.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    {% include 'gif.html' %}
+    {% include 'menu.html' %}
+    <script>
+        // Aplica tema salvo o mais cedo possível (evita "flash" de tema claro)
+        if (localStorage.getItem('dark-mode') === 'enabled') {
+            document.body.classList.add('dark-mode');
+        }
+    </script>
+
+    <div class="ui-switch-wrapper">
+        <label class="ui-switch">
+            <input type="checkbox" id="dark-mode-toggle">
+            <div class="slider">
+                <div class="circle"></div>
+            </div>
+        </label>
+    </div>
+
+<div class="container">
+    <h1>✅ Resultado</h1>
+    <p class="subtitle">Resultado Geral Agrupado</p>
+
+    <div class="stats">
+        <div class="stat-item">
+            <span class="stat-value">{{ result|length }}</span>
+            <span class="stat-label">Produtos únicos</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value">{{ result.values()|sum }}</span>
+            <span class="stat-label">Total de itens</span>
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Produto (agrupado)</th>
+                    <th>Quantidade</th>
+                </tr>
+            </thead>
+            <tbody id="result-tbody">
+                {% for product, qty in result.items() %}
+                <tr data-product="{{ product|lower }}">
+                    <td>{{ product }}</td>
+                    <td><span class="qty-badge">{{ qty }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="actions">
+        <form method="POST" action="/export" style="display: inline;">
+            <input type="hidden" name="result" value='{{ result_json }}'>
+            <button type="submit">📥 Exportar EXCEL</button>
+        </form>
+        <a href="/learned_patterns">🧠 Ver Padrões Aprendidos</a>
+        <a href="/saidas_diarias">← Voltar</a>
+    </div>
+
+    <div class="suggestions-section" id="suggestions-section" style="display: none;">
+        <div class="suggestions-title">
+            🤖 Sugestões da IA
+            <span style="font-size: 14px; font-weight: normal; color: #666;">(baseadas em padrões aprendidos)</span>
+        </div>
+        <div id="suggestions-container">
+            <!-- Sugestões serão inseridas aqui via JavaScript -->
+        </div>
+    </div>
+</div>
+
+<!-- Dados serializados para JS (evita Jinja dentro do <script> e melhora compatibilidade) -->
+<script type="application/json" id="result-json">{{ result_json|safe }}</script>
+<script type="application/json" id="suggestions-json">{{ suggestions|safe }}</script>
+
+<script>
+    const themeToggle = document.getElementById('dark-mode-toggle');
+    const body = document.body;
+
+    if (localStorage.getItem('dark-mode') === 'enabled') {
+        body.classList.add('dark-mode');
+        themeToggle.checked = true;
+    }
+
+    themeToggle.addEventListener('change', () => {
+        if (themeToggle.checked) {
+            body.classList.add('dark-mode');
+            localStorage.setItem('dark-mode', 'enabled');
+        } else {
+            body.classList.remove('dark-mode');
+            localStorage.setItem('dark-mode', 'disabled');
+        }
+    });
+</script>
+
+<script>
+    // Armazena o resultado atual para poder atualizá-lo
+    let currentResult = JSON.parse(document.getElementById('result-json').textContent || '{}');
+    const suggestions = JSON.parse(document.getElementById('suggestions-json').textContent || '{}');
+    const container = document.getElementById('suggestions-container');
+    const section = document.getElementById('suggestions-section');
+    
+    // Primeiro, mostra transformações aplicadas automaticamente
+    if (suggestions && suggestions.auto_applied) {
+        // Converte objeto para array se necessário e remove duplicatas
+        let autoAppliedList = [];
+        if (Array.isArray(suggestions.auto_applied)) {
+            // Se for array, remove duplicatas
+            const seen = new Set();
+            autoAppliedList = suggestions.auto_applied.filter(suggestion => {
+                const key = `${suggestion.original.toLowerCase()}|${suggestion.suggested.toLowerCase()}`;
+                if (seen.has(key)) {
+                    return false;
+                }
+                seen.add(key);
+                return true;
+            });
+        } else if (typeof suggestions.auto_applied === 'object') {
+            // Se for objeto, converte para array
+            autoAppliedList = Object.values(suggestions.auto_applied);
+        }
+        
+        if (autoAppliedList.length > 0) {
+            const autoSection = document.createElement('div');
+            autoSection.className = 'suggestions-section';
+            autoSection.style.background = '#e8f5e9';
+            autoSection.style.borderLeftColor = '#4caf50';
+            autoSection.innerHTML = `
+                <div class="suggestions-title" style="color: #2e7d32;">
+                    ✅ Transformações Aplicadas Automaticamente (100% confiança)
+                </div>
+                <div id="auto-applied-container"></div>
+            `;
+            
+            const autoContainer = autoSection.querySelector('#auto-applied-container');
+            autoAppliedList.forEach(suggestion => {
+                const item = document.createElement('div');
+                item.className = 'suggestion-item';
+                item.style.background = '#c8e6c9';
+                item.innerHTML = `
+                    <div class="suggestion-content">
+                        <div class="suggestion-original">${escapeHtml(suggestion.original)}</div>
+                        <div>
+                            <span class="suggestion-arrow">→</span>
+                            <span class="suggestion-proposed">${escapeHtml(suggestion.suggested)}</span>
+                            <span class="suggestion-confidence" style="background: #4caf50; color: white;">100% confiança - Aplicado automaticamente</span>
+                        </div>
+                    </div>
+                `;
+                autoContainer.appendChild(item);
+            });
+            
+            // Insere antes da seção de sugestões
+            const suggestionsSection = document.getElementById('suggestions-section');
+            if (suggestionsSection && suggestionsSection.parentNode) {
+                suggestionsSection.parentNode.insertBefore(autoSection, suggestionsSection);
+            }
+        }
+    }
+    
+    if (container && suggestions && Object.keys(suggestions).length > 0) {
+        let hasSuggestions = false;
+        
+        for (const [original, suggestionList] of Object.entries(suggestions)) {
+            // Pula auto_applied, já foi processado acima
+            if (original === 'auto_applied') continue;
+            
+            if (suggestionList && suggestionList.length > 0) {
+                hasSuggestions = true;
+                suggestionList.forEach(suggestion => {
+                    const item = document.createElement('div');
+                    item.className = 'suggestion-item';
+                    item.id = `suggestion-${Date.now()}-${Math.random()}`;
+                    
+                    const confidencePercent = Math.round(suggestion.confidence * 100);
+                    
+                    item.innerHTML = `
+                        <div class="suggestion-content">
+                            <div class="suggestion-original">${suggestion.original}</div>
+                            <div>
+                                <span class="suggestion-arrow">→</span>
+                                <span class="suggestion-proposed">${suggestion.suggested}</span>
+                                <span class="suggestion-confidence">${confidencePercent}% confiança</span>
+                            </div>
+                        </div>
+                        <div class="suggestion-actions">
+                            <button class="btn-approve" data-original="${suggestion.original.replace(/"/g, '&quot;')}" data-suggested="${suggestion.suggested.replace(/"/g, '&quot;')}" data-item-id="${item.id}">
+                                ✓ Aprovar
+                            </button>
+                            <button class="btn-reject" data-original="${suggestion.original.replace(/"/g, '&quot;')}" data-suggested="${suggestion.suggested.replace(/"/g, '&quot;')}" data-item-id="${item.id}">
+                                ✗ Rejeitar
+                            </button>
+                        </div>
+                    `;
+                    
+                    // Adiciona event listeners de forma segura
+                    item.querySelector('.btn-approve').addEventListener('click', function() {
+                        approveSuggestion(this.dataset.original, this.dataset.suggested, this.dataset.itemId);
+                    });
+                    
+                    item.querySelector('.btn-reject').addEventListener('click', function() {
+                        rejectSuggestion(this.dataset.original, this.dataset.suggested, this.dataset.itemId);
+                    });
+                    
+                    container.appendChild(item);
+                });
+            }
+        }
+        
+        if (hasSuggestions && section) {
+            section.style.display = 'block';
+        } else if (container) {
+            container.innerHTML = '<div class="no-suggestions">Nenhuma sugestão disponível no momento. Continue usando regras manuais para ensinar o sistema!</div>';
+            if (section) section.style.display = 'block';
+        }
+    } else if (container) {
+        container.innerHTML = '<div class="no-suggestions">Nenhuma sugestão disponível no momento. Continue usando regras manuais para ensinar o sistema!</div>';
+        if (section) section.style.display = 'block';
+    }
+    
+    function approveSuggestion(original, suggested, itemId) {
+        fetch('/approve_suggestion', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                original: original,
+                suggested: suggested
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const item = document.getElementById(itemId);
+                item.style.opacity = '0.5';
+                item.style.pointerEvents = 'none';
+                item.querySelector('.suggestion-actions').innerHTML = '<span style="color: #4caf50; font-weight: 600;">✓ Aprovado e aprendido!</span>';
+                
+                // Atualiza o resultado na tela
+                updateResultWithSuggestion(original, suggested);
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Erro ao aprovar sugestão');
+        });
+    }
+    
+    function updateResultWithSuggestion(original, suggested) {
+        // Normaliza o texto sugerido para título (primeira letra maiúscula de cada palavra)
+        const suggestedTitle = suggested.split(' ').map(word => {
+            if (word.length === 0) return word;
+            return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        }).join(' ');
+        
+        // Procura o produto original no resultado
+        // Tenta encontrar correspondência exata ou parcial (ignorando maiúsculas/minúsculas)
+        let foundKey = null;
+        let quantity = 0;
+        const originalLower = original.toLowerCase().trim();
+        
+        for (const [key, value] of Object.entries(currentResult)) {
+            const keyLower = key.toLowerCase().trim();
+            
+            // Compara de várias formas para encontrar o produto
+            if (keyLower === originalLower || 
+                keyLower.includes(originalLower) ||
+                originalLower.includes(keyLower) ||
+                keyLower.replace(/\s+/g, ' ') === originalLower.replace(/\s+/g, ' ')) {
+                foundKey = key;
+                quantity = value;
+                break;
+            }
+        }
+        
+        if (foundKey && quantity > 0) {
+            // Remove o produto original
+            delete currentResult[foundKey];
+            
+            // Adiciona ou atualiza o produto sugerido
+            // Verifica se já existe um produto similar (ignorando maiúsculas/minúsculas)
+            const suggestedLower = suggestedTitle.toLowerCase().trim();
+            let existingKey = null;
+            for (const key of Object.keys(currentResult)) {
+                if (key.toLowerCase().trim() === suggestedLower) {
+                    existingKey = key;
+                    break;
+                }
+            }
+            
+            if (existingKey) {
+                // Se já existe, soma as quantidades
+                currentResult[existingKey] += quantity;
+            } else {
+                // Se não existe, cria novo com o formato de título
+                currentResult[suggestedTitle] = quantity;
+            }
+            
+            // Atualiza a tabela na tela
+            updateResultTable();
+            
+            // Atualiza o JSON escondido para exportação
+            updateHiddenResultJson();
+            
+            // Atualiza as estatísticas
+            updateStats();
+        } else {
+            console.warn('Produto original não encontrado no resultado:', original);
+        }
+    }
+    
+    function updateResultTable() {
+        const tbody = document.getElementById('result-tbody');
+        if (!tbody) return;
+        
+        // Limpa a tabela
+        tbody.innerHTML = '';
+        
+        // Ordena os produtos por nome
+        const sortedProducts = Object.entries(currentResult).sort((a, b) => 
+            a[0].localeCompare(b[0], 'pt-BR')
+        );
+        
+        // Adiciona as novas linhas
+        sortedProducts.forEach(([product, qty]) => {
+            const row = document.createElement('tr');
+            row.setAttribute('data-product', product.toLowerCase());
+            row.innerHTML = `
+                <td>${escapeHtml(product)}</td>
+                <td><span class="qty-badge">${qty}</span></td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    function updateHiddenResultJson() {
+        const hiddenInput = document.querySelector('input[name="result"]');
+        if (hiddenInput) {
+            hiddenInput.value = JSON.stringify(currentResult);
+        }
+    }
+    
+    function updateStats() {
+        const statItems = document.querySelectorAll('.stat-value');
+        if (statItems.length >= 2) {
+            // Atualiza produtos únicos
+            statItems[0].textContent = Object.keys(currentResult).length;
+            
+            // Atualiza total de itens
+            const totalItems = Object.values(currentResult).reduce((sum, qty) => sum + qty, 0);
+            statItems[1].textContent = totalItems;
+        }
+    }
+    
+    function rejectSuggestion(original, suggested, itemId) {
+        fetch('/reject_suggestion', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                original: original,
+                suggested: suggested
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const item = document.getElementById(itemId);
+                item.style.opacity = '0.5';
+                item.style.pointerEvents = 'none';
+                item.querySelector('.suggestion-actions').innerHTML = '<span style="color: #f44336; font-weight: 600;">✗ Rejeitado</span>';
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Erro ao rejeitar sugestão');
+        });
+    }
+</script>
+
+</body>
+</html>
+
+

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Padrões Aprendidos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='learned_patterns.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='switch.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='generic2.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    {% include 'gif.html' %}
+    {% include 'menu.html' %}
+    <script>
+        // Aplica tema salvo o mais cedo possível (evita "flash" de tema claro)
+        if (localStorage.getItem('dark-mode') === 'enabled') {
+            document.body.classList.add('dark-mode');
+        }
+    </script>
+
+    <div class="ui-switch-wrapper">
+        <label class="ui-switch">
+            <input type="checkbox" id="dark-mode-toggle">
+            <div class="slider">
+                <div class="circle"></div>
+            </div>
+        </label>
+    </div>
+
+<div class="container">
+    <h1>🧠 Padrões Aprendidos</h1>
+    <p class="subtitle">Regras aprendidas pelo sistema de IA</p>
+
+    <div class="stats">
+        <div class="stat-item">
+            <span class="stat-value">{{ patterns|length }}</span>
+            <span class="stat-label">Padrões aprendidos</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value">{{ patterns|sum(attribute='usage_count') }}</span>
+            <span class="stat-label">Total de usos</span>
+        </div>
+    </div>
+
+    {% if patterns %}
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Padrão Original</th>
+                    <th>Transformação</th>
+                    <th>Uso</th>
+                    <th>Taxa de Sucesso</th>
+                    <th>Confiança</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pattern in patterns %}
+                <tr>
+                    <td>
+                        <span class="pattern-text">{{ pattern.pattern }}</span>
+                    </td>
+                    <td>
+                        <span class="arrow">→</span>
+                        <span class="target-text">{{ pattern.target }}</span>
+                    </td>
+                    <td>
+                        <span class="usage-badge">{{ pattern.usage_count }}x</span>
+                    </td>
+                    <td>
+                        {% if pattern.usage_count > 0 %}
+                            {{ "%.0f"|format((pattern.success_count / pattern.usage_count) * 100) }}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% set conf_percent = pattern.confidence * 100 %}
+                        {% if conf_percent >= 70 %}
+                            <span class="confidence-badge confidence-high">{{ "%.0f"|format(conf_percent) }}%</span>
+                        {% elif conf_percent >= 40 %}
+                            <span class="confidence-badge confidence-medium">{{ "%.0f"|format(conf_percent) }}%</span>
+                        {% else %}
+                            <span class="confidence-badge confidence-low">{{ "%.0f"|format(conf_percent) }}%</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="no-patterns">
+        <p>Nenhum padrão aprendido ainda.</p>
+        <p style="margin-top: 8px;">Use regras manuais para começar a ensinar o sistema!</p>
+    </div>
+    {% endif %}
+
+    <div class="actions">
+        <a href="/saidas_diarias">← Voltar</a>
+    </div>
+</div>
+
+<script>
+    const themeToggle = document.getElementById('dark-mode-toggle');
+    const body = document.body;
+
+    if (localStorage.getItem('dark-mode') === 'enabled') {
+        body.classList.add('dark-mode');
+        themeToggle.checked = true;
+    }
+
+    themeToggle.addEventListener('change', () => {
+        if (themeToggle.checked) {
+            body.classList.add('dark-mode');
+            localStorage.setItem('dark-mode', 'enabled');
+        } else {
+            body.classList.remove('dark-mode');
+            localStorage.setItem('dark-mode', 'disabled');
+        }
+    });
+</script>
+
+</body>
+</html>
+

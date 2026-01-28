@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saídas de Estoque Diárias</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='saidas_diarias.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='switch.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='generic.css') }}">
+</head>
+<body>
+    {% include 'gif.html' %}
+    {% include 'menu.html' %}
+    <div class="ui-switch-wrapper">
+        <label class="ui-switch">
+            <input type="checkbox" id="dark-mode-toggle">
+            <div class="slider">
+                <div class="circle"></div>
+            </div>
+        </label>
+    </div>
+<div class="container">
+    <h1>📊 Saídas de Estoque Diárias</h1>
+    <p class="subtitle">calcule a quantidade de produtos automaticamente</p>
+
+    <form method="POST" action="/processar" enctype="multipart/form-data">
+        <div class="box">
+            <label for="text">Produtos (texto)</label>
+            <textarea name="text" id="text" rows="8" placeholder="Cole os pedidos aqui..."></textarea>
+        </div>
+
+        <div class="divider">ou</div>
+
+        <div class="box">
+            <label for="file">Importar CSV</label>
+            <input type="file" name="file" id="file" accept=".csv">
+        </div>
+
+        <div class="box">
+            <label for="rules">Regras manuais (1 por linha)</label>
+            <textarea name="rules" id="rules" rows="5" placeholder="Exemplo: TV = TESAO DE VACA&#10;POTE = POTENCIADOR DE CABELO"></textarea>
+        </div>
+
+        <button type="submit">🚀 Processar</button>
+    </form>
+</div>
+    <script>
+        const themeToggle = document.getElementById('dark-mode-toggle');
+        const body = document.body;
+    
+        if (localStorage.getItem('dark-mode') === 'enabled') {
+        body.classList.add('dark-mode');
+        themeToggle.checked = true;
+        }
+    
+        themeToggle.addEventListener('change', () => {
+        if (themeToggle.checked) {
+            body.classList.add('dark-mode');
+            localStorage.setItem('dark-mode', 'enabled');
+        } else {
+            body.classList.remove('dark-mode');
+            localStorage.setItem('dark-mode', 'disabled');
+        }
+        });
+    </script>
+</body>
+</html>
+
+
