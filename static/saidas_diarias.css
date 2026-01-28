@@ -1,0 +1,217 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 40px 20px;
+    color: #333;
+    transition: background 0.25s ease, color 0.25s ease;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 40px;
+    transition: background 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+h1 {
+    color: #667eea;
+    font-size: 32px;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.subtitle {
+    color: #666;
+    margin-bottom: 32px;
+    font-size: 15px;
+}
+
+.box {
+    margin-bottom: 24px;
+}
+
+label {
+    display: block;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+    transition: all 0.3s ease;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+textarea::placeholder {
+    color: #999;
+}
+
+input[type="file"] {
+    width: 100%;
+    padding: 12px;
+    border: 2px dashed #e0e0e0;
+    border-radius: 8px;
+    background: #f9f9f9;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+input[type="file"]:hover {
+    border-color: #667eea;
+    background: #f5f5ff;
+}
+
+.divider {
+    text-align: center;
+    margin: 24px 0;
+    color: #999;
+    font-size: 14px;
+    position: relative;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background: #e0e0e0;
+}
+
+.divider::before {
+    left: 0;
+}
+
+.divider::after {
+    right: 0;
+}
+
+button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 24px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+}
+
+/* ---------------- Dark mode (body.dark-mode) ---------------- */
+body.dark-mode {
+    color: #e5e7eb; /* texto */
+    background: radial-gradient(1200px 600px at 10% 10%, rgba(124, 58, 237, 0.35), transparent 55%),
+                radial-gradient(900px 600px at 90% 30%, rgba(79, 70, 229, 0.28), transparent 55%),
+                linear-gradient(135deg, #0b1020 0%, #070a14 100%);
+}
+
+body.dark-mode .container {
+    background: #0f172a; /* superfície */
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    box-shadow: 0 20px 70px rgba(0, 0, 0, 0.55);
+}
+
+body.dark-mode h1 {
+    color: #c7d2fe; /* destaque */
+}
+
+body.dark-mode .subtitle {
+    color: #94a3b8;
+}
+
+body.dark-mode label {
+    color: #cbd5e1;
+}
+
+body.dark-mode textarea {
+    background: #0b1220;
+    color: #e5e7eb;
+    border-color: rgba(148, 163, 184, 0.28);
+}
+
+body.dark-mode textarea::placeholder {
+    color: #64748b;
+}
+
+body.dark-mode textarea:focus {
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.22);
+}
+
+body.dark-mode input[type="file"] {
+    background: rgba(15, 23, 42, 0.7);
+    color: #e5e7eb;
+    border-color: rgba(148, 163, 184, 0.28);
+}
+
+body.dark-mode input[type="file"]:hover {
+    border-color: rgba(167, 139, 250, 0.65);
+    background: rgba(15, 23, 42, 0.9);
+}
+
+body.dark-mode .divider {
+    color: #94a3b8;
+}
+
+body.dark-mode .divider::before,
+body.dark-mode .divider::after {
+    background: rgba(148, 163, 184, 0.22);
+}
+
+body.dark-mode button {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
+}
+
+body.dark-mode button:hover {
+    box-shadow: 0 10px 30px rgba(124, 58, 237, 0.42);
+}
+
+

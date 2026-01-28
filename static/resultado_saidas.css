@@ -1,0 +1,417 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 40px 20px;
+    color: #333;
+    transition: background 0.25s ease, color 0.25s ease;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 40px;
+    transition: background 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+h1 {
+    color: #667eea;
+    font-size: 32px;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.subtitle {
+    color: #666;
+    margin-bottom: 32px;
+    font-size: 15px;
+}
+
+.stats {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 32px;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    display: block;
+}
+
+.stat-label {
+    font-size: 14px;
+    opacity: 0.9;
+    margin-top: 4px;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    margin-bottom: 24px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+th {
+    background: #f8f9fa;
+    color: #444;
+    font-weight: 600;
+    padding: 16px;
+    text-align: left;
+    font-size: 14px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+}
+
+tr:hover {
+    background: #f8f9fa;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+.qty-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+a {
+    display: inline-flex;
+    align-items: center;
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 12px 24px;
+    border: 2px solid #667eea;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+a:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.suggestions-section {
+    margin-top: 32px;
+    padding: 24px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border-left: 4px solid #667eea;
+}
+
+.suggestions-title {
+    color: #667eea;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.suggestion-item {
+    background: white;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    border: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.suggestion-content {
+    flex: 1;
+    min-width: 200px;
+}
+
+.suggestion-original {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.suggestion-arrow {
+    color: #999;
+    margin: 0 8px;
+}
+
+.suggestion-proposed {
+    color: #333;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.suggestion-confidence {
+    display: inline-block;
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+.suggestion-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-approve {
+    background: #4caf50;
+    padding: 8px 16px;
+    font-size: 13px;
+}
+
+.btn-approve:hover {
+    background: #45a049;
+}
+
+.btn-reject {
+    background: #f44336;
+    padding: 8px 16px;
+    font-size: 13px;
+}
+
+.btn-reject:hover {
+    background: #da190b;
+}
+
+.no-suggestions {
+    text-align: center;
+    color: #999;
+    padding: 20px;
+    font-style: italic;
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 24px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    .stats {
+        flex-direction: column;
+    }
+
+    .actions {
+        flex-direction: column;
+    }
+
+    button,
+    a {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ---------------- Dark mode (body.dark-mode) ---------------- */
+body.dark-mode {
+    color: #e5e7eb;
+    background: radial-gradient(1200px 600px at 10% 10%, rgba(124, 58, 237, 0.35), transparent 55%),
+                radial-gradient(900px 600px at 90% 30%, rgba(79, 70, 229, 0.28), transparent 55%),
+                linear-gradient(135deg, #0b1020 0%, #070a14 100%);
+}
+
+body.dark-mode .ui-switch {
+    --switch-bg: rgb(96, 115, 135);
+    --circle-bg: rgb(124, 58, 237);
+}
+
+body.dark-mode .container {
+    background: #0f172a;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    box-shadow: 0 20px 70px rgba(0, 0, 0, 0.55);
+}
+
+body.dark-mode h1 {
+    color: #c7d2fe;
+}
+
+body.dark-mode .subtitle {
+    color: #94a3b8;
+}
+
+body.dark-mode .stats {
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.95) 0%, rgba(124, 58, 237, 0.95) 100%);
+}
+
+body.dark-mode .table-wrapper {
+    border-color: rgba(148, 163, 184, 0.22);
+}
+
+body.dark-mode table {
+    background: transparent;
+}
+
+body.dark-mode th {
+    background: rgba(15, 23, 42, 0.9);
+    color: #cbd5e1;
+    border-bottom-color: rgba(148, 163, 184, 0.22);
+}
+
+body.dark-mode td {
+    border-bottom-color: rgba(148, 163, 184, 0.14);
+}
+
+body.dark-mode tr:hover {
+    background: rgba(148, 163, 184, 0.08);
+}
+
+body.dark-mode .qty-badge {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+body.dark-mode a {
+    color: #c7d2fe;
+    border-color: rgba(199, 210, 254, 0.75);
+}
+
+body.dark-mode a:hover {
+    background: rgba(79, 70, 229, 0.95);
+    color: #ffffff;
+}
+
+body.dark-mode button {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
+}
+
+body.dark-mode button:hover {
+    box-shadow: 0 10px 30px rgba(124, 58, 237, 0.42);
+}
+
+body.dark-mode .suggestions-section {
+    background: rgba(15, 23, 42, 0.7);
+    border-left-color: rgba(167, 139, 250, 0.9);
+}
+
+body.dark-mode .suggestions-title {
+    color: #c7d2fe;
+}
+
+body.dark-mode .suggestion-item {
+    background: rgba(11, 18, 32, 0.85);
+    border-color: rgba(148, 163, 184, 0.18);
+}
+
+body.dark-mode .suggestion-original {
+    color: #94a3b8;
+}
+
+body.dark-mode .suggestion-arrow {
+    color: #94a3b8;
+}
+
+body.dark-mode .suggestion-proposed {
+    color: #e5e7eb;
+}
+
+body.dark-mode .suggestion-confidence {
+    background: rgba(30, 58, 138, 0.35);
+    color: #bfdbfe;
+}
+
+body.dark-mode .no-suggestions {
+    color: #94a3b8;
+}
+
+/* Remove todas as bordas do menu lateral */
+.main-menu {
+    border: none !important;
+    border-right: none !important;
+    border-left: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+}
+
+.main-menu li {
+    border: none !important;
+}
+
+.main-menu li > a {
+    border: none !important;
+}
+
+.main-menu .subnav {
+    border: none !important;
+}
+
+.main-menu .subnav li {
+    border: none !important;
+}
+
+.main-menu .subnav a {
+    border: none !important;
+}
+
+
