@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resultado</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='switch.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='generic.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='resultado_saidas.css') }}">
-    <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='switch.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='generic2.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
@@ -31,7 +31,7 @@
 
 <div class="container">
     <h1>✅ Resultado</h1>
-    <p class="subtitle">Resultado Geral Agrupado</p>
+    <p class="subtitle">Produtos agrupados e processados</p>
 
     <div class="stats">
         <div class="stat-item">
@@ -268,23 +268,48 @@
             return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
         }).join(' ');
         
+        // Normaliza strings para comparação (remove espaços extras, acentos, etc)
+        function normalizeForComparison(str) {
+            return str.toLowerCase().trim().replace(/\s+/g, ' ');
+        }
+        
         // Procura o produto original no resultado
         // Tenta encontrar correspondência exata ou parcial (ignorando maiúsculas/minúsculas)
         let foundKey = null;
         let quantity = 0;
-        const originalLower = original.toLowerCase().trim();
+        const originalNormalized = normalizeForComparison(original);
         
+        // Primeiro tenta encontrar correspondência exata normalizada
         for (const [key, value] of Object.entries(currentResult)) {
-            const keyLower = key.toLowerCase().trim();
+            const keyNormalized = normalizeForComparison(key);
             
             // Compara de várias formas para encontrar o produto
-            if (keyLower === originalLower || 
-                keyLower.includes(originalLower) ||
-                originalLower.includes(keyLower) ||
-                keyLower.replace(/\s+/g, ' ') === originalLower.replace(/\s+/g, ' ')) {
+            if (keyNormalized === originalNormalized || 
+                keyNormalized.includes(originalNormalized) ||
+                originalNormalized.includes(keyNormalized)) {
                 foundKey = key;
                 quantity = value;
                 break;
+            }
+        }
+        
+        // Se não encontrou, tenta buscar por palavras-chave (para casos como "oleo de argan" vs "óleo de argan")
+        if (!foundKey) {
+            const originalWords = originalNormalized.split(' ').filter(w => w.length > 2);
+            for (const [key, value] of Object.entries(currentResult)) {
+                const keyNormalized = normalizeForComparison(key);
+                const keyWords = keyNormalized.split(' ').filter(w => w.length > 2);
+                
+                // Verifica se a maioria das palavras coincide
+                const matchingWords = originalWords.filter(word => 
+                    keyWords.some(kw => kw.includes(word) || word.includes(kw))
+                );
+                
+                if (matchingWords.length >= Math.min(originalWords.length, keyWords.length) * 0.7) {
+                    foundKey = key;
+                    quantity = value;
+                    break;
+                }
             }
         }
         
@@ -294,10 +319,10 @@
             
             // Adiciona ou atualiza o produto sugerido
             // Verifica se já existe um produto similar (ignorando maiúsculas/minúsculas)
-            const suggestedLower = suggestedTitle.toLowerCase().trim();
+            const suggestedNormalized = normalizeForComparison(suggestedTitle);
             let existingKey = null;
             for (const key of Object.keys(currentResult)) {
-                if (key.toLowerCase().trim() === suggestedLower) {
+                if (normalizeForComparison(key) === suggestedNormalized) {
                     existingKey = key;
                     break;
                 }
@@ -321,6 +346,7 @@
             updateStats();
         } else {
             console.warn('Produto original não encontrado no resultado:', original);
+            console.log('Produtos disponíveis:', Object.keys(currentResult));
         }
     }
     
