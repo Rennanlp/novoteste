@@ -421,7 +421,7 @@ class LearningSystem:
             cursor = conn.cursor()
             
             cursor.execute("""
-                SELECT pattern_text, target_text, usage_count, success_count, confidence, last_used
+                SELECT id, pattern_text, target_text, usage_count, success_count, confidence, last_used
                 FROM learned_rules
                 ORDER BY usage_count DESC, confidence DESC
                 LIMIT ?
@@ -430,13 +430,36 @@ class LearningSystem:
             patterns = []
             for row in cursor.fetchall():
                 patterns.append({
-                    'pattern': row[0],
-                    'target': row[1],
-                    'usage_count': row[2],
-                    'success_count': row[3],
-                    'confidence': row[4],
-                    'last_used': row[5]
+                    'id': row[0],
+                    'pattern': row[1],
+                    'target': row[2],
+                    'usage_count': row[3],
+                    'success_count': row[4],
+                    'confidence': row[5],
+                    'last_used': row[6]
                 })
         
         return patterns
+
+    def delete_learned_rule(self, rule_id: int):
+        """Exclui uma regra aprendida pelo ID"""
+        if not rule_id:
+            return
+
+        with sqlite3.connect(self.db_path, timeout=10.0) as conn:
+            cursor = conn.cursor()
+
+            # Remove a regra principal
+            cursor.execute("""
+                DELETE FROM learned_rules
+                WHERE id = ?
+            """, (rule_id,))
+
+            # Também remove sugestões pendentes associadas, se houver
+            cursor.execute("""
+                DELETE FROM pending_suggestions
+                WHERE pattern_id = ?
+            """, (rule_id,))
+
+            conn.commit()
 

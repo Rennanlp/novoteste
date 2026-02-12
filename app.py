@@ -24,7 +24,6 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Frame, PageTemplate
 from reportlab.pdfgen import canvas
-import io
 import textwrap
 from flask_mail import Mail, Message
 from openpyxl import Workbook
@@ -35,10 +34,9 @@ import boto3
 from botocore.exceptions import NoCredentialsError, ClientError
 import re
 from dotenv import load_dotenv
-import logging
-from api_client import APIRelatorioReversoClient
 from difflib import SequenceMatcher
 from learning import LearningSystem
+
 
 # CONFUGURAÇÕES FLASK #
 
@@ -62,14 +60,6 @@ app.config['SQLALCHEMY_BINDS'] = {
 db = SQLAlchemy(app)
 CORS(app)
 migrate = Migrate(app, db)
-
-# Configuração de logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# Instância do cliente da API
-api_client = APIRelatorioReversoClient()
-
 
 # CONFIGURAÇÕES MAIL #
 app.config['MAIL_SERVER'] = 'smtp.sendgrid.net'
@@ -1251,13 +1241,11 @@ CABECALHO_PERSONALIZADO = [
     "Quando inicar os envios",
     "Pedidos em atraso",
     "Kits",
-    "Modelo de Envio",
+    "Envie Fotos",
     "Acessos Plat. Vendas",
-    "Acessos Plat. NFs",
+    "Acessos Plat. NFs",  # Mantido no cabeçalho
     "CNPJ",
-    "Fornecedor",
-    "Data de Nascimento",
-    "Info. ANVISA"
+    "Fornecedor"
 ]
 
 
@@ -1341,6 +1329,7 @@ class Cliente(db.Model):
 from flask_paginate import Pagination, get_page_parameter
 
 @app.route('/reversos', methods=['GET'])
+@login_required
 def reversos():
     query = request.args.get('q', '')  # Captura o termo de pesquisa
     start_date = request.args.get('start_date', '')  # Captura a data inicial
@@ -1388,7 +1377,26 @@ def reversos():
 
     # Retorna a resposta no formato JSON para requisições AJAX
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render_template('partials/_reversos_list.html', reversos=reversos.items)
+        return jsonify({
+            'reversos': [{
+                'id': r.id,
+                'cliente': r.cliente,
+                'codigo': r.codigo,
+                'email': r.email,
+                'data': r.data.strftime('%d/%m/%Y'),  # Formato da data
+                'remetente': r.remetente,
+                'descricao': r.descricao,
+                'imagem': r.imagem
+            } for r in reversos.items],
+            'pagination': {
+                'page': page,
+                'total': reversos.total,
+                'per_page': per_page,
+                'total_pages': reversos.pages,
+                'has_next': reversos.has_next,
+                'has_prev': reversos.has_prev
+            }
+        })
 
     # Caso não seja uma requisição AJAX, renderiza a página normal
     return render_template('listar_reversos.html', 
@@ -1847,10 +1855,15 @@ def track_package():
         )
     return render_template("busca-img.html", tracking_info=None)
 
+from flask_socketio import SocketIO, emit, join_room
 import logging
 from sqlalchemy.exc import OperationalError
 from werkzeug.middleware.proxy_fix import ProxyFix
+import eventlet
 
+
+socketio = SocketIO(app, async_mode='eventlet', logger=True, engineio_logger=True)
+logging.getLogger('engineio.server').setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app)
 
@@ -1871,6 +1884,26 @@ def safe_commit():
         db.session.rollback()
         # logger.error("Erro de conexão com o banco, tentando novamente...")
 
+# Eventos do SocketIO
+@socketio.on('connect')
+def handle_connect():
+    if 'username' in session:
+        username = session['username']
+        join_room(username)
+        # logger.info(f"Usuário {username} conectado ao Socket.IO")
+        socketio.emit('debug', {'message': f'Usuário {username} conectado'}, room=username)
+
+@socketio.on('join')
+def handle_join(data):
+    username = data['username']
+    join_room(username)
+    # logger.info(f"Usuário {username} entrou na sala")
+
+def send_notification(user, message):
+    if user in user_database:
+        # logger.info(f'Notificação para {user}: {message}')
+        socketio.emit('notification', {'message': message}, room=user)
+
 # Rotas do Flask
 @app.route('/trecco')
 @login_required
@@ -1890,16 +1923,6 @@ def trecco():
     ).count()
 
     return render_template('trecco.html', tasks=tasks, archived_count=archived_count)
-
-@app.context_processor
-def inject_todo_count():
-    todo_count = 0
-    if "username" in session:
-        todo_count = NewTask.query.filter(
-            NewTask.status == 'To Do',
-            NewTask.assigned_to.like(f'%{session["username"]}%')
-        ).count()
-    return dict(todo_count=todo_count)
 
 @app.route('/add', methods=['POST'])
 @login_required
@@ -1931,6 +1954,16 @@ def add_task1():
             logger.error(f'Erro ao adicionar tarefa para {user}: {e}')
             return "Erro ao salvar a tarefa", 500
 
+        # Enviar notificação para o usuário atribuído à tarefa
+        if user in user_database:
+            send_notification(user, f'Nova Tarefa: {title}')
+
+    # Enviar notificação para o criador da tarefa
+    send_notification(session['username'], f'Você criou uma nova tarefa: {title}')
+
+    # Emitir evento de atualização para todos os usuários conectados
+    socketio.emit('update', {'message': 'Nova tarefa adicionada'})
+
     return redirect(url_for('trecco'))
 
 @app.route('/update/<int:task_id>', methods=['POST'])
@@ -1943,6 +1976,7 @@ def update_task(task_id):
     if task and task.assigned_to == session['username']:
         task.status = request.form['status']
         safe_commit()
+        socketio.emit('update', {'message': 'Tarefa atualizada'})
     return redirect(url_for('trecco'))
 
 @app.route('/delete/<int:task_id>', methods=['POST'])
@@ -1962,6 +1996,7 @@ def delete_task(task_id):
         try:
             db.session.delete(task)
             db.session.commit()
+            socketio.emit('update', {'message': 'Tarefa removida'})
             flash("Tarefa excluída com sucesso", "success")
         except Exception as e:
             db.session.rollback()
@@ -1982,6 +2017,7 @@ def archive_task(task_id):
     if task and task.assigned_to == session['username']:
         task.status = 'Archived'
         safe_commit()
+        socketio.emit('update', {'message': 'Tarefa arquivada'})
     return redirect(url_for('trecco'))
 
 @app.route('/archived_tasks')
@@ -2005,223 +2041,6 @@ def add_task_form():
         return redirect(url_for('login'))
     
     return render_template('add_task.html', users=user_database.keys(), user_database=user_database)
-
-from flask import Flask, render_template, request, jsonify
-from flask_cors import CORS
-from datetime import datetime, date
-
-
-
-
-@app.route('/relatorio_reverso')
-@login_required
-def relatorio_reverso():
-    """Página única com lista de relatórios e filtros"""
-    try:
-        # Parâmetros de filtro
-        filtro_cliente = request.args.get('cliente', '').strip()
-        data_inicial = request.args.get('data_inicial', '')
-        data_final = request.args.get('data_final', '')
-        buscar = request.args.get('buscar', '')
-        
-        # Inicializa variáveis
-        relatorios_data = []
-        relatorios = []
-        clientes_unicos = set()
-        erro = None
-        
-        # Só busca dados se o usuário clicou em buscar
-        if buscar == 'true':
-            # Busca relatórios da API
-            relatorios_data = api_client.get_relatorio_completo(data_inicial or None, data_final or None)
-        
-            # Debug: mostra estrutura dos dados
-            if relatorios_data:
-                logger.info(f"Total de relatórios recebidos: {len(relatorios_data)}")
-                if len(relatorios_data) > 0:
-                    primeiro_relatorio = relatorios_data[0]
-                    logger.info(f"Primeiro relatório - atributos: {dir(primeiro_relatorio)}")
-                    if hasattr(primeiro_relatorio, 'raw_data'):
-                        logger.info(f"Primeiro relatório - raw_data: {primeiro_relatorio.raw_data}")
-            else:
-                logger.warning("Nenhum relatório recebido da API")
-            
-            # Processa e filtra os dados
-            for relatorio_data in relatorios_data:
-                # Extrai dados do relatório - primeiro verifica raw_data
-                raw_data = getattr(relatorio_data, 'raw_data', None)
-                
-                # Se tem raw_data, usa ele para extrair informações
-                if raw_data and isinstance(raw_data, dict):
-                    # Mapeia os campos corretos baseado na estrutura real da API
-                    cliente = raw_data.get('Cliente', 'Cliente não informado')
-                    data_reverso = raw_data.get('Data_Reverso')
-                    codigo_reverso = raw_data.get('CodigoReverso')
-                else:
-                    # Fallback para atributos diretos
-                    cliente = getattr(relatorio_data, 'Cliente', 'Cliente não informado')
-                    data_reverso = getattr(relatorio_data, 'Data_Reverso', None)
-                    codigo_reverso = getattr(relatorio_data, 'CodigoReverso', None)
-                
-                # Adiciona à lista de clientes únicos
-                if cliente and cliente != 'Cliente não informado':
-                    clientes_unicos.add(cliente)
-                
-                # Aplica filtro por cliente se especificado
-                if filtro_cliente and filtro_cliente.lower() not in cliente.lower():
-                    continue
-                
-                # Converte data se necessário
-                if isinstance(data_reverso, str):
-                    try:
-                        from datetime import datetime
-                        # Tenta diferentes formatos de data
-                        for fmt in ['%d/%m/%Y %H:%M:%S', '%d/%m/%Y', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d']:
-                            try:
-                                data_reverso = datetime.strptime(data_reverso, fmt).date()
-                                break
-                            except ValueError:
-                                continue
-                        else:
-                            data_reverso = None
-                    except:
-                        data_reverso = None
-                
-                # Cria objeto simplificado
-                relatorio = {
-                    'id': getattr(relatorio_data, 'id', None),
-                    'cliente': cliente,
-                    'data_reverso': data_reverso.strftime('%d/%m/%Y') if data_reverso else 'Data não informada',
-                    'data_reverso_raw': data_reverso.isoformat() if data_reverso else None,
-                    'codigo_reverso': codigo_reverso,
-                    'raw_data': raw_data
-                }
-                
-                relatorios.append(relatorio)
-            
-            # Ordena por data (mais recente primeiro)
-            relatorios.sort(key=lambda x: x['data_reverso_raw'] or '', reverse=True)
-        
-        return render_template('relatorio_reverso.html', 
-                             relatorios=relatorios,
-                             clientes_unicos=sorted(clientes_unicos),
-                             filtro_cliente=filtro_cliente,
-                             data_inicial=data_inicial,
-                             data_final=data_final,
-                             total_registros=len(relatorios),
-                             erro=erro)
-    
-    except Exception as e:
-        logger.error(f"Erro ao buscar relatórios: {e}")
-        return render_template('relatorio_reverso.html', 
-                             relatorios=[],
-                             clientes_unicos=[],
-                             filtro_cliente='',
-                             data_inicial='',
-                             data_final='',
-                             total_registros=0,
-                             erro=str(e))
-
-
-@app.route('/api/relatorios')
-def api_relatorios():
-    """API endpoint para retornar dados em JSON"""
-    try:
-        filtro_cliente = request.args.get('cliente', '').strip()
-        data_inicial = request.args.get('data_inicial', '')
-        data_final = request.args.get('data_final', '')
-        
-        relatorios_data = api_client.get_relatorio_completo(data_inicial or None, data_final or None)
-        
-        # Processa os dados
-        relatorios = []
-        for relatorio_data in relatorios_data:
-            cliente = getattr(relatorio_data, 'nome_fundo', None) or getattr(relatorio_data, 'codigo_fundo', None) or 'Cliente não informado'
-            data_reverso = getattr(relatorio_data, 'data_relatorio', None) or getattr(relatorio_data, 'data_base', None)
-            
-            # Aplica filtro por cliente se especificado
-            if filtro_cliente and filtro_cliente.lower() not in cliente.lower():
-                continue
-            
-            relatorio = {
-                'id': getattr(relatorio_data, 'id', None),
-                'cliente': cliente,
-                'data_reverso': data_reverso.isoformat() if data_reverso else None,
-                'codigo_fundo': getattr(relatorio_data, 'codigo_fundo', None),
-                'cnpj': getattr(relatorio_data, 'cnpj', None),
-                'patrimonio_liquido': getattr(relatorio_data, 'patrimonio_liquido', None),
-                'ativo_total': getattr(relatorio_data, 'ativo_total', None),
-                'passivo_total': getattr(relatorio_data, 'passivo_total', None),
-                'resultado_liquido': getattr(relatorio_data, 'resultado_liquido', None)
-            }
-            
-            relatorios.append(relatorio)
-        
-        return jsonify({
-            'sucesso': True,
-            'total_registros': len(relatorios),
-            'dados': relatorios,
-            'timestamp': datetime.now().isoformat()
-        })
-    
-    except Exception as e:
-        logger.error(f"Erro na API: {e}")
-        return jsonify({
-            'sucesso': False,
-            'erro': str(e),
-            'timestamp': datetime.now().isoformat()
-        }), 500
-
-
-@app.route('/debug')
-def debug():
-    """Página de debug para mostrar dados brutos da API"""
-    try:
-        relatorios_data = api_client.get_relatorio_completo()
-        
-        debug_info = {
-            'total_relatorios': len(relatorios_data),
-            'estrutura_primeiro': None,
-            'dados_brutos': []
-        }
-        
-        if relatorios_data:
-            primeiro = relatorios_data[0]
-            debug_info['estrutura_primeiro'] = {
-                'atributos': [attr for attr in dir(primeiro) if not attr.startswith('_')],
-                'raw_data': getattr(primeiro, 'raw_data', None)
-            }
-            
-            # Mostra dados brutos dos primeiros 3 relatórios
-            for i, rel in enumerate(relatorios_data[:3]):
-                debug_info['dados_brutos'].append({
-                    'indice': i,
-                    'atributos': {attr: getattr(rel, attr, None) for attr in ['id', 'nome_fundo', 'codigo_fundo', 'data_relatorio', 'data_base']},
-                    'raw_data': getattr(rel, 'raw_data', None)
-                })
-        
-        return f"""
-        <html>
-        <head><title>Debug - Dados da API</title></head>
-        <body>
-            <h1>Debug - Dados da API</h1>
-            <h2>Resumo</h2>
-            <p>Total de relatórios: {debug_info['total_relatorios']}</p>
-            
-            <h2>Estrutura do Primeiro Relatório</h2>
-            <pre>{debug_info['estrutura_primeiro']}</pre>
-            
-            <h2>Dados Brutos (primeiros 3)</h2>
-            <pre>{debug_info['dados_brutos']}</pre>
-            
-            <p><a href="/">Voltar para página principal</a></p>
-        </body>
-        </html>
-        """
-    
-    except Exception as e:
-        return f"<h1>Erro no Debug</h1><p>{str(e)}</p><a href='/'>Voltar</a>"
-    
 
 SIMILARITY_THRESHOLD = 0.90
 
@@ -2537,6 +2356,17 @@ def learned_patterns():
     patterns = learning_system.get_learned_patterns(limit)
     return render_template("learned_patterns.html", patterns=patterns)
 
+@app.route("/delete_pattern", methods=["POST"])
+def delete_pattern():
+    """Exclui um padrão aprendido e recarrega a lista"""
+    pattern_id = request.form.get("pattern_id", type=int)
+
+    if pattern_id:
+        learning_system.delete_learned_rule(pattern_id)
+
+    return redirect(url_for("learned_patterns"))
+
+
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    socketio.run(app, debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
