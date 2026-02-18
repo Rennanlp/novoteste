@@ -36,6 +36,7 @@ import re
 from dotenv import load_dotenv
 from difflib import SequenceMatcher
 from learning import LearningSystem
+import logging
 from api_client import APIRelatorioReversoClient
 
 
@@ -2594,4 +2595,5 @@ def debug():
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     socketio.run(app, debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+
 
