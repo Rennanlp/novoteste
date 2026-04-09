@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajustar Rastreios</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='conversor_rastreios.css', v='20260409a') }}">
+    <link rel="icon" href="{{ url_for('static', filename='logo_ico.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='switch.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='generic.css') }}">
+</head>
+<body>
+    {% include 'gif.html' %}
+    {% include 'menu.html' %}
+    <div class="ui-switch-wrapper">
+        <label class="ui-switch">
+            <input type="checkbox" id="dark-mode-toggle">
+            <div class="slider">
+                <div class="circle"></div>
+            </div>
+        </label>
+    </div>
+</head>
+<body>
+    <img src="{{ url_for('static', filename='conexao.png') }}" alt="Descrição da imagem" class="img-conexao">
+    <main class="page">
+        <section class="panel" aria-labelledby="titulo-app">
+            <div class="pill">Conversor inteligente</div>
+            <h1 id="titulo-app">Ajustar Rastreios</h1>
+            <p class="subtitle">Envie uma planilha com <strong>Rastreador</strong> e <strong>Identificador do pedido</strong>. Se houver <strong>|</strong>, os pedidos serão separados automaticamente.</p>
+
+            <div class="quick-info">
+                <div class="info-item">
+                    <span class="info-label">Formatos aceitos</span>
+                    <span class="info-value">.xls, .xlsx, .csv</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Saída</span>
+                    <span class="info-value">CSV UTF-8</span>
+                </div>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="msg {{ category }}" role="alert">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <form method="post" action="/processar_conversor" enctype="multipart/form-data" class="upload-form" id="upload-form">
+                <label class="file-dropzone" for="arquivo" id="dropzone">
+                    <span class="dropzone-title">Arraste o arquivo aqui</span>
+                    <span class="dropzone-subtitle">ou clique para selecionar</span>
+                    <span class="dropzone-formats">.xls, .xlsx, .csv</span>
+                </label>
+                <input id="arquivo" type="file" name="arquivo" required>
+                <p id="file-name" class="file-name">Nenhum arquivo selecionado</p>
+                <button id="submit-btn" type="submit">
+                    <span class="btn-text">Gerar CSV</span>
+                    <span class="btn-loading" aria-hidden="true">Processando...</span>
+                </button>
+            </form>
+            <iframe name="download-frame" id="download-frame" style="display:none;"></iframe>
+        </section>
+    </main>
+    <script src="{{ url_for('static', filename='app.js', v='20260409a') }}"></script>
+    <script>
+        const themeToggle = document.getElementById('dark-mode-toggle');
+        const body = document.body;
+    
+        if (localStorage.getItem('dark-mode') === 'enabled') {
+        body.classList.add('dark-mode');
+        themeToggle.checked = true;
+        }
+    
+        themeToggle.addEventListener('change', () => {
+        if (themeToggle.checked) {
+            body.classList.add('dark-mode');
+            localStorage.setItem('dark-mode', 'enabled');
+        } else {
+            body.classList.remove('dark-mode');
+            localStorage.setItem('dark-mode', 'disabled');
+        }
+        });
+
+        const formConversor = document.getElementById("upload-form");
+        if (formConversor) {
+            formConversor.setAttribute("target", "download-frame");
+            formConversor.addEventListener("submit", () => {
+                // Mantem o download e devolve o usuario para a tela principal desta ferramenta.
+                setTimeout(() => {
+                    window.location.href = "/ajustar_rastreios";
+                }, 1200);
+            });
+        }
+    </script>
+</body>
+</html>
