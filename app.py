@@ -2591,6 +2591,83 @@ def debug():
     except Exception as e:
         return f"<h1>Erro no Debug</h1><p>{str(e)}</p><a href='/'>Voltar</a>"
 
+ALLOWED_EXTENSIONS = {"xls", "xlsx", "csv"}
+
+@app.route("/ajustar_rastreios", methods=["GET"])
+def conversor_rastreios():
+    return render_template("conversor_rastreios.html")
+
+@app.route("/processar_conversor", methods=["POST"])
+def processar_conversor_rastreios():
+    if "arquivo" not in request.files:
+        flash("Nenhum arquivo foi enviado.", "error")
+        return redirect(url_for("conversor_rastreios"))
+
+    arquivo = request.files["arquivo"]
+
+    if arquivo.filename == "":
+        flash("Selecione um arquivo.", "error")
+        return redirect(url_for("conversor_rastreios"))
+
+    if not allowed_file(arquivo.filename):
+        flash("Formato inválido. Envie .xls, .xlsx ou .csv.", "error")
+        return redirect(url_for("conversor_rastreios"))
+
+    nome_seguro = secure_filename(arquivo.filename)
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        caminho_entrada = os.path.join(tmpdir, nome_seguro)
+        arquivo.save(caminho_entrada)
+
+        try:
+            df = ler_arquivo(caminho_entrada)
+        except Exception as e:
+            flash(f"Erro ao ler o arquivo: {e}", "error")
+            return redirect(url_for("conversor_rastreios"))
+
+    col_rastreador = "Rastreador"
+    col_pedido = "Identificador do pedido"
+
+    if col_rastreador not in df.columns or col_pedido not in df.columns:
+        flash(
+            f"As colunas '{col_rastreador}' e '{col_pedido}' precisam existir na planilha.",
+            "error"
+        )
+        return redirect(url_for("conversor_rastreios"))
+
+    resultado = []
+
+    for _, row in df.iterrows():
+        rastreador = limpar_texto(row.get(col_rastreador, ""))
+        identificadores = dividir_identificadores(row.get(col_pedido, ""))
+
+        if not identificadores:
+            resultado.append({
+                "Rastreador": rastreador,
+                "Identificador do pedido": ""
+            })
+            continue
+
+        for identificador in identificadores:
+            resultado.append({
+                "Rastreador": rastreador,
+                "Identificador do pedido": identificador
+            })
+
+    df_saida = pd.DataFrame(resultado, columns=["Rastreador", "Identificador do pedido"])
+
+    csv_buffer = io.BytesIO()
+    csv_texto = df_saida.to_csv(index=False, sep=";")
+    csv_buffer.write(csv_texto.encode("utf-8-sig"))
+    csv_buffer.seek(0)
+
+    return send_file(
+        csv_buffer,
+        as_attachment=True,
+        download_name="Arquivo_Ajustado.csv",
+        mimetype="text/csv"
+    )
+
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
