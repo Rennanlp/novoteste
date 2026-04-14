@@ -38,6 +38,7 @@ from difflib import SequenceMatcher
 from learning import LearningSystem
 import logging
 from api_client import APIRelatorioReversoClient
+import tempfile
 
 
 # CONFUGURAÇÕES FLASK #
@@ -2592,6 +2593,49 @@ def debug():
         return f"<h1>Erro no Debug</h1><p>{str(e)}</p><a href='/'>Voltar</a>"
 
 ALLOWED_EXTENSIONS = {"xls", "xlsx", "csv"}
+
+def allowed_file(filename: str) -> bool:
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def limpar_texto(valor):
+    if pd.isna(valor):
+        return ""
+    return str(valor).strip()
+
+def dividir_identificadores(valor):
+    """
+    Divide apenas o campo 'Identificador do pedido' usando | como separador.
+    Remove tabs, espaços extras e ignora valores vazios.
+    """
+    if pd.isna(valor):
+        return []
+
+    texto = str(valor).replace("\t", " ").strip()
+    if not texto:
+        return []
+
+    partes = [parte.strip() for parte in texto.split("|")]
+    return [parte for parte in partes if parte]
+
+def ler_arquivo(caminho_arquivo):
+    ext = os.path.splitext(caminho_arquivo)[1].lower()
+
+    if ext == ".csv":
+        try:
+            return pd.read_csv(caminho_arquivo, dtype=str, encoding="utf-8")
+        except UnicodeDecodeError:
+            return pd.read_csv(caminho_arquivo, dtype=str, encoding="latin1")
+
+    if ext == ".xlsx":
+        return pd.read_excel(caminho_arquivo, dtype=str, engine="openpyxl")
+
+    if ext == ".xls":
+        try:
+            return pd.read_excel(caminho_arquivo, dtype=str, engine="xlrd")
+        except ImportError:
+            raise Exception("Arquivo .xls detectado. Instale com: pip install xlrd")
+
+    raise ValueError("Formato de arquivo não suportado.")
 
 @app.route("/ajustar_rastreios", methods=["GET"])
 def conversor_rastreios():
